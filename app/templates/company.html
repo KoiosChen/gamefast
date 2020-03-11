@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+
+{% block subheader %}
+    <div class="m-subheader ">
+        <div class="d-flex align-items-center">
+            <div class="mr-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    系统管理
+                </h3>
+                <ul class="m-subheader__breadcrumbs m-nav m-nav--inline">
+                    <li class="m-nav__item m-nav__item--home">
+                        <a href="#" class="m-nav__link m-nav__link--icon">
+                            <i class="m-nav__link-icon la la-home"></i>
+                        </a>
+                    </li>
+                    <li class="m-nav__separator">
+                        -
+                    </li>
+                    <li class="m-nav__item">
+                        <a href="" class="m-nav__link">
+											<span class="m-nav__link-text">
+												系统管理
+											</span>
+                        </a>
+                    </li>
+                    <li class="m-nav__separator">
+                        -
+                    </li>
+                    <li class="m-nav__item">
+                        <a href="" class="m-nav__link">
+											<span class="m-nav__link-text">
+												企业管理
+											</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block pagecontent %}
+    <div class="m-portlet m-portlet--success m-portlet--head-sm" data-portlet="true">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">
+                        搜索
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="form-group m-form__group row">
+                <label class="col-lg-2 col-form-label  m--align-right">
+                    搜索公司名称：
+                </label>
+                <div class="col-lg-3">
+                    <input class="form-control m-input" type="text" placeholder="输入公司或模板名称" id="search_content">
+                    <span></span>
+                </div>
+
+                <div class="col-lg-2  m--align-left">
+                    <button type="submit" class="btn btn-brand" id="search_submit">
+                        搜索
+                    </button>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="m-portlet m-portlet--success m-portlet--head-solid-bg" data-portlet="true">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">
+                        企业管理
+                    </h3>
+                </div>
+            </div>
+            <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                    <li class="m-portlet__nav-item">
+                        <a id="newOne" class="m-portlet__nav-link m-portlet__nav-link--icon">
+                            <i class="flaticon-add"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m-portlet__body">
+                <div class="m_datatable" id="ajax_data"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="update_customer_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        更新客户信息
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">
+												&times;
+											</span>
+                    </button>
+                </div>
+                <form class="m-form m-form--fit m-form--label-align-right" id="m_form_update">
+                    <div class="modal-body">
+                        <div class="m-form__content">
+                            <div class="m-alert m-alert--icon alert alert-danger m--hide" role="alert" id="m_form_update_msg">
+                                <div class="m-alert__icon">
+                                    <i class="la la-warning"></i>
+                                </div>
+                                <div class="m-alert__text">
+                                    填写信息有误，请检查重填后再次提交！
+                                </div>
+                                <div class="m-alert__close">
+                                    <button type="button" class="close" data-close="alert" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                客户名称
+                            </label>
+                            <div class="col-lg-6 col-md-9 col-sm-12">
+                                <input type="text" class="form-control m-input" name="update_customer_name" data-toggle="m-tooltip" id="update_customer_name" readonly style="border-style:none">
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                邮件模板
+                            </label>
+                            <div class="col-lg-6 col-md-9 col-sm-12">
+                                <select class="form-control m-input" name="mail_templet_update"
+                                        id="mail_templet_update">
+                                    {% for r in mail_templet %}
+                                        <option value={{ r[0] }}>{{ r[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <input class="btn btn-default" id="update" name="update" value="提交" type="submit">
+                    </div>
+                </form>
+
+                <div class="holder">
+                </div>
+                <ul class="posts" id="itemContainer">
+                </ul>
+                <div class="holder">
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal -->
+    </div>
+    <!-- 模态框（Modal）end -->
+
+
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="new_customer_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        添加新用户
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">
+												&times;
+											</span>
+                    </button>
+                </div>
+                <form class="m-form m-form--fit m-form--label-align-right" id="m_form_1">
+                    <div class="modal-body">
+                        <div class="m-form__content">
+                            <div class="m-alert m-alert--icon alert alert-danger m--hide" role="alert"
+                                 id="m_form_1_msg">
+                                <div class="m-alert__icon">
+                                    <i class="la la-warning"></i>
+                                </div>
+                                <div class="m-alert__text">
+                                    填写信息有误，请检查重填后再次提交！
+                                </div>
+                                <div class="m-alert__close">
+                                    <button type="button" class="close" data-close="alert" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                客户名称 *
+                            </label>
+                            <div class="col-lg-6 col-md-9 col-sm-12">
+                                <input type="text" class="form-control m-input" name="customer_name"
+                                       placeholder="请输入客户名称" data-toggle="m-tooltip"
+                                       title="不能有特殊符号" id="customer_name">
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                邮件模板
+                            </label>
+                            <div class="col-lg-6 col-md-9 col-sm-12">
+                                <select class="form-control m-input" name="mail_templet"
+                                        id="mail_templet">
+                                    {% for r in mail_templet %}
+                                        <option value={{ r[0] }}>{{ r[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <input class="btn btn-default" id="submit" name="submit" value="提交" type="submit">
+                    </div>
+                </form>
+
+                <div class="holder">
+                </div>
+                <ul class="posts" id="itemContainer">
+                </ul>
+                <div class="holder">
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal -->
+    </div>
+    <!-- 模态框（Modal）end -->
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='jPages-master/css/jPages.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='jPages-master/css/animate.css') }}">
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/dataTables.fixedColumns.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/select.dataTables.min.css">
+
+    <script type="text/javascript" charset="utf8" src="../static/datatable/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/dataTables.fixedColumns.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/dataTables.select.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/showdown.min.js"></script>
+    <script src="../static/jPages-master/js/jPages.min.js"></script>
+    <script src="../static/js/moment.min.js"></script>
+    <script src="../static/js/daterangepicker.js"></script>
+    <script type="text/javascript" src="../static/Editor-1.6.5/js/dataTables.editor.js"></script>
+    <script src="../static/metronic/bootstrap-daterangepicker.js" type="text/javascript"></script>
+    <script src="../static/metronic-default/assets/demo/default/custom/components/forms/widgets/bootstrap-select.js"
+            type="text/javascript"></script>
+
+    <script src="../static/metronic/form-controls-company.js"></script>
+    <script>
+
+        $("#newOne").click(function () {
+            $("#new_customer_model").removeData("bs.modal").modal('show')
+        });
+
+        $("#newOne").click(function () {
+            $("#new_customer_model").removeData("bs.modal").modal('show')
+        });
+
+        function editInfo(id, update_customer_name,update_mail_templet) {
+            $('#update_customer_name').val(update_customer_name);
+            $('#update_mail_templet').val(update_mail_templet);
+        }
+
+        //提交更改
+        function update() {
+            //获取模态框数据
+            var pass = $('#pass').val();
+            var id = $('#id').val();
+            var username = $('#username').val();
+            var role = $('#role').val();
+            var area = $('#area').val();
+            var duty = $('#duty').val();
+            var phone_number = $("#phone_number").val();
+            var reg = /^1[3|4|5|7|8][0-9]{9}$/;
+            if (reg.test(phone_number) || !phone_number) {
+                $.ajax({
+                    type: "post",
+                    url: "userinfo_update",
+                    data: "&pass=" + pass + "&id=" + id + "&username=" + username + "&role=" + role + "&area=" + area + "&duty=" + duty + "&phone_number=" + phone_number,
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                    success: function (msg) {
+                        if (msg.status === 'ok') {
+                            toastr.info(msg.content);
+                            $('#ajax_data').mDatatable().destroy();
+                            DatatableRemoteAjaxCustomer.init();
+                            $('#update').modal('hide')
+                        }
+                        else {
+                            toastr.warning(msg.content);
+                            $('#update').modal('hide')
+                        }
+
+                    }
+                });
+            }
+            else {
+                toastr.warning("请输入正确的手机号");
+            }
+        }
+
+        $("#new_customer_model").on("hidden.bs.modal", function () {
+            $("#customer_name").val('').end();
+        });
+
+        function HTMerDel(customer_id) {
+            if (confirm("确定要删除该信息吗？删除将不能恢复！")) {
+                let params = {'customer_id': customer_id};
+                $.ajax({
+                    type: "POST",          //提交方式          
+                    url: "customer_delete",  //提交的页面/方法名          
+                    data: JSON.stringify(params, null, '\t'),         //参数（如果没有参数：null）          
+                    contentType: "application/json; charset=utf-8",
+                    success: function (msg) {
+                        if (msg.status === 'OK') {
+                            toastr.info(msg.content);
+                            $('#ajax_data').mDatatable().destroy();
+                            DatatableRemoteAjaxCustomer.init();
+
+                        }
+                        else {
+                            toastr.warning(msg.content);
+                        }
+
+                    },
+                    error: function (xhr, msg, e) {
+                        toastr.warning("删除失败");
+                    }
+                });
+            }
+            else {
+                toastr.warning('取消删除')
+            }
+        }
+
+
+        $(function () {
+            //参数设置，若用默认值可以省略以下面代
+            toastr.options = {
+                "closeButton": true, //是否显示关闭按钮
+                "debug": false, //是否使用debug模式
+                "progressBar": false,
+                "positionClass": "toast-bottom-center",//弹出窗的位置
+                "showDuration": "300",//显示的动画时间
+                "hideDuration": "1000",//消失的动画时间
+                "timeOut": "5000", //展现时间
+                "extendedTimeOut": "1000",//加长展示时间
+                "showEasing": "swing",//显示时的动画缓冲方式
+                "hideEasing": "linear",//消失时的动画缓冲方式
+                "showMethod": "fadeIn",//显示时的动画方式
+                "hideMethod": "fadeOut" //消失时的动画方式
+            };
+        })
+    </script>
+    <script src="../static/metronic/query_company_data.js" type="text/javascript"></script>
+{% endblock %}

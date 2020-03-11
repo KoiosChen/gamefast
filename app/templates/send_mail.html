@@ -1,0 +1,558 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+
+{% block subheader %}
+    <div class="m-subheader ">
+        <div class="d-flex align-items-center">
+            <div class="mr-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    业务管理
+                </h3>
+                <ul class="m-subheader__breadcrumbs m-nav m-nav--inline">
+                    <li class="m-nav__item m-nav__item--home">
+                        <a href="#" class="m-nav__link m-nav__link--icon">
+                            <i class="m-nav__link-icon la la-home"></i>
+                        </a>
+                    </li>
+                    <li class="m-nav__separator">
+                        -
+                    </li>
+                    <li class="m-nav__item">
+                        <a href="" class="m-nav__link">
+											<span class="m-nav__link-text">
+												业务管理
+											</span>
+                        </a>
+                    </li>
+                    <li class="m-nav__separator">
+                        -
+                    </li>
+                    <li class="m-nav__item">
+                        <a href="" class="m-nav__link">
+											<span class="m-nav__link-text">
+												发送邮件
+											</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block pagecontent %}
+    <div class="m-portlet m-portlet--success m-portlet--head-solid-bg">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">
+                        邮件订单/发送
+                        <small>
+                            发送、查询邮件
+                        </small>
+                    </h3>
+                </div>
+            </div>
+            <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                    <li class="m-portlet__nav-item">
+                        <a id="mail_from_excel" class="m-portlet__nav-link m-portlet__nav-link--icon">
+                            <i class="flaticon-paper-plane"></i>
+                        </a>
+                    </li>
+
+                    <!--<li class="m-portlet__nav-item">
+                        <a id="newOne" class="m-portlet__nav-link m-portlet__nav-link--icon">
+                            <i class="fa fa-envelope-o"></i>
+                        </a>
+                    </li>-->
+                </ul>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m_datatable" id="ajax_data"></div>
+        </div>
+    </div>
+
+    <!-- 目前不用此modal， 用于从数据库筛选记录发送有邮件-->
+    <!--<div class="modal fade" id="add_machine_room" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        发送邮件
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">
+												&times;
+											</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                标题:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <input type="text" class="form-control" placeholder="请输入标题中关于的内容" id="cutover_title"
+                                       required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div id="m_repeater_3">
+                                <div class="form-group  m-form__group row">
+                                    <label class="col-lg-3 col-form-label">
+                                        割接线路范围:
+                                    </label>
+                                    <div data-repeater-list="" class="col-lg-9">
+                                        <div data-repeater-item="" class="row m--margin-bottom-10">
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+																			<span class="input-group-text">
+																				<i class="la la-map-marker"></i>
+																			</span>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-danger" name="A"
+                                                           placeholder="A">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+																			<span class="input-group-text">
+																				<i class="la la-map-marker"></i>
+																			</span>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-danger" name="Z"
+                                                           placeholder="Z">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <a href="#" data-repeater-delete=""
+                                                   class="btn btn-danger m-btn m-btn--icon m-btn--icon-only">
+                                                    <i class="la la-remove"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3"></div>
+                                    <div class="col">
+                                        <div data-repeater-create="" class="btn btn btn-primary m-btn m-btn--icon">
+																<span>
+																	<i class="la la-plus"></i>
+																	<span>
+																		Add
+																	</span>
+																</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="m_datatable" id="ajax_modal_data"></div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                割接日期:
+                            </label>
+                            <div class="m-form__group input-group pull-right col-lg-9 col-md-9 col-sm-12"
+                                 id="m_daterangepicker_4">
+                                <input type="text" class="form-control m-input" name="daterange" readonly=""
+                                       placeholder="选择日期时间范围" id="dateTimeRange" aria-describedby="daterange-error"
+                                       aria-invalid="false">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="la la-calendar-check-o"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                割接原因:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                            <textarea class="form-control m-input m-input--air" id="cutover_reason" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                此次操作:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <input type="text" class="form-control" placeholder="不填写默认为‘割接’" id="cutover_duration"
+                                       required>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                是否紧急:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                            <span class="m-switch m-switch--icon m-switch--success">
+																		<label>
+																			<input type="checkbox" name=""
+                                                                                   id="emergency">
+																			<span></span>
+																		</label>
+																	</span>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                邮件落款日期
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <input type="text" class="form-control" id="m_datepicker_1_modal" readonly=""
+                                       placeholder="选择邮件落款日期">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" id="sendmail">
+                        发送邮件
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>-->
+
+    <div class="modal fade" id="sendmail2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        发送邮件
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="m-form m-form--fit m-form--label-align-right" id="m_form_excel">
+                        <div class="m-form__content">
+                            <div class="m-alert m-alert--icon alert alert-danger m--hide" role="alert"
+                                 id="m_form_excel_msg">
+                                <div class="m-alert__icon">
+                                    <i class="la la-warning"></i>
+                                </div>
+                                <div class="m-alert__text">
+                                    填写信息有误，请检查重填后再次提交！
+                                </div>
+                                <div class="m-alert__close">
+                                    <button type="button" class="close" data-close="alert" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                标题:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <input type="text" class="form-control" placeholder="请输入标题中关于的内容" id="cutover_title_2"
+                                       name="title" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div id="m_repeater_4">
+                                <div class="form-group  m-form__group row">
+                                    <label class="col-lg-3 col-form-label">
+                                        割接线路范围:
+                                    </label>
+                                    <div data-repeater-list="" class="col-lg-9">
+                                        <div data-repeater-item="" class="row m--margin-bottom-10">
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+																			<span class="input-group-text">
+																				<i class="la la-map-marker"></i>
+																			</span>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-danger" name="A"
+                                                           placeholder="A" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-5">
+                                                <div class="input-group">
+                                                    <div class="input-group-prepend">
+																			<span class="input-group-text">
+																				<i class="la la-map-marker"></i>
+																			</span>
+                                                    </div>
+                                                    <input type="text" class="form-control form-control-danger" name="Z"
+                                                           placeholder="Z" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <a href="#" data-repeater-delete=""
+                                                   class="btn btn-danger m-btn m-btn--icon m-btn--icon-only">
+                                                    <i class="la la-remove"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-3"></div>
+                                    <div class="col">
+                                        <div data-repeater-create="" class="btn btn btn-primary m-btn m-btn--icon">
+																<span>
+																	<i class="la la-plus"></i>
+																	<span>
+																		Add
+																	</span>
+																</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                上传文件 *
+                            </label>
+                            <div class="col-lg-6 col-md-9 col-sm-12">
+                                <div class="m-dropzone dropzone m-dropzone--success dz-clickable"
+                                     action="update_cutover_excel" id="m-dropzone-two">
+                                    <div class="m-dropzone__msg dz-message needsclick">
+                                        <h3 class="m-dropzone__msg-title">
+                                            拖动文件至此或点击上传.
+                                        </h3>
+                                        <span class="m-dropzone__msg-desc">
+                                            仅允许EXCEL文件(.xlsx)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                割接日期:
+                            </label>
+                            <div class="input-group col-lg-7 col-md-9 col-sm-12" id="m_daterangepicker_fromexcel">
+                                <input type="text" class="form-control m-input" readonly="" name="daterange"
+                                       placeholder="选择割接时间范围">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i class="la la-calendar-check-o"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                割接原因:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                            <textarea class="form-control m-input m-input--air" id="cutover_reason_2" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                此次操作:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <input type="text" class="form-control" placeholder="不填写默认为‘割接’"
+                                       id="cutover_duration_2">
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                是否紧急:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                            <span class="m-switch m-switch--icon m-switch--success">
+																		<label>
+																			<input type="checkbox" name=""
+                                                                                   id="emergency_2">
+																			<span></span>
+																		</label>
+																	</span>
+                            </div>
+                        </div>
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                邮件落款日期
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <input type="text" class="form-control" id="m_datepicker_1_modal_2" readonly=""
+                                       placeholder="选择邮件落款日期">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" id="clear_all_data">
+                                清空
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                关闭
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="sendmail_fromexcel">
+                                发送邮件
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal）end -->
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $("#newOne").click(function () {
+            $("#add_machine_room").removeData("bs.modal").modal('show');
+            $("#m_repeater_3 :input").bind("input propertychange", repeat_input);
+        });
+
+        $('#m_daterangepicker_fromexcel').on('cancel.daterangepicker', function (ev, picker) {
+            //do something, like clearing an input
+            $('input[name="daterange"]').val('');
+        });
+
+        $("#mail_from_excel").click(function () {
+            $("#sendmail2").removeData("bs.modal").modal('show');
+        });
+
+        $("#sendmail").click(function () {
+            console.log('sending mail');
+            DatatableRemoteAjaxCustomer.multiselect();
+        });
+
+        // toastr options
+        toastr.options = {
+            "closeButton": true, //是否显示关闭按钮
+            "debug": false, //是否使用debug模式
+            "progressBar": false,
+            "positionClass": "toast-top-center",//弹出窗的位置
+            "showDuration": "2000",//显示的动画时间
+            "hideDuration": "1000",//消失的动画时间
+            "timeOut": "2000", //展现时间
+            "extendedTimeOut": "1000",//加长展示时间
+            "showEasing": "swing",//显示时的动画缓冲方式
+            "hideEasing": "linear",//消失时的动画缓冲方式
+            "showMethod": "fadeIn",//显示时的动画方式
+            "hideMethod": "fadeOut" //消失时的动画方式
+        };
+
+        $("#clear_all_data").click(function () {
+            if (confirm("是否确认清空数据？")) {
+                $("#cutover_title_2").val("");
+                $("input[name$='][A]']").val("");
+                $("input[name$='][Z]']").val("");
+                $('input[name="daterange"]').val('');
+
+                $("#cutover_reason_2").val("");
+                $("#cutover_duration_2").val("");
+                $("#emergency_2").prop("checked", false);
+                $("#m_datepicker_1_modal_2").val("");
+                $('#m_form_excel_msg').addClass('m--hide').hide();
+                $("div.form-control-feedback").remove();
+            }
+        });
+
+        function HTMerDel(sc_id) {
+            if (confirm("确定要删除该信息吗？删除将不能恢复！")) {
+                let params = '{"sc_id":"' + sc_id + '"}';
+                $.ajax({
+                    type: "POST",          //提交方式          
+                    url: "machine_room_delete",  //提交的页面/方法名          
+                    data: params,         //参数（如果没有参数：null）          
+                    dataType: "text",        //类型          
+                    contentType: "application/json; charset=utf-8",
+
+                    success: function (msg) {
+                        var msg_json = JSON.parse(msg);
+                        msg_json = JSON.parse(msg_json);
+                        if (msg_json['status'].match(/OK/)) {
+                            toastr.info("删除成功");
+                            $('#ajax_data').mDatatable().destroy();
+                            DatatableRemoteAjaxCutover.init();
+                        } else {
+                            toastr.warning("删除失败");
+                        }
+
+                    },
+                    error: function (xhr, msg, e) {
+                        toastr.warning("删除");
+                    }
+                });
+            } else {
+                toastr.warning('取消删除')
+            }
+        }
+
+        function editInfo(obj) {
+            // It's not support to edit the exist items
+        }
+
+
+        $('#update').on('shown.bs.modal', function () {
+            if (document.getElementsByName('postli').length > 0) {
+                setTimeout(show_jpage, 50);
+
+                function show_jpage() {
+                    $("div.holder").jPages({
+                        containerID: "itemContainer",
+                        perPage: 5
+                    });
+                }
+            }
+        });
+
+        //提交更改
+        function update() {
+            //获取模态框数据
+            var alarm_id = $('#id').val();
+            var body = $('#flask-pagedown-body').val();
+            if (body) {
+                $.ajax({
+                    type: "POST",
+                    url: "post_body",
+                    data: "&alarm_id=" + alarm_id + "&body=" + body,
+                    dataType: 'html',
+                    contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                    success: function (result) {
+                        toastr.info('提交成功')
+                        setTimeout("location.reload()", 1000);
+                    },
+                    error: function (xhr, msg, e) {
+                        toastr.warning("系统繁忙");
+                    }
+                });
+            } else {
+                toastr.warning("未输入任何内容")
+            }
+        }
+    </script>
+    <script src="../static/metronic/cutover_order.js" type="text/javascript"></script>
+    <script src="../static/metronic/find_lines.js" type="text/javascript"></script>
+    <script src="../static/metronic/bootstrap-daterangepicker.js" type="text/javascript"></script>
+    <script src="../static/metronic-default/assets/demo/default/custom/components/forms/widgets/form-repeater.js"
+            type="text/javascript"></script>
+    <script src="../static/metronic/file_upload/dropzone-upload_cutover_file.js" type="text/javascript"></script>
+    <script src="../static/metronic/form-controls-sendmail.js" type="text/javascript"></script>
+{% endblock %}
