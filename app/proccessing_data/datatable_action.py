@@ -1,12 +1,13 @@
 from .. import db, logger
 from flask import jsonify, session
 from ..models import LineDataBank, Domains, Customer, MachineRoom, Vlan, Contacts, User, Interfaces, Cloud, VXLAN, \
-    IPSupplier, IPManager, IPGroup, DNSManager, DIA, MPLS
+    IPSupplier, IPManager, IPGroup, DNSManager, DIA, MPLS, Device
 from ..proccessing_data.get_datatable import make_table, make_table_ip_supplier, make_table_supplier_ip, make_table_ip, \
     make_table_mpls, make_table_vxlan, make_table_dia
 from ..validate.verify_fields import verify_fields, chain_add_validate, verify_required, verify_network, \
     verify_net_in_net
 from ..validate.verify_ring import verify_ring
+from ..common import db_commit
 import re
 import datetime
 from .proccess.mpls_data import mpls_route_update, mpls_route_new
@@ -14,6 +15,7 @@ from .proccess.dia_data import dia_ip_new, dia_ip_update
 from .proccess.public_methods import new_linecode, new_data_obj
 from .proccess.supplier_data import supplier_ip_update, supplier_update
 from .proccess.machine_room_data import machine_room_update, machine_room_new
+from .proccess.device_data import device_new, device_update
 
 
 def do_edit(dt, func, data):
@@ -59,7 +61,28 @@ def edit_mpls(data):
 
 
 def edit_machine_room(data):
-    return do_edit(("MachineRioom", "machine_room_update", data))
+    return do_edit("MachineRoom", "machine_room_update", data)
+
+
+def edit_device(data):
+    return do_edit("Device", "device_update", data)
+
+
+def remove_device(data):
+    logger.debug(data)
+    row_id = list(data.keys())[0].split("_")[1]
+    delete_device = Device.query.get(int(row_id))
+    delete_device.status = 0
+    db.session.add(delete_device)
+    return jsonify({"data": []}) if db_commit() else jsonify({'error': "删除失败"})
+
+
+def remove_machine_room(data):
+    logger.debug(data)
+    row_id = list(data.keys())[0].split("_")[1]
+    delete_machine_room = MachineRoom.query.get(int(row_id))
+    db.session.delete(delete_machine_room)
+    return jsonify({"data": []}) if db_commit() else jsonify({'error': "删除失败"})
 
 
 def create_dia_ip(data):
@@ -72,6 +95,10 @@ def create_supplier_ip(data):
 
 def create_machine_room(data):
     return jsonify(machine_room_new(data['0']))
+
+
+def create_device(data):
+    return jsonify(device_new(data['0']))
 
 
 def create_supplier(info):

@@ -1,16 +1,18 @@
 from flask import request, jsonify, session
 from flask_login import login_required
 from ..models import Device, MachineRoom, Interfaces, City, Permission, all_domains, multi_domains, erps_instance, \
-    LineDataBank, CutoverOrder, channel_type, MailTemplet, company_regex, MPLS, IPSupplier, Files, Post
+    LineDataBank, CutoverOrder, channel_type, MailTemplet, company_regex, MPLS, IPSupplier, Files, Post, Customer
 from ..proccessing_data.datatable_action import oss_operator, edit, remove, create_supplier, edit_supplier, \
     create_supplier_ip, create_dia_ip, remove_dia_ip, edit_dia_ip, edit_mpls_route, remove_mpls_route, \
-    create_mpls_route, remove_supplier_ip, create_machine_room, edit_machine_room
+    create_mpls_route, remove_supplier_ip, create_machine_room, edit_machine_room, remove_machine_room, create_device, \
+    edit_device, remove_device
 from ..decorators import permission_required
 from .. import logger, db, nesteddict, redis_db
 from . import main
 from collections import defaultdict
 from ..proccessing_data.get_datatable import make_table, make_options, make_table_vxlan, make_table_dia, make_table_ip, \
-    make_table_mpls, make_table_mpls_attribute, make_table_ip_supplier, make_table_supplier_ip, make_table_machine_room
+    make_table_mpls, make_table_mpls_attribute, make_table_ip_supplier, make_table_supplier_ip, make_table_machine_room, \
+    make_table_device
 import json
 import requests
 import datetime
@@ -19,14 +21,19 @@ from mailmerge import MailMerge
 from ..MyModule.SendMail import sendmail
 from ..MyModule.process_datetime import format_daterange
 from ..MyModule.prepare_sql import search_sql
+from ..MyModule import SyncDevice
 import os
 from sqlalchemy import or_
+from ..common import success_return, false_return
 
 
 @main.route('/file_list', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def file_list():
+    """
+    只能上传线路资料表中记录的文件
+    """
     if request.method == 'POST':
         row_id = request.form.get('query[row_id]', '')
         print(row_id)
@@ -358,37 +365,12 @@ def call_api_get_interface():
     target_devices = request.form.get("data")
     logger.debug(f"Login device to get their interface info --> {target_devices}")
     ip_list = target_devices["ip"]
+    device_list = list()
     for ip in ip_list:
         device = Device.query.filter_by(ip=ip, status=1).first()
-        api_url = "http://127.0.0.1:5222/interface"
-        headers = {'Content-Type': 'application/json', "encoding": "utf-8"}
-        send_content = {"order_number": ip,
-                        "username": device.login_name,
-                        "password": device.login_password,
-                        "vendor": device.vendor,
-                        "device_model": device.device_model,
-                        "ip": ip}
-        logger.debug(f"Sending {send_content} to {api_url} with header {headers}")
-
-        lock = 'sync_interface_' + ip
-        if not redis_db.exists(lock):
-            redis_db.set(lock, 1)
-            logger.info(f"Sending interface request to device {ip}, it is locked.")
-        else:
-            logger.warning(f"Device {ip} is locked, cannot send request again")
-            return {"status": "false", "content": f"{ip} is locked"}
-
-        r = requests.post(api_url,
-                          data=json.dumps(send_content, ensure_ascii=False).encode('utf-8'),
-                          headers=headers,
-                          timeout=1)
-        result = r.json()
-        logger.debug(f"The respond result is {result}")
-
-        if result.get("code") == "true":
-            return {"status": "true", "content": result["data"]}
-        else:
-            return {"status": "false", "content": result.get("data", "get interface fail")}
+        device_list.append(device)
+    return success_return("", "") if SyncDevice.do_sync(device_list, "interface") \
+        else false_return("", "sync device fail")
 
 
 @main.route('/get_route', methods=["POST"])
@@ -699,9 +681,62 @@ def query_machine_room_table():
 
     elif request.method == 'GET':
         logger.debug('query_machine_room_table ')
+        options_original = make_options()
+        options_original['level_id'] = [{"label": "业务站", "value": '1'}, {"label": "光放站", "value": '2'}]
+        options_original['status_id'] = [{"label": "在用", "value": '1'}, {"label": "停用", "value": '0'}]
+        options_original['type_id'] = [{"label": "自建", "value": '1'},
+                                       {"label": "缆信", "value": '2'},
+                                       {"label": "第三方", "value": '3'},
+                                       {"label": "城网", "value": '4'}]
+        options_original['lift_id'] = [{"label": "是", "value": '1'}, {"label": "否", "value": '0'}]
         return jsonify({
             "data": make_table_machine_room(),
-            "options": make_options(),
+            "options": options_original,
+            "files": []
+        })
+
+
+@main.route('/query_device_table', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MAN_ON_DUTY)
+def query_device_table():
+    if request.method == 'POST':
+        import re
+        editor_data = dict(request.form)
+        print(editor_data)
+        processing_data = defaultdict(dict)
+        action = ''
+        for key, value in editor_data.items():
+            if key == 'action':
+                print(key, value)
+                action = value + "_device"
+            else:
+                _id, field = re.findall(r"data\[(\w+)\]\[(\w+)\]", key)[0]
+                print(_id, field, value)
+                processing_data[_id][field] = value
+        return eval(action)(processing_data) if action else {"error": "action not defined"}
+
+    elif request.method == 'GET':
+        logger.debug('query_device_table ')
+        options_original = make_options()
+        options_original['vendor'] = [{},
+                                      {"label": "HUWEI", "value": 'HUWEI'},
+                                      {"label": "CISCO", "value": 'CISCO'},
+                                      {"label": "CENTEC", "value": 'CENTEC'}]
+
+        options_original['login_method'] = [{},
+                                            {"label": "SSH", "value": 'SSH'},
+                                            {"label": "TELNET", "value": 'TELNET'}]
+        options_original['device_model'] = [{},
+                                            {"label": "CE6850", "value": 'CE6850'},
+                                            {"label": "S9303", "value": 'S9303'}]
+        options_original['device_belong_id'] = [{"label": owner.name, "value": owner.id} for owner in
+                                                Customer.query.filter_by(status=1).all()]
+        options_original['machine_room_id'] = [{"label": mr.name, "value": mr.id} for mr in
+                                               MachineRoom.query.filter_by(status=1).order_by(MachineRoom.name).all()]
+        return jsonify({
+            "data": make_table_device(),
+            "options": options_original,
             "files": []
         })
 

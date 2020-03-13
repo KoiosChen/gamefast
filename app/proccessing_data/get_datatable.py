@@ -137,24 +137,57 @@ def make_table_vxlan(lines=None):
     return result
 
 
+def make_table_device(lines=None):
+    if lines is None:
+        lines = Device.query.all()
+    return [{"DT_RowId": "row_" + str(l.id),
+             "device_name": l.device_name,
+             "device_ip": l.ip,
+             "login_method": l.login_method if l.login_method else "",
+             "login_name": l.login_name if l.login_name else "",
+             "login_password": l.login_password if l.login_password else "",
+             "enable_password": l.enable_password if l.enable_password else "",
+             "status": "在用" if l.status else "下线",
+             "status_id": l.status,
+             "community": l.community,
+             "monitor_status": "运行" if l.monitor_status else "离线",
+             "monitor_status_id": l.monitor_status,
+             "monitor_fail_date": l.monitor_fail_date,
+             "monitor_rec_date": l.monitor_rec_date,
+             "vendor": l.vendor,
+             "device_model": l.device_model,
+             "os_version": l.os_version,
+             "patch_version": l.patch_version,
+             "serial_number": l.serial_number,
+             "device_belong": l.device_owner.name if l.device_owner else "",
+             "device_belong_id": l.device_owner.id if l.device_owner else "",
+             "machine_room": l.machine_room.name if l.machine_room else "",
+             "machine_room_id": l.machine_room.id if l.machine_room else ""
+             } for l in lines]
+
+
 def make_table_machine_room(lines=None):
     level_dict = {1: "业务站", 2: "光放站"}
     type_dict = {1: "自建", 2: "缆信", 3: "第三方"}
-    status_dict = {1: "在用", 2: "停用"}
+    status_dict = {1: "在用", 0: "停用"}
     if lines is None:
-        lines = MachineRoom.query.filter(MachineRoom.status.__ne__(0)).all()
+        lines = MachineRoom.query.all()
     return [{"DT_RowId": "row_" + str(sc.id),
              'name': sc.name,
              'city': sc.cities.city,
              "a_pop_city_id": sc.cities.id,
              'address': sc.address,
              'level': level_dict[sc.level],
+             'level_id': sc.level,
              'type': type_dict[sc.type],
+             'type_id': sc.type,
              'status': status_dict[sc.status],
-             'noc_contact_name': sc.administrator.name if sc.administrator else "",
-             'noc_contact_phone': sc.administrator.phoneNumber if sc.administrator else "",
-             'noc_contact_email': sc.administrator.email if sc.administrator else "",
-             'lift': '是' if sc.lift else '否'
+             'status_id': sc.status,
+             'noc_contact_name': sc.administrator.name if sc.administrator and sc.administrator.name else "",
+             'noc_contact_phone': sc.administrator.phoneNumber if sc.administrator and sc.administrator.phoneNumber else "",
+             'noc_contact_email': sc.administrator.email if sc.administrator and sc.administrator.email else "",
+             'lift': '是' if sc.lift else '否',
+             'lift_id': sc.lift
              } for sc in lines]
 
 

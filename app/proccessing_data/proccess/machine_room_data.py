@@ -1,10 +1,13 @@
 from ... import db, logger
-from ...models import LineDataBank, IPSupplier, IPManager, IPGroup, DIA
-from ...proccessing_data.get_datatable import make_table_mpls_attribute, make_table_ip
+from ...models import LineDataBank, IPSupplier, IPManager, IPGroup, DIA, machineroom_type, machineroom_level, \
+    MachineRoom
+from ...proccessing_data.get_datatable import make_table_mpls_attribute, make_table_ip, make_table_machine_room
 from ...validate.verify_fields import verify_fields, verify_required, verify_network, verify_net_in_net
 import re
 from .public_methods import new_data_obj, new_linecode
 from . import process_machine_room
+from ...common import db_commit
+from flask import jsonify
 
 
 def machine_room_new(content):
@@ -16,11 +19,14 @@ def machine_room_new(content):
     vr = verify_required(
         **{"name": content.get("name"),
            "address": content.get("address"),
-           "level": content.get("level"),
-           "type": content.get("type"),
+           "level_id": content.get("level_id"),
+           "type_id": content.get("type_id"),
            "a_pop_city_id": content.get("a_pop_city_id")})
     if vr is not True:
         return vr
+
+    if MachineRoom.query.filter_by(name=content.get("name")).first():
+        return {"fieldErrors": [{"name": "name", "status": "机房名已存在"}]}
 
     noc_contact = [c for c in content.keys() if "noc" in c and content.get(c)]
 
@@ -37,36 +43,31 @@ def machine_room_new(content):
     new_machine_room = dict()
     new_machine_room["machine_room_name"] = content.get("name")
     new_machine_room["machine_room_address"] = content.get("address")
-    new_machine_room["machine_room_level"] = content.get("level")
-    new_machine_room["machine_room_type"] = content.get("type")
-    new_machine_room["machine_room_lift"] = content.get("lift")
+    new_machine_room["machine_room_level"] = content.get("level_id")
+    new_machine_room["machine_room_type"] = content.get("type_id")
+    new_machine_room["machine_room_lift"] = content.get("lift_id")
     new_machine_room["machine_room_city"] = content.get("a_pop_city_id")
     new_machine_room["machine_room_admin"] = content.get("noc_contact_name")
-    process_machine_room.new_one(**new_machine_room)
+    process_result = process_machine_room.new_one(**new_machine_room)
+    if process_result.get("code") == "success":
+        return {'data': make_table_machine_room([process_result.get("data")])}
 
 
 def machine_room_update(contents, line_obj):
-    logger.debug(f'in mpls route update {contents}')
-    from IPy import IP
-    required_fields = {'route_ip', 'route_netmask'}
-    required_fields_map = {"route_ip": "IP", "route_netmask": "netmask"}
-    changed_field = required_fields & set(contents.keys())
-    if changed_field:
-        ip = contents.get('route_ip', line_obj.IP)
-        netmask = contents.get('route)netmask', line_obj.netmask)
-        try:
-            vn = verify_fields('netmask', 'route_netmask', netmask)
-            if vn is not True:
-                return vn
-            IP(ip)
-        except ValueError:
-            return {'fieldErrors': [{'name': 'route_ip', 'status': 'IP地址格式错误'}]}
+    logger.debug(f'In machine room update {contents}')
+    changed_fields = list(contents.keys())
+    # 可直接更新的字段
+    update_direct = {'address', 'a_pop_city_id', 'level_id', 'status_id', 'lift_id', 'type_id'} & set(changed_fields)
+    lift_dict = {'1': True, '0': False}
+    if update_direct:
+        for f in list(update_direct):
+            field = f.split("_")[-2] if "id" in f else f
+            setattr(line_obj, field, lift_dict[contents.get(f)] if 'lift' in f else contents.get(f))
+        db.session.add(line_obj)
 
-        if int(netmask) < 32:
-            contents['route_ip'] = IP(ip + '/' + netmask, make_net=True).strNormal(0)
+        # if {'a_pop_city_id', 'level_id', 'type_id'} & set(changed_fields):
+        #     setattr(line_obj, 'name',
+        #             line_obj.cities.city + machineroom_level[str(line_obj.level)] + machineroom_type[str(line_obj.type)])
+        #     db.session.add(line_obj)
 
-        for k, v in contents.items():
-            if hasattr(line_obj, required_fields_map.get(k, "")):
-                setattr(line_obj, required_fields_map[k], v)
-
-        return {'data': make_table_mpls_attribute([line_obj])}
+    return {'data': make_table_machine_room([line_obj])} if db_commit() else {"error": "更新失败，机房名称冲突"}

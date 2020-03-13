@@ -11,30 +11,23 @@ var DatatableMachineRoom = function () {
             {label: "地址", name: "address"},
             {
                 label: "级别",
-                name: "level",
+                name: "level_id",
                 type: "select",
-                options: [{"label": "业务站", "value": 1}, {"label": "光放站", "value": 2}]
             },
             {
                 label: "状态",
-                name: "status",
+                name: "status_id",
                 type: "select",
-                options: [{"label": "在用", "value": 1}, {"label": "停用", "value": 0}]
             },
             {
                 label: "是否有电梯",
-                name: "lift",
+                name: "lift_id",
                 type: "select",
-                options: [{"label": "是", "value": 1}, {"label": "否", "value": 0}]
             },
             {
                 label: "类型",
-                name: "type",
+                name: "type_id",
                 type: "select",
-                options: [{"label": "自建", "value": 1},
-                    {"label": "缆信", "value": 2},
-                    {"label": "第三方", "value": 3},
-                    {"label": "城网", "value": 4}]
             },
             {label: "姓名:", name: "noc_contact_name"},
             {label: "电话:", name: "noc_contact_phone"},
@@ -47,7 +40,17 @@ var DatatableMachineRoom = function () {
         search_city(machine_room_table);
         machine_room_table.create({
             title: '新增机房',
-            buttons: 'Add'
+            buttons: '新增'
+        });
+    });
+
+    // Delete a record
+    $('#machine_room_table').on('click', 'a.editor_remove', function (e) {
+        e.preventDefault();
+        machine_room_table.remove($(this).closest('tr'), {
+            title: '删除机房',
+            message: '删除后无法恢复，是否确认?',
+            buttons: '删除'
         });
     });
 
@@ -82,28 +85,28 @@ var DatatableMachineRoom = function () {
         "processing": true,
         "scrollX": true,
         ajax: "/query_machine_room_table",
-        "order": [[1, 'desc']],
+        "order": [[0, 'desc']],
         "columnDefs": [
-            {
-                // targets用于指定操作的列，从第0列开始，-1为最后一列，这里第六列
-                // return后边是我们希望在指定列填入的按钮代码
-                "targets": 7,
-                "render": function (data, type, full, meta) {
-                    return '<a data-toggle="modal" data-target="#memo_editor" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
-                                    <i class="la la-edit"></i>\
-                                </a>';
-                }
-            },
-            {
-                // targets用于指定操作的列，从第0列开始，-1为最后一列
-                // return后边是我们希望在指定列填入的按钮代码
-                "targets": 6,
-                "render": function (data, type, full, meta) {
-                    return '<a data-toggle="modal" data-target="#file_upload" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
-                                    <i class="la la-file"></i>\
-                                </a>';
-                }
-            },
+            // {
+            //     // targets用于指定操作的列，从第0列开始，-1为最后一列，这里第六列
+            //     // return后边是我们希望在指定列填入的按钮代码
+            //     "targets": 7,
+            //     "render": function (data, type, full, meta) {
+            //         return '<a data-toggle="modal" data-target="#memo_editor" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
+            //                         <i class="la la-edit"></i>\
+            //                     </a>';
+            //     }
+            // },
+            // {
+            //     // targets用于指定操作的列，从第0列开始，-1为最后一列
+            //     // return后边是我们希望在指定列填入的按钮代码
+            //     "targets": 6,
+            //     "render": function (data, type, full, meta) {
+            //         return '<a data-toggle="modal" data-target="#file_upload" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
+            //                         <i class="la la-file"></i>\
+            //                     </a>';
+            //     }
+            // },
             {"visible": false, "targets": []}
         ],
         columns: [
@@ -118,18 +121,33 @@ var DatatableMachineRoom = function () {
                 data: null, render: function (data, type, row) {
                     return data.type + data.level;
                 },
-                editField: ['type', 'level']
+                editField: ['type_id', 'level_id']
             },
-            {data: "lift"},
-            {data: "status"},
+            {
+                data: null, render: function (data, type, row) {
+                    return data.lift;
+                },
+                editField: ['lift_id']
+            },
+            {
+                data: null, render: function (data, type, row) {
+                    return data.status;
+                },
+                editField: ['status_id']
+            },
             {
                 data: null, render: function (data, type, row) {
                     return '姓名: ' + data.noc_contact_name + '<br>' + '电话: ' + data.noc_contact_phone + '<br>' + 'Email: ' + data.noc_contact_email;
                 },
                 editField: ['noc_contact_name', 'noc_contact_phone', 'noc_contact_email']
             },
-            {data: null},
-            {data: null}
+            // {data: null},
+            // {data: null},
+            {
+                data: null,
+                className: "center",
+                defaultContent: '<a href="" class="editor_remove">Delete</a>'
+            }
         ],
         select: {
             style: 'os',
@@ -148,6 +166,7 @@ $(document).ready(function () {
             autocomplete: 'off'
         }
     });
+
 });
 
 //上传文件

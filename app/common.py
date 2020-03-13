@@ -1,15 +1,15 @@
 from . import db, logger
 
 
-def success_return(data, msg):
+def success_return(data="", msg=""):
     return {"code": "success", "data": data, "msg": msg}
 
 
-def false_return(data, msg):
+def false_return(data="", msg=""):
     return {"code": "false", "data": data, "msg": msg}
 
 
-def exp_return(data, msg):
+def exp_return(data="", msg=""):
     return {"code": "exp", "data": data, "msg": msg}
 
 

@@ -166,189 +166,20 @@ def import_device_from_excel():
     return public_methods.save_xlsx(f, Temp_File_Path, 'device_source_file')
 
 
-@main.route('/machine_room', methods=['GET', 'POST'])
+@main.route('/machine_room', methods=['GET'])
 @login_required
 @permission_required(Permission.NETWORK_MANAGER)
 def machine_room():
-    if request.method == 'GET':
-        logger.info('User {} is checking machine room list'.format(session['LOGINNAME']))
-        modal_form = PostForm()
-        return render_template('machine_room.html', modal_form=modal_form,
-                               city=[{'id': c.id, 'city': c.city} for c in City.query.all()])
-    elif request.method == 'POST':
-        status_dict = {'0': '已删除', '1': '运行中', '2': '待定'}
-        level_dict = machineroom_level
-        page_start = (int(request.form.get('datatable[pagination][page]', '0')) - 1) * 10
-        length = int(request.form.get('datatable[pagination][perpage]'))
-
-        data = [{'id': sc.id,
-                 'machine_room_name': sc.name,
-                 'machine_room_city': sc.cities.city,
-                 'machine_room_address': sc.address,
-                 'machine_room_level': level_dict[str(sc.level)] + '-' + machineroom_type[str(sc.type)],
-                 'machine_room_status': status_dict[str(sc.status)],
-                 'machine_room_admin_name': sc.administrator.name if sc.administrator else "",
-                 'machine_room_admin_phone': sc.administrator.phoneNumber if sc.administrator else "",
-                 'machine_room_lift': '是' if sc.lift else '否'
-                 }
-                for sc in MachineRoom.query.order_by(MachineRoom.id).offset(page_start).limit(length) if
-                sc.status != 0]
-
-        recordsTotal = MachineRoom.query.count()
-
-        rest = {
-            "meta": {
-                "page": int(request.form.get('datatable[pagination][page]')),
-                "pages": int(recordsTotal) / int(length),
-                "perpage": int(length),
-                "total": int(recordsTotal),
-                "sort": "asc",
-                "field": "ShipDate"
-            },
-            "data": data
-        }
-        return jsonify(rest)
+    logger.info('User {} is checking machine room list'.format(session['LOGINNAME']))
+    return render_template('machine_room.html', modal_form=PostForm())
 
 
-@main.route('/machine_room_add', methods=['POST'])
-@permission_ip(PermissionIP)
-def machine_room_add():
-    logger.debug(f">>>> Got request data {request.get_data()}")
-    return jsonify(json.dumps(process_machine_room.new_one(**json.loads(request.get_data().decode('utf-8')))))
-
-
-@main.route('/machine_room_delete', methods=['POST'])
-@login_required
-@permission_required(Permission.NETWORK_MANAGER)
-def machine_room_delete():
-    params = request.get_data()
-    jl = params.decode('utf-8')
-    j = json.loads(jl)
-    logger.debug(f"got data from html {j}")
-    sc_id = j.get('sc_id')
-
-    delete_target = MachineRoom.query.filter_by(id=sc_id).first()
-    delete_target.status = '0'
-
-    if delete_target:
-        db.session.add(delete_target)
-        db.session.commit()
-        return jsonify(json.dumps({'status': 'OK'}))
-    else:
-        return jsonify(json.dumps({'status': 'False'}))
-
-
-@main.route('/devices_manage', methods=['GET', 'POST'])
+@main.route('/devices_manage', methods=['GET'])
 @login_required
 @permission_required(Permission.NETWORK_MANAGER)
 def devices_manage():
-    if request.method == 'GET':
-        logger.info('User {} is checking device list'.format(session['LOGINNAME']))
-        machine_room_list = [{'id': m.id, 'name': m.name} for m in
-                             MachineRoom.query.filter(MachineRoom.status.__ne__('0')).all()]
-        device_owner = [{'id': owner.id, 'name': owner.name} for owner in Customer.query.filter_by(status=1).all()]
-        print(device_owner)
-
-        return render_template('devices_manage.html', machine_room_list=machine_room_list, device_owner=device_owner)
-
-    elif request.method == 'POST':
-        page_start = (int(request.form.get('datatable[pagination][page]', '0')) - 1) * 10
-        length = int(request.form.get('datatable[pagination][perpage]'))
-
-        data = []
-        for sc in Device.query.filter(Device.machine_room_id.isnot(None), Device.status.__eq__(1)).order_by(
-                Device.id).offset(page_start).limit(length):
-            if sc.machine_room.status == 1:
-                data.append({'id': sc.id,
-                             'device_name': sc.device_name,
-                             'device_belong': sc.device_owner.name,
-                             'device_ip': sc.ip,
-                             'machine_room': sc.machine_room.name,
-                             'monitor_status': monitor_status[sc.monitor_status] if sc.monitor_status else '',
-                             })
-
-        recordsTotal = Device.query.filter(Device.machine_room_id.isnot(None)).count()
-        print(recordsTotal)
-
-        rest = {
-            "meta": {
-                "page": int(request.form.get('datatable[pagination][page]')),
-                "pages": int(recordsTotal) / int(length),
-                "perpage": int(length),
-                "total": int(recordsTotal),
-                "sort": "asc",
-                "field": "ShipDate"
-            },
-            "data": data
-        }
-        return jsonify(rest)
-
-
-@main.route('/device_add', methods=['GET', 'POST'])
-@login_required
-@permission_required(Permission.NETWORK_MANAGER)
-def device_add():
-    data = request.json
-    print(data)
-    device_name = data.get('device_name')
-    device_ip = data.get('device_ip')
-    machine_room = data.get('machine_room')
-    device_owner = data.get('device_owner')
-
-    try:
-        dip = IPManager.query.filter_by(IP=device_ip).first()
-        if not dip:
-            dip = IPManager(IP=device_ip, netmask="32", desc=device_name + ' manage ip')
-            db.session.add(dip)
-
-        owner = Customer.query.get(device_owner)
-        if not owner:
-            owner = Customer(name=device_owner)
-            db.session.add(owner)
-
-        db.session.commit()
-
-        device = Device(device_name=device_name,
-                        device_owner=owner,
-                        device_ip=dip,
-                        login_name='monitor',
-                        login_password='Gan-fa5-Tn0c',
-                        enable_password='',
-                        machine_room=MachineRoom.query.filter_by(id=machine_room).first())
-        db.session.add(device)
-        db.session.commit()
-        logger.info('User {} add device {}  in machine room {} successful'.
-                    format(session.get('LOGINNAME'), device_name,
-                           MachineRoom.query.filter_by(id=machine_room).first()))
-        return jsonify({'status': 'OK', 'content': "设备添加成功"})
-    except Exception as e:
-        # 但是此处不能捕获异常
-        logger.error('User {} add device {}  in machine room {} fail, because {}'.
-                     format(session.get('LOGINNAME'), device_name,
-                            MachineRoom.query.filter_by(id=machine_room).first(), e))
-        db.session.rollback()
-        return jsonify({'status': 'False', 'content': "设备添加失败"})
-
-
-@main.route('/device_delete', methods=['POST'])
-@login_required
-@permission_required(Permission.NETWORK_MANAGER)
-def device_delete():
-    params = request.get_data()
-    jl = params.decode('utf-8')
-    j = json.loads(jl)
-    print(j)
-    sc_id = j.get('sc_id')
-
-    delete_target = Device.query.filter_by(id=sc_id).first()
-    delete_target.status = '0'
-
-    if delete_target:
-        db.session.add(delete_target)
-        db.session.commit()
-        return jsonify(json.dumps({'status': 'OK'}))
-    else:
-        return jsonify(json.dumps({'status': 'False'}))
+    logger.info('User {} is checking device list'.format(session['LOGINNAME']))
+    return render_template('devices_manage.html', modal_form=PostForm())
 
 
 @main.route('/licence_control', methods=['GET', 'POST'])

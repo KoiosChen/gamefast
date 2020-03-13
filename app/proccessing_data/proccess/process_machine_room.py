@@ -21,7 +21,7 @@ def new_one(**kwargs):
 
     if MachineRoom.query.filter(or_(MachineRoom.name.__eq__(machine_room_name),
                                     MachineRoom.address.__eq__(machine_room_address))).all():
-        return {'status': 'False', "content": f"{machine_room_name} or f{machine_room_address} exist"}
+        return false_return("", f"{machine_room_name} or f{machine_room_address} exist")
 
     else:
         last_machine_room = MachineRoom.query.order_by(MachineRoom.id.desc()).first()
@@ -45,4 +45,5 @@ def new_one(**kwargs):
                 new_contact = public_methods.new_data_obj("Contacts",
                                                           **{"name": noc_contact_name, "phoneNumber": noc_contact_phone,
                                                              "email": noc_contact_email})
-        return {'status': 'OK'} if db_commit() else {'status': 'fail', 'msg': 'add machine room fail'}
+                db.session.add(new_contact)
+        return success_return(new_machine_room, "") if db_commit() else false_return('', 'add machine room fail')

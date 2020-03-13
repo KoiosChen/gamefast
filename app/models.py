@@ -527,7 +527,7 @@ class SnmpInterface(db.Model):
     snmp_if_desc = db.Column(db.String(50), index=True)
     snmp_if_alias = db.Column(db.String(200))
     snmp_if_physical_status = db.Column(db.SmallInteger)
-    snmp_if_protocal_status = db.Column(db.SmallInteger)
+    snmp_if_protocol_status = db.Column(db.SmallInteger)
     snmp_last_down_time = db.Column(db.DateTime)
     snmp_last_rec_time = db.Column(db.DateTime)
     snmp_last_in_speed = db.Column(db.Float)

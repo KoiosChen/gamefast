@@ -40,9 +40,9 @@
                         <editor-field name="search_city_a"></editor-field>
                         <editor-field name="a_pop_city_id"></editor-field>
                         <editor-field name="address"></editor-field>
-                        <editor-field name="level"></editor-field>
-                        <editor-field name="type"></editor-field>
-                        <editor-field name="lift"></editor-field>
+                        <editor-field name="level_id"></editor-field>
+                        <editor-field name="type_id"></editor-field>
+                        <editor-field name="lift_id"></editor-field>
                         <editor-field name="noc_contact_name"></editor-field>
                         <editor-field name="noc_contact_phone"></editor-field>
                         <editor-field name="noc_contact_email"></editor-field>
@@ -57,8 +57,9 @@
                         <th>是否有电梯</th>
                         <th>状态</th>
                         <th>联系人</th>
-                        <th>文件管理</th>
-                        <th>备注</th>
+                        <!--<th>文件管理</th>
+                        <th>备注</th>-->
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tfoot>
@@ -69,8 +70,9 @@
                         <th>是否有电梯</th>
                         <th>状态</th>
                         <th>联系人</th>
-                        <th>文件管理</th>
-                        <th>备注</th>
+                        <!--<th>文件管理</th>
+                        <th>备注</th>-->
+                        <th>操作</th>
                     </tr>
                     </tfoot>
                 </table>
@@ -95,9 +97,9 @@
                 <div class="modal-body">
                     <p id="row_id" hidden></p>
                     <p>机房: <input type="text" name="machine_room_name" id="machine_room_name" readonly="true"
-                                    style="border-style:none;width:300px"/></p>
+                                  style="border-style:none;width:300px"/></p>
                     <p>地址: <input type="text" name="machine_room_address" id="machine_room_address" readonly="true"
-                                    style="border-style:none;width:400px"/></p>
+                                  style="border-style:none;width:400px"/></p>
                     <p>{{ wtf.form_field(modal_form.body) }}</p>
                 </div>
                 <div class="modal-footer">
@@ -331,6 +333,7 @@
         $("#sync_from_file").click(function () {
             $("#machine_room_batch_upload").removeData("bs.modal").modal('show')
         });
+
         jQuery(document).ready(function () {
             $("#submit_update").click(function () {
                 let queued_file_length = myDropzone.getQueuedFiles().length;
@@ -349,7 +352,6 @@
             });
         });
 
-
         // toastr options
         toastr.options = {
             "closeButton": true, //是否显示关闭按钮
@@ -365,37 +367,6 @@
             "showMethod": "fadeIn",//显示时的动画方式
             "hideMethod": "fadeOut" //消失时的动画方式
         };
-
-        function HTMerDel(sc_id) {
-            if (confirm("确定要删除该信息吗？删除将不能恢复！")) {
-                let params = '{"sc_id":"' + sc_id + '"}';
-                $.ajax({
-                    type: "POST",          //提交方式          
-                    url: "machine_room_delete",  //提交的页面/方法名          
-                    data: params,         //参数（如果没有参数：null）          
-                    dataType: "text",        //类型          
-                    contentType: "application/json; charset=utf-8",
-
-                    success: function (msg) {
-                        var msg_json = JSON.parse(msg);
-                        msg_json = JSON.parse(msg_json);
-                        if (msg_json['status'].match(/OK/)) {
-                            toastr.info("删除成功");
-                            $('#ajax_data').mDatatable().destroy();
-                            DatatableRemoteAjaxDemo.init();
-                        } else {
-                            toastr.warning("删除失败");
-                        }
-
-                    },
-                    error: function (xhr, msg, e) {
-                        toastr.warning("删除");
-                    }
-                });
-            } else {
-                toastr.warning('取消删除')
-            }
-        }
     </script>
 
 {% endblock %}

@@ -4,18 +4,15 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.image import MIMEImage
 from email.header import Header
-from email.encoders import _bencode
-import os
-import mimetypes
-from .. import logger
+from .. import logger, redis_db
 
 
 class sendmail:
     def __init__(self, **kwargs):
         self.HOST = kwargs.setdefault('host', "mail.nbl.net.cn")
         self.SUBJECT = kwargs.setdefault('subject', "report")
-        self.TO = kwargs.setdefault('mail_to', "597796137@qq.com")
-        self.BCC = kwargs.setdefault('mail_bcc', "597796137@qq.com")
+        self.TO = kwargs.setdefault('mail_to', redis_db.lrange("mail_to", 0, -1))
+        self.BCC = kwargs.setdefault('mail_bcc', redis_db.lrange("mail_bcc", 0, -1))
         self.FROM = kwargs.setdefault('mail_from', "chenjinzhang@nbl.net.cn")
         self.PASSWD = kwargs.setdefault('mail_passwd', "Cjz123456")
 
@@ -73,4 +70,3 @@ class sendmail:
         except Exception as e:
             logger.info(f">>> It is failed to send the mail to {self.TO}, {self.BCC} for {e}!")
             return False
-

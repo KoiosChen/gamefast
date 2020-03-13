@@ -1,9 +1,8 @@
-from ...models import MachineRoom, Device, City, Customer
-from sqlalchemy import or_
-from flask import jsonify, session
-import json
+from ...models import MachineRoom, Device, Customer
+from flask import jsonify
 from ... import db, logger
 from ..proccess.public_methods import new_data_obj
+from ...common import db_commit, success_return, false_return
 
 
 def new_one(**kwargs):
@@ -20,6 +19,19 @@ def new_one(**kwargs):
          'device_model': row[9].value,
          'machine_room': row[10].value
          }
+    new_device["device_name"] = content.get("device_name")
+    new_device["device_ip"] = content.get("device_ip")
+    new_device["vendor"] = content.get("vendor")
+    new_device["device_model"] = content.get("device_model")
+    new_device["machine_room"] = content.get("machine_room_id")
+    new_device["os_version"] = content.get("os_version")
+    new_device["patch_version"] = content.get("patch_version")
+    new_device["serial_number"] = content.get("serial_number")
+    new_device["login_method"] = content.get("login_method")
+    new_device["login_name"] = content.get("login_name")
+    new_device["login_password"] = content.get("login_password")
+    new_device["enable_password"] = content.get("enable_password")
+    new_device["device_owner"] = content.get("device_belong_id")
     :param kwargs:
     :return:
     """
@@ -27,11 +39,16 @@ def new_one(**kwargs):
     device_model = kwargs.get("device_model")
     device_ip = kwargs.get("device_ip")
     device_owner = kwargs.get("device_owner")
-    username = kwargs.get("password")
-    password = kwargs.get("password")
+    login_method = kwargs.get("login_method", "")
+    username = kwargs.get("login_name")
+    password = kwargs.get("login_password")
     enable_password = kwargs.get("enable_password")
     machine_room = kwargs.get("machine_room")
-    vendor = kwargs.get("device_vendor")
+    os_version = kwargs.get("os_version", "")
+    patch_version = kwargs.get("patch_version", "")
+    serial_number = kwargs.get("serial_number", "")
+    vendor = kwargs.get("vendor")
+    community = kwargs.get("community", "")
 
     logger.debug(kwargs)
 
@@ -39,310 +56,31 @@ def new_one(**kwargs):
         return {"status": False, "content": f"{device_name} - {device_ip} {device_model} exist"}
 
     else:
-        mr = MachineRoom.query.filter_by(name=machine_room, status=1).first()
-        if mr:
-            try:
-                owner = new_data_obj("Customer", **{"name": device_owner})
-
-                device = Device(device_owner=owner,
-                                device_ip=device_ip,
-                                login_name=username,
-                                login_password=password,
-                                enable_password=enable_password,
-                                machine_room=mr,
-                                device_model=device_model,
-                                vendor=vendor)
-                db.session.add(device)
-                db.session.commit()
-                logger.info(
-                    f'User {session.get("LOGINNAME")} add device {device_ip}  in machine room {mr.name} successful')
-                return jsonify({'status': True, 'content': "设备添加成功"})
-            except Exception as e:
-                # 但是此处不能捕获异常
-                logger.info(
-                    f'User {session.get("LOGINNAME")} add device {device_ip}  in machine room {mr.name} fail for {e}')
-                db.session.rollback()
-                return jsonify({'status': False, 'content': "设备添加失败"})
+        if isinstance(eval(machine_room), int):
+            mr = MachineRoom.query.filter_by(id=eval(machine_room), status=1).first()
         else:
-            return jsonify({'status': False, 'content': f'{device_ip}对应{machine_room}机房不存在'})
+            mr = MachineRoom.query.filter_by(name=machine_room, status=1).first()
 
+        if isinstance(eval(device_owner), int):
+            owner = Customer.query.get(eval(device_owner))
+        else:
+            owner = new_data_obj("Customer", **{"name": device_owner})
 
-a = {'state': 1, 'order_number': '12345', 'msg': 'success', 'swname': 'LanXin_ShangHai_S9306', 'interface': {
-    'Eth-Trunk1': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                   'PORT': 'hybrid', 'DESC': 'To-YunPu', 'ETH': ['XGigabitEthernet4/0/12', 'XGigabitEthernet4/0/13']},
-    'XGigabitEthernet4/0/12': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-yunpu-zj-20160921', 'ETH': []},
-    'XGigabitEthernet4/0/13': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-yunpu-zj-20160921', 'ETH': []},
-    'Eth-Trunk2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.25%', 'OutUti': '0.79%', 'inErrors': '0',
-                   'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'To-HuanXun-9312',
-                   'ETH': ['XGigabitEthernet2/0/8', 'XGigabitEthernet3/0/10']},
-    'XGigabitEthernet2/0/8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.26%', 'OutUti': '0.85%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'TO-HuanXun9312-9/0/7', 'ETH': []},
-    'XGigabitEthernet3/0/10': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.24%', 'OutUti': '0.74%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'To-HuanXun-9312-9/0/4', 'ETH': []},
-    'Eth-Trunk3': {'PHY': 'up', 'Protocol': 'up', 'InUti': '18%', 'OutUti': '27%', 'inErrors': '0', 'outErrors': '0',
-                   'PORT': 'hybrid', 'DESC': 'to-ChengQiThong',
-                   'ETH': ['XGigabitEthernet2/0/3', 'XGigabitEthernet2/0/4']},
-    'XGigabitEthernet2/0/3': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'guhong-keep-chengqitong', 'ETH': []},
-    'XGigabitEthernet2/0/4': {'PHY': 'up', 'Protocol': 'up', 'InUti': '18%', 'OutUti': '27%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'guhong-keep-chengqitong', 'ETH': []},
-    'Eth-Trunk6': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                   'PORT': 'hybrid', 'DESC': 'to-lianguangtong', 'ETH': []},
-    'Eth-Trunk8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                   'PORT': 'hybrid', 'DESC': 'to dianji-6700-ETH-T 15',
-                   'ETH': ['XGigabitEthernet4/0/10', 'XGigabitEthernet4/0/11']},
-    'XGigabitEthernet4/0/10': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-dianji-zj-2016/10/09', 'ETH': []},
-    'XGigabitEthernet4/0/11': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk11': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                    'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk14': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                    'PORT': 'hybrid', 'DESC': 'to-lianguangtong', 'ETH': []},
-    'Eth-Trunk15': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.04%', 'OutUti': '0.57%', 'inErrors': '2645',
-                    'outErrors': '0', 'PORT': 'trunk', 'DESC': 'to-YouChi-New-5328-10.254.1.3',
-                    'ETH': ['XGigabitEthernet4/0/7']},
-    'XGigabitEthernet4/0/7': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.04%', 'OutUti': '0.57%', 'inErrors': '2645',
-                              'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk25': {'PHY': 'up', 'Protocol': 'up', 'InUti': '4.98%', 'OutUti': '12%', 'inErrors': '674416',
-                    'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'To-418-9306',
-                    'ETH': ['XGigabitEthernet1/0/6', 'XGigabitEthernet1/0/7', 'XGigabitEthernet1/0/8',
-                            'XGigabitEthernet1/0/9', 'XGigabitEthernet2/0/13', 'XGigabitEthernet5/0/12',
-                            'XGigabitEthernet6/0/3', 'XGigabitEthernet6/0/14']},
-    'XGigabitEthernet1/0/6': {'PHY': 'up', 'Protocol': 'up', 'InUti': '5.58%', 'OutUti': '7.52%', 'inErrors': '134753',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C53-to-418-XG6/0/0', 'ETH': []},
-    'XGigabitEthernet1/0/7': {'PHY': 'up', 'Protocol': 'up', 'InUti': '4.71%', 'OutUti': '12%', 'inErrors': '87710',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to-418', 'ETH': []},
-    'XGigabitEthernet1/0/8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '5.69%', 'OutUti': '23%', 'inErrors': '24924',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C31-TO-418-X1/0/3', 'ETH': []},
-    'XGigabitEthernet1/0/9': {'PHY': 'up', 'Protocol': 'up', 'InUti': '4.77%', 'OutUti': '16%', 'inErrors': '633',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C32-TO-418-X1/0/4', 'ETH': []},
-    'XGigabitEthernet2/0/13': {'PHY': 'up', 'Protocol': 'up', 'InUti': '6.36%', 'OutUti': '7.76%', 'inErrors': '32008',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-418-x1/0/7', 'ETH': []},
-    'XGigabitEthernet5/0/12': {'PHY': 'up', 'Protocol': 'up', 'InUti': '4.24%', 'OutUti': '5.89%', 'inErrors': '174222',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-418-xg6/0/12', 'ETH': []},
-    'XGigabitEthernet6/0/3': {'PHY': 'up', 'Protocol': 'up', 'InUti': '4.63%', 'OutUti': '16%', 'inErrors': '19458',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to-418', 'ETH': []},
-    'XGigabitEthernet6/0/14': {'PHY': 'up', 'Protocol': 'up', 'InUti': '3.86%', 'OutUti': '8.47%', 'inErrors': '200708',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-418-xg6/0/14', 'ETH': []},
-    'Eth-Trunk27': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                    'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk28': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.15%', 'OutUti': '0.09%', 'inErrors': '0',
-                    'outErrors': '0', 'PORT': 'dot1q', 'DESC': 'to-219', 'ETH': ['XGigabitEthernet1/0/11']},
-    'XGigabitEthernet1/0/11': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.15%', 'OutUti': '0.09%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'C36-to-219-XG0/0/2', 'ETH': []},
-    'Eth-Trunk30': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                    'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk37': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.12%', 'OutUti': '0.01%', 'inErrors': '123793',
-                    'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'To-ShuJuGuang_SW2',
-                    'ETH': ['XGigabitEthernet1/0/12', 'XGigabitEthernet1/0/15', 'XGigabitEthernet2/0/15',
-                            'XGigabitEthernet3/0/0', 'XGigabitEthernet5/0/1', 'XGigabitEthernet5/0/2',
-                            'XGigabitEthernet5/0/3', 'XGigabitEthernet6/0/6']},
-    'XGigabitEthernet1/0/12': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.12%', 'OutUti': '0.01%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-shujugang', 'ETH': []},
-    'XGigabitEthernet1/0/15': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.12%', 'OutUti': '0.01%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-shujugang', 'ETH': []},
-    'XGigabitEthernet2/0/15': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.12%', 'OutUti': '0.01%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to 219-eth-t 37', 'ETH': []},
-    'XGigabitEthernet3/0/0': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.12%', 'OutUti': '0.01%', 'inErrors': '5092',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to-219', 'ETH': []},
-    'XGigabitEthernet5/0/1': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.09%', 'OutUti': '0.01%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C59-to-219-XG0/0/16', 'ETH': []},
-    'XGigabitEthernet5/0/2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.14%', 'OutUti': '0.02%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C34-to-219-XG0/0/7', 'ETH': []},
-    'XGigabitEthernet5/0/3': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.10%', 'OutUti': '0.02%', 'inErrors': '72962',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C35-to-219-XG0/0/8', 'ETH': []},
-    'XGigabitEthernet6/0/6': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.14%', 'OutUti': '0.01%', 'inErrors': '45739',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to-219', 'ETH': []},
-    'Eth-Trunk38': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                    'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk80': {'PHY': 'up', 'Protocol': 'up', 'InUti': '22%', 'OutUti': '18%', 'inErrors': '432357',
-                    'outErrors': '0', 'PORT': 'trunk', 'DESC': 'To-HangZhou',
-                    'ETH': ['XGigabitEthernet1/0/4', 'XGigabitEthernet1/0/5', 'XGigabitEthernet4/0/0',
-                            'XGigabitEthernet4/0/1', 'XGigabitEthernet6/0/8', 'XGigabitEthernet6/0/10',
-                            'XGigabitEthernet6/0/12', 'XGigabitEthernet6/0/13']},
-    'XGigabitEthernet1/0/4': {'PHY': 'up', 'Protocol': 'up', 'InUti': '22%', 'OutUti': '17%', 'inErrors': '3464',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'c39-to-hangzhou-x4/0/1', 'ETH': []},
-    'XGigabitEthernet1/0/5': {'PHY': 'up', 'Protocol': 'up', 'InUti': '22%', 'OutUti': '19%', 'inErrors': '8369',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C31-to-hangzhou-x4/0/0', 'ETH': []},
-    'XGigabitEthernet4/0/0': {'PHY': 'up', 'Protocol': 'up', 'InUti': '22%', 'OutUti': '18%', 'inErrors': '218562',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to hangzhou-100G-M4', 'ETH': []},
-    'XGigabitEthernet4/0/1': {'PHY': 'up', 'Protocol': 'up', 'InUti': '22%', 'OutUti': '17%', 'inErrors': '5312',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to -hangzhou-100G-M5', 'ETH': []},
-    'XGigabitEthernet6/0/8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '23%', 'OutUti': '18%', 'inErrors': '107037',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to hangzhou-k80', 'ETH': []},
-    'XGigabitEthernet6/0/10': {'PHY': 'up', 'Protocol': 'up', 'InUti': '23%', 'OutUti': '18%', 'inErrors': '49033',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'C57-To-HangZhou', 'ETH': []},
-    'XGigabitEthernet6/0/12': {'PHY': 'up', 'Protocol': 'up', 'InUti': '23%', 'OutUti': '17%', 'inErrors': '7794',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'C55-To-HangZhou-XGe4/0/2', 'ETH': []},
-    'XGigabitEthernet6/0/13': {'PHY': 'up', 'Protocol': 'up', 'InUti': '22%', 'OutUti': '18%', 'inErrors': '32786',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'C56-To-HangZhou-XGe4/0/3', 'ETH': []},
-    'Eth-Trunk81': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0', 'outErrors': '0',
-                    'PORT': 'trunk', 'DESC': 'to-hangzhou', 'ETH': ['XGigabitEthernet3/0/9']},
-    'XGigabitEthernet3/0/9': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C33-to-HangZhou-XGe3/0/14', 'ETH': []},
-    'Eth-Trunk100': {'PHY': 'up', 'Protocol': 'up', 'InUti': '15%', 'OutUti': '4.47%', 'inErrors': '91686',
-                     'outErrors': '0', 'PORT': 'trunk', 'DESC': 'to-JiaXing',
-                     'ETH': ['XGigabitEthernet2/0/0', 'XGigabitEthernet6/0/0', 'XGigabitEthernet6/0/2',
-                             'XGigabitEthernet6/0/5']},
-    'XGigabitEthernet2/0/0': {'PHY': 'up', 'Protocol': 'up', 'InUti': '15%', 'OutUti': '4.34%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to-jiaxing-c28', 'ETH': []},
-    'XGigabitEthernet6/0/0': {'PHY': 'up', 'Protocol': 'up', 'InUti': '15%', 'OutUti': '4.33%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C26-to-Jiaxing-20141128', 'ETH': []},
-    'XGigabitEthernet6/0/2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '16%', 'OutUti': '4.61%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C25-to jiaxing', 'ETH': []},
-    'XGigabitEthernet6/0/5': {'PHY': 'up', 'Protocol': 'up', 'InUti': '16%', 'OutUti': '4.60%', 'inErrors': '91686',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C21-To-JiaXing', 'ETH': []},
-    'Eth-Trunk102': {'PHY': 'up', 'Protocol': 'up', 'InUti': '1.33%', 'OutUti': '0.17%', 'inErrors': '541713',
-                     'outErrors': '0', 'PORT': 'trunk', 'DESC': 'To-SuZhou',
-                     'ETH': ['XGigabitEthernet2/0/5', 'XGigabitEthernet2/0/6', 'XGigabitEthernet2/0/10',
-                             'XGigabitEthernet2/0/11', 'XGigabitEthernet3/0/2', 'XGigabitEthernet4/0/5',
-                             'XGigabitEthernet5/0/15']},
-    'XGigabitEthernet2/0/5': {'PHY': 'up', 'Protocol': 'up', 'InUti': '1.78%', 'OutUti': '0.72%', 'inErrors': '185512',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C31-To-SuZhou', 'ETH': []},
-    'XGigabitEthernet2/0/6': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.63%', 'OutUti': '0.04%', 'inErrors': '37786',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C32-To-WuXi', 'ETH': []},
-    'XGigabitEthernet2/0/10': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.90%', 'OutUti': '0.05%', 'inErrors': '164836',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'C49-to-suzhou', 'ETH': []},
-    'XGigabitEthernet2/0/11': {'PHY': 'up', 'Protocol': 'up', 'InUti': '1.57%', 'OutUti': '0.03%', 'inErrors': '86225',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to-Chengqitong', 'ETH': []},
-    'XGigabitEthernet3/0/2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.98%', 'OutUti': '0.05%', 'inErrors': '67354',
-                              'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'XGigabitEthernet4/0/5': {'PHY': 'up', 'Protocol': 'up', 'InUti': '1.49%', 'OutUti': '0.21%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'c54-to-suzhou', 'ETH': []},
-    'XGigabitEthernet5/0/15': {'PHY': 'up', 'Protocol': 'up', 'InUti': '1.98%', 'OutUti': '0.09%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'c40-to-suzhou', 'ETH': []},
-    'Eth-Trunk103': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                     'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk106': {'PHY': 'up', 'Protocol': 'up', 'InUti': '27%', 'OutUti': '22%', 'inErrors': '440240',
-                     'outErrors': '0', 'PORT': 'trunk', 'DESC': 'To-SuZhou',
-                     'ETH': ['XGigabitEthernet3/0/7', 'XGigabitEthernet3/0/11', 'XGigabitEthernet4/0/4',
-                             'XGigabitEthernet5/0/4', 'XGigabitEthernet5/0/5']},
-    'XGigabitEthernet3/0/7': {'PHY': 'up', 'Protocol': 'up', 'InUti': '36%', 'OutUti': '22%', 'inErrors': '94',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'c57-to-suzhou', 'ETH': []},
-    'XGigabitEthernet3/0/11': {'PHY': 'up', 'Protocol': 'up', 'InUti': '27%', 'OutUti': '21%', 'inErrors': '13',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'c58-to-suzhou', 'ETH': []},
-    'XGigabitEthernet4/0/4': {'PHY': 'up', 'Protocol': 'up', 'InUti': '27%', 'OutUti': '22%', 'inErrors': '327341',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to suzhou-TW-20160920-zq', 'ETH': []},
-    'XGigabitEthernet5/0/4': {'PHY': 'up', 'Protocol': 'up', 'InUti': '27%', 'OutUti': '21%', 'inErrors': '46826',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C41-To-SuZhou-XG2/0/1', 'ETH': []},
-    'XGigabitEthernet5/0/5': {'PHY': 'up', 'Protocol': 'up', 'InUti': '19%', 'OutUti': '21%', 'inErrors': '65966',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C38-To-SuZhou-XG2/0/0', 'ETH': []},
-    'Eth-Trunk111': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.93%', 'OutUti': '1.78%', 'inErrors': '12629966',
-                     'outErrors': '0', 'PORT': 'trunk', 'DESC': 'to-hangzhou',
-                     'ETH': ['XGigabitEthernet1/0/1', 'XGigabitEthernet1/0/3', 'XGigabitEthernet4/0/2',
-                             'XGigabitEthernet4/0/3', 'XGigabitEthernet5/0/7', 'XGigabitEthernet5/0/8',
-                             'XGigabitEthernet6/0/9', 'XGigabitEthernet6/0/15']},
-    'XGigabitEthernet1/0/1': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.99%', 'OutUti': '3.78%', 'inErrors': '269457',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C38-To-HangZhou-X6/0/11', 'ETH': []},
-    'XGigabitEthernet1/0/3': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.94%', 'OutUti': '1.49%', 'inErrors': '336600',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C37-To-HangZhou-X6/0/6', 'ETH': []},
-    'XGigabitEthernet4/0/2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '1.09%', 'OutUti': '0.49%', 'inErrors': '269014',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to hangzhou-100G-M6', 'ETH': []},
-    'XGigabitEthernet4/0/3': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.97%', 'OutUti': '3.40%', 'inErrors': '5640',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to hangzhou-100G-M7', 'ETH': []},
-    'XGigabitEthernet5/0/7': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.80%', 'OutUti': '2.02%', 'inErrors': '3796254',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'c41-to-hangzhou-x1/0/6', 'ETH': []},
-    'XGigabitEthernet5/0/8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.92%', 'OutUti': '0.82%', 'inErrors': '523',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C42-to-hangzhou', 'ETH': []},
-    'XGigabitEthernet6/0/9': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.92%', 'OutUti': '0.69%', 'inErrors': '2697012',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C53-to-hangzhou', 'ETH': []},
-    'XGigabitEthernet6/0/15': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.81%', 'OutUti': '1.58%',
-                               'inErrors': '5255466', 'outErrors': '0', 'PORT': '', 'DESC': 'c35-to-hangzhou',
-                               'ETH': []},
-    'Eth-Trunk113': {'PHY': 'up', 'Protocol': 'up', 'InUti': '6.07%', 'OutUti': '12%', 'inErrors': '837704',
-                     'outErrors': '0', 'PORT': 'trunk', 'DESC': 'ShangHai-To-HeFei-C',
-                     'ETH': ['XGigabitEthernet1/0/2', 'XGigabitEthernet1/0/14', 'XGigabitEthernet2/0/2',
-                             'XGigabitEthernet3/0/5', 'XGigabitEthernet3/0/8', 'XGigabitEthernet3/0/14',
-                             'XGigabitEthernet5/0/10']},
-    'XGigabitEthernet1/0/2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '14%', 'OutUti': '12%', 'inErrors': '76162',
-                              'outErrors': '0', 'PORT': '', 'DESC': '100G-to-hefei-M4', 'ETH': []},
-    'XGigabitEthernet1/0/14': {'PHY': 'up', 'Protocol': 'up', 'InUti': '5.62%', 'OutUti': '13%', 'inErrors': '36436',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to hefei-100G-M10', 'ETH': []},
-    'XGigabitEthernet2/0/2': {'PHY': 'up', 'Protocol': 'up', 'InUti': '6.94%', 'OutUti': '13%', 'inErrors': '64779',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to hefei-100G-M6', 'ETH': []},
-    'XGigabitEthernet3/0/5': {'PHY': 'up', 'Protocol': 'up', 'InUti': '3.80%', 'OutUti': '12%', 'inErrors': '126215',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'C30-To-HeFei', 'ETH': []},
-    'XGigabitEthernet3/0/8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '3.89%', 'OutUti': '12%', 'inErrors': '263343',
-                              'outErrors': '0', 'PORT': '', 'DESC': 'to hefei-100G-M7', 'ETH': []},
-    'XGigabitEthernet3/0/14': {'PHY': 'up', 'Protocol': 'up', 'InUti': '3.98%', 'OutUti': '12%', 'inErrors': '269346',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'c59-To-HeFei-3/0/9', 'ETH': []},
-    'XGigabitEthernet5/0/10': {'PHY': 'up', 'Protocol': 'up', 'InUti': '3.88%', 'OutUti': '12%', 'inErrors': '1423',
-                               'outErrors': '0', 'PORT': '', 'DESC': 'to hefei-2/0/14', 'ETH': []},
-    'Eth-Trunk114': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                     'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk115': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                     'outErrors': '0', 'PORT': 'trunk', 'DESC': 'to-HeFei', 'ETH': []},
-    'Eth-Trunk116': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                     'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk117': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                     'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Eth-Trunk123': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                     'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'Ethernet0/0/0': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                      'outErrors': '0', 'PORT': '', 'DESC': '', 'ETH': []},
-    'XGigabitEthernet1/0/0': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'trunk', 'DESC': 'c47-to-suzhou', 'ETH': []},
-    'XGigabitEthernet1/0/10': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'trunk', 'DESC': 'ShangHaiZhongXun-20160707-YJJ', 'ETH': []},
-    'XGigabitEthernet1/0/13': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'trunk', 'DESC': 'M-DPLC20090007', 'ETH': []},
-    'XGigabitEthernet2/0/1': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'HuaShu   OLD:Guochuang-to-MX80-x0/0/9',
-                              'ETH': []},
-    'XGigabitEthernet2/0/7': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'trunk', 'DESC': 'to-Duhuilu-5328X0/1/1', 'ETH': []},
-    'XGigabitEthernet2/0/9': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to-lanxin-20170640-sdd-20170706', 'ETH': []},
-    'XGigabitEthernet2/0/12': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'DPLC20150041-HuaShu-To-HangZhou',
-                               'ETH': []},
-    'XGigabitEthernet2/0/14': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to-gehua-20150120', 'ETH': []},
-    'XGigabitEthernet3/0/1': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'M-DPLC20090025', 'ETH': []},
-    'XGigabitEthernet3/0/3': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'trunk', 'DESC': 'M-DPLC20090031', 'ETH': []},
-    'XGigabitEthernet3/0/4': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '5347',
-                              'outErrors': '0', 'PORT': 'hybrid',
-                              'DESC': 'DPLC20150208-shanghai-to-guangzhou-2G-20150429-zj', 'ETH': []},
-    'XGigabitEthernet3/0/6': {'PHY': '*down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'access', 'DESC': 'hongweixinda-2017/12/26', 'ETH': []},
-    'XGigabitEthernet3/0/12': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'C35-To-HeFei-x1/0/12', 'ETH': []},
-    'XGigabitEthernet3/0/13': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'yiliyou-zj-20150528', 'ETH': []},
-    'XGigabitEthernet3/0/15': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to-seassoon-5700', 'ETH': []},
-    'XGigabitEthernet4/0/6': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to tongtang-20171212', 'ETH': []},
-    'XGigabitEthernet4/0/8': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'dot1q', 'DESC': 'TianWei-To-XinYe-vlan648', 'ETH': []},
-    'XGigabitEthernet4/0/9': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'access', 'DESC': 'M-DPLC20090018', 'ETH': []},
-    'XGigabitEthernet4/0/14': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'guoxin-zj-HL20150009', 'ETH': []},
-    'XGigabitEthernet4/0/15': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'JingXinHuLian-20160727-YJJ', 'ETH': []},
-    'XGigabitEthernet5/0/0': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'trunk', 'DESC': 'zongwang-guhong', 'ETH': []},
-    'XGigabitEthernet5/0/6': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'access', 'DESC': 'WeiYi-HL20190037-20190118', 'ETH': []},
-    'XGigabitEthernet5/0/9': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'hongweixinda-2017/11/24', 'ETH': []},
-    'XGigabitEthernet5/0/11': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'ceshi', 'ETH': []},
-    'XGigabitEthernet5/0/13': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0.08%', 'OutUti': '0.36%', 'inErrors': '101635',
-                               'outErrors': '0', 'PORT': 'trunk', 'DESC': 'To-KeJiB2-XGe0/1/4-10.254.1.36', 'ETH': []},
-    'XGigabitEthernet5/0/14': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '48',
-                               'outErrors': '0', 'PORT': 'access', 'DESC': '', 'ETH': []},
-    'XGigabitEthernet6/0/1': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'yunfangzhou-DPLC20140327-guhong', 'ETH': []},
-    'XGigabitEthernet6/0/4': {'PHY': 'down', 'Protocol': 'down', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to-fangkuan-S5700-x0/1/2', 'ETH': []},
-    'XGigabitEthernet6/0/7': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                              'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to-hlgw', 'ETH': []},
-    'XGigabitEthernet6/0/11': {'PHY': 'up', 'Protocol': 'up', 'InUti': '0%', 'OutUti': '0%', 'inErrors': '0',
-                               'outErrors': '0', 'PORT': 'hybrid', 'DESC': 'to-wuxin-C36', 'ETH': []}}}
+        new_device = Device(device_name=device_name,
+                            device_owner=owner,
+                            ip=device_ip,
+                            login_method=login_method,
+                            login_name=username,
+                            login_password=password,
+                            enable_password=enable_password,
+                            machine_room=mr,
+                            device_model=device_model,
+                            vendor=vendor,
+                            os_version=os_version,
+                            patch_version=patch_version,
+                            serial_number=serial_number,
+                            community=community
+                            )
+        db.session.add(new_device)
+        return success_return(new_device, "") if db_commit() else false_return('', 'add device fail')
+
