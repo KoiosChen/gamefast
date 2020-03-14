@@ -1061,7 +1061,7 @@ Search_LineDataBank = [['客户名称', 'customer_name'],
 
 company_regex = re.compile('|'.join(protect_desc_special_company))
 
-PATH_PREFIX = '/Users/Peter/python/gamefast/app'
+PATH_PREFIX = os.path.abspath(os.path.dirname(__file__))
 CONFIG_FILE_PATH = PATH_PREFIX + 'config_file/'
 UPLOAD_FOLDER = PATH_PREFIX + 'UploadFile/'
 CACTI_PIC_FOLDER = PATH_PREFIX + '/static/cacti_pic/'
@@ -1085,7 +1085,7 @@ Temp_File_Path = os.path.join(PATH_PREFIX, 'static/tmp_file/temp')
 REQUEST_RETRY_TIMES = 1
 REQUEST_RETRY_TIMES_PER_TIME = 1
 
-SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5555/interfaces",
+SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5522/interface",
                    "device_info": "http://127.0.0.1:6666/devices"}
 
 ACCESS_DOMAIN = "http://10.172.172.164:1111/assets/"
