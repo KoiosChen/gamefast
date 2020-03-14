@@ -349,8 +349,8 @@ def get_memo():
 
 
 @main.route('/call_api_get_interface', methods=["POST"])
-@login_required
-@permission_required(Permission.MAN_ON_DUTY)
+# @login_required
+# @permission_required(Permission.MAN_ON_DUTY)
 def call_api_get_interface():
     """
     data 中的结构体：
