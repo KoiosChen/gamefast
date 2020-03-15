@@ -354,12 +354,7 @@ def get_memo():
 def call_api_get_interface():
     """
     data 中的结构体：
-    {"order_number": "10.1.1.1",
-     "username": "practice",
-     "password": "pra123!@#",
-     "vendor": "HUAWEI",
-     "device_model": "93",
-     "ip": "10.254.1.1"}
+    {"ip": "10.254.1.1"}
     :return:
     """
     target_devices = request.form.get("data", request.json.get("data"))
@@ -373,8 +368,7 @@ def call_api_get_interface():
     for ip in ip_list:
         device = Device.query.filter_by(ip=ip, status=1).first()
         device_list.append(device)
-    return jsonify(success_return("", "")) if SyncDevice.do_sync(device_list, "interface") \
-        else jsonify(false_return("", "sync device fail"))
+    return jsonify(SyncDevice.do_sync(device_list, "interface"))
 
 
 @main.route('/get_route', methods=["POST"])
