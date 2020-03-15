@@ -17,8 +17,9 @@ class StartThread(threading.Thread):
             try:
                 cb_success = False
                 cb = self.queue.get()
-                if not redis_db.exists(cb.get('request_lock')):
-                    if cb['request_lock']:
+                lock_key = "_lock_key_" if cb.get("request_lock") is None else cb.get("request_lock")
+                if not redis_db.exists(lock_key):
+                    if cb['request_lock'] is not None:
                         redis_db.set(cb['request_lock'], cb['value']['order_number'])
                     logger.debug(f"start to request order number{cb['value']['order_number']}")
                     if 'retry' not in cb.keys():
@@ -32,8 +33,11 @@ class StartThread(threading.Thread):
                             result = requests.post(cb['url'],
                                                    data=json.dumps(cb['value'], ensure_ascii=False).encode('utf-8'),
                                                    headers=cb['headers'])
-                            r = result.json()
-                            logger.debug(f'The response of this request is {r}')
+                            try:
+                                r = result.json()
+                                logger.debug(f'The response of this request is {r}')
+                            except Exception as e:
+                                logger.debug(f"Response is not json {result}")
                             if r.get('code') == 'true':
                                 cb_success = True
                                 break
@@ -42,6 +46,7 @@ class StartThread(threading.Thread):
                         if not cb_success:
                             request_q.put(cb)
                 else:
+                    logger.debug("request locked")
                     request_q.put(cb)
 
                 self.queue.task_done()

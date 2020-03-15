@@ -1085,7 +1085,7 @@ Temp_File_Path = os.path.join(PATH_PREFIX, 'static/tmp_file/temp')
 REQUEST_RETRY_TIMES = 1
 REQUEST_RETRY_TIMES_PER_TIME = 1
 
-SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5522/interface",
+SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5555/interfaces",
                    "device_info": "http://127.0.0.1:6666/devices"}
 
 ACCESS_DOMAIN = "http://10.172.172.164:1111/assets/"
