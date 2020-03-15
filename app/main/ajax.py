@@ -362,15 +362,19 @@ def call_api_get_interface():
      "ip": "10.254.1.1"}
     :return:
     """
-    target_devices = request.form.get("data")
+    target_devices = request.form.get("data", request.json.get("data"))
     logger.debug(f"Login device to get their interface info --> {target_devices}")
-    ip_list = target_devices["ip"]
+    ip_list = list()
+    if isinstance(target_devices["ip"], str):
+        ip_list.append(target_devices["ip"])
+    elif isinstance(target_devices["ip"], list):
+        ip_list.extend(target_devices["ip"])
     device_list = list()
     for ip in ip_list:
         device = Device.query.filter_by(ip=ip, status=1).first()
         device_list.append(device)
-    return success_return("", "") if SyncDevice.do_sync(device_list, "interface") \
-        else false_return("", "sync device fail")
+    return jsonify(success_return("", "")) if SyncDevice.do_sync(device_list, "interface") \
+        else jsonify(false_return("", "sync device fail"))
 
 
 @main.route('/get_route', methods=["POST"])
