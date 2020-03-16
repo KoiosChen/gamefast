@@ -22,18 +22,17 @@ def sync_interface():
     lock = 'sync_interface::' + data.get('order_number')
     if redis_db.exists(lock):
         redis_db.delete(lock)
-        result = data.get('data')
         line = Device.query.filter_by(ip=data.get('order_number')).first()
         if not line:
             return jsonify(
                 {'status': 'false', 'content': f"The order number {data.get('order_number')} does not exist!"})
 
-        logger.debug(f'The length of sync interface callback result is {len(result)}')
-        if len(result) > 0 and result.get('state') == 1:
+        logger.debug(f'The length of sync interface callback result is {len(data)}')
+        if len(data) > 0 and data.get('state') == 1:
             # do something to update the interface data for this device
             try:
-                line.device_name = result.get("swname")
-                for interface, int_info in result.get("interface").items():
+                line.device_name = data.get("sysname")
+                for interface, int_info in data.get("interface").items():
                     update_interface = new_data_obj("Interface", **{"interface_name": interface, "device": line.id})
                     update_interface.interface_desc = int_info.get("DESC")
                     update_interface.interface_type = int_info.get("PORT")
@@ -51,7 +50,7 @@ def sync_interface():
             except Exception as e:
                 db.session.rollback()
         else:
-            logger.warning(f"{result} no info for the interface")
+            logger.warning(f"{data} no info for the interface")
         # 这里要根据具体结果修改一下
         return jsonify({'status': 'true'})
     else:
