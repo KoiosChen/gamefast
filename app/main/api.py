@@ -33,7 +33,7 @@ def sync_interface():
             # do something to update the interface data for this device
             line.device_name = data.get("sysname")
             for interface, int_info in data.get("interface").items():
-                update_interface = new_data_obj("Interface", **{"interface_name": interface, "device": line.id})
+                update_interface = new_data_obj("Interfaces", **{"interface_name": interface, "device": line.id})
                 update_interface.interface_desc = int_info.get("DESC")
                 update_interface.interface_type = int_info.get("PORT")
                 update_interface.interface_status = True if int_info.get("PHY") == "up" else False
