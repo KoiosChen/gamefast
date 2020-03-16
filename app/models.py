@@ -1085,7 +1085,7 @@ Temp_File_Path = os.path.join(PATH_PREFIX, 'static/tmp_file/temp')
 REQUEST_RETRY_TIMES = 1
 REQUEST_RETRY_TIMES_PER_TIME = 1
 
-SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5222/interfaces",
+SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5222/interface",
                    "device_info": "http://127.0.0.1:6666/devices",
                    "verify_ring": "http://10.250.62.1:5111/check_rrpp"}
 
