@@ -37,6 +37,8 @@ def sync_interface():
                 update_interface.interface_desc = int_info.get("DESC")
                 update_interface.interface_type = int_info.get("PORT")
                 update_interface.interface_status = True if int_info.get("PHY") == "up" else False
+                db.session.add(update_interface)
+                db_commit()
                 if int_info.get("ETH"):
                     for eth_int in int_info.get("ETH"):
                         logger.debug(f"Etrunk group interface: {eth_int}")
@@ -44,7 +46,6 @@ def sync_interface():
                                                                     "device": line.id})
                         new_eth_int.parent = update_interface
                         db.session.add(new_eth_int)
-                db.session.add(update_interface)
             db.session.add(line)
             return jsonify(db_commit())
         else:
