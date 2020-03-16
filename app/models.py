@@ -191,7 +191,7 @@ class Interfaces(db.Model):
     __tablename__ = 'interfaces'
     id = db.Column(db.Integer, primary_key=True)
     # example: xg1/0/1, eth-trunk0
-    interface_name = db.Column(db.String(20), index=True, nullable=False)
+    interface_name = db.Column(db.String(50), index=True, nullable=False)
     interface_desc = db.Column(db.String(100))
     # switch route eth-trunk vlanif
     interface_type = db.Column(db.String(10))
