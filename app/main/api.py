@@ -39,8 +39,9 @@ def sync_interface():
                 update_interface.interface_status = True if int_info.get("PHY") == "up" else False
                 if int_info.get("ETH"):
                     for eth_int in int_info.get("ETH"):
+                        logger.debug(f"Etrunk group interface: {eth_int}")
                         new_eth_int = new_data_obj("Interfaces", **{"interface_name": eth_int,
-                                                                   "device": line.id})
+                                                                    "device": line.id})
                         new_eth_int.parent = update_interface
                         db.session.add(new_eth_int)
                 db.session.add(update_interface)
