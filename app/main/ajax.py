@@ -513,7 +513,7 @@ def get_device():
 def get_interface():
     logger.debug('get interface')
     interfaces = [{"label": i.interface_name, "value": i.id} for i in
-                  Interfaces.query.filter_by(device=request.form.get('data')).all()]
+                  Interfaces.query.filter_by(device=request.form.get('data'), parent_id=None).all()]
     return jsonify(interfaces)
 
 
