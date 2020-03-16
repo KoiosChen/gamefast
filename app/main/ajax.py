@@ -718,7 +718,7 @@ def query_device_table():
         logger.debug('query_device_table ')
         options_original = make_options()
         options_original['vendor'] = [{},
-                                      {"label": "HUWEI", "value": 'HUWEI'},
+                                      {"label": "HUAWEI", "value": 'HUAWEI'},
                                       {"label": "CISCO", "value": 'CISCO'},
                                       {"label": "CENTEC", "value": 'CENTEC'}]
 
