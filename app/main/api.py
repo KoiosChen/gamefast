@@ -8,6 +8,7 @@ import re
 from flask_login import current_user
 from collections import defaultdict
 from ..decorators import permission_ip
+from ..common import db_commit, success_return, false_return
 
 
 @main.route('/sync/interface', methods=["POST"])
@@ -30,25 +31,21 @@ def sync_interface():
         logger.debug(f'The length of sync interface callback result is {len(data)}')
         if len(data) > 0 and data.get('state') == 1:
             # do something to update the interface data for this device
-            try:
-                line.device_name = data.get("sysname")
-                for interface, int_info in data.get("interface").items():
-                    update_interface = new_data_obj("Interface", **{"interface_name": interface, "device": line.id})
-                    update_interface.interface_desc = int_info.get("DESC")
-                    update_interface.interface_type = int_info.get("PORT")
-                    update_interface.interface_status = True if int_info.get("PHY") == "up" else False
-                    if int_info.get("ETH"):
-                        for eth_int in int_info.get("ETH"):
-                            new_eth_int = new_data_obj("Interface", **{"interface_name": eth_int,
-                                                                       "device": line.id})
-                            new_eth_int.parent = update_interface
-                            db.session.add(new_eth_int)
-                    db.session.add(update_interface)
-
-                db.session.add(line)
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
+            line.device_name = data.get("sysname")
+            for interface, int_info in data.get("interface").items():
+                update_interface = new_data_obj("Interface", **{"interface_name": interface, "device": line.id})
+                update_interface.interface_desc = int_info.get("DESC")
+                update_interface.interface_type = int_info.get("PORT")
+                update_interface.interface_status = True if int_info.get("PHY") == "up" else False
+                if int_info.get("ETH"):
+                    for eth_int in int_info.get("ETH"):
+                        new_eth_int = new_data_obj("Interface", **{"interface_name": eth_int,
+                                                                   "device": line.id})
+                        new_eth_int.parent = update_interface
+                        db.session.add(new_eth_int)
+                db.session.add(update_interface)
+            db.session.add(line)
+            return jsonify(db_commit())
         else:
             logger.warning(f"{data} no info for the interface")
         # 这里要根据具体结果修改一下
