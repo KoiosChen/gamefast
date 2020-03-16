@@ -69,7 +69,7 @@ def post_request(url, value, request_lock="_no_request_lock_"):
     if not redis_db.exists(request_lock):
         # 如果请求要求锁定，则写入Redis中
         if request_lock is not None and request_lock != "_no_request_lock_":
-            redis_db.set(request_lock, 1, ex=120)
+            redis_db.set(request_lock, 1, ex=300)
 
         request_q.put({'headers': headers,
                        'url': url,

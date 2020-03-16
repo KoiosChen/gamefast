@@ -19,7 +19,7 @@ def sync_interface():
     # else:
     #     return datatable_action.update(**data)
     logger.debug(f'Receive data from device synchronize {data}')
-    lock = 'sync_interface_' + data.get('order_number')
+    lock = 'sync_interface::' + data.get('order_number')
     if redis_db.exists(lock):
         redis_db.delete(lock)
         result = data.get('data')
