@@ -1,7 +1,8 @@
 from flask import request, jsonify, session
 from flask_login import login_required
 from ..models import Device, MachineRoom, Interfaces, City, Permission, all_domains, multi_domains, erps_instance, \
-    LineDataBank, CutoverOrder, channel_type, MailTemplet, company_regex, MPLS, IPSupplier, Files, Post, Customer
+    LineDataBank, CutoverOrder, channel_type, MailTemplet, company_regex, MPLS, IPSupplier, Files, Post, Customer, \
+    Platforms
 from ..proccessing_data.datatable_action import oss_operator, edit, remove, create_supplier, edit_supplier, \
     create_supplier_ip, create_dia_ip, remove_dia_ip, edit_dia_ip, edit_mpls_route, remove_mpls_route, \
     create_mpls_route, remove_supplier_ip, create_machine_room, edit_machine_room, remove_machine_room, create_device, \
@@ -12,7 +13,7 @@ from . import main
 from collections import defaultdict
 from ..proccessing_data.get_datatable import make_table, make_options, make_table_vxlan, make_table_dia, make_table_ip, \
     make_table_mpls, make_table_mpls_attribute, make_table_ip_supplier, make_table_supplier_ip, make_table_machine_room, \
-    make_table_device
+    make_table_device, make_table_interface
 import json
 import requests
 import datetime
@@ -357,6 +358,7 @@ def call_api_get_interface():
     {"ip": "10.254.1.1"}
     :return:
     """
+    logger.debug(request.form)
     target_devices = request.form.get("data", request.json.get("data"))
     logger.debug(f"Login device to get their interface info --> {target_devices}")
     ip_list = list()
@@ -694,6 +696,39 @@ def query_machine_room_table():
         })
 
 
+@main.route('/query_interface_table', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.MAN_ON_DUTY)
+def query_interface_table():
+    if request.method == 'POST':
+        import re
+        editor_data = dict(request.form)
+        print(editor_data)
+        processing_data = defaultdict(dict)
+        action = ''
+        for key, value in editor_data.items():
+            if key == 'action':
+                print(key, value)
+                action = value + "_device"
+            else:
+                _id, field = re.findall(r"data\[(\w+)\]\[(\w+)\]", key)[0]
+                print(_id, field, value)
+                processing_data[_id][field] = value
+        return eval(action)(processing_data) if action else {"error": "action not defined"}
+
+    elif request.method == 'GET':
+        logger.debug('query interface device ')
+        device_id = request.args.get("row_id").split("_")[1]
+        logger.debug(device_id)
+        interfaces = Device.query.get(eval(device_id)).interface.all()
+        options_original = make_options()
+        return jsonify({
+            "data": make_table_interface(interfaces),
+            "options": options_original,
+            "files": []
+        })
+
+
 @main.route('/query_device_table', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
@@ -732,6 +767,8 @@ def query_device_table():
                                                 Customer.query.filter_by(status=1).all()]
         options_original['machine_room_id'] = [{"label": mr.name, "value": mr.id} for mr in
                                                MachineRoom.query.filter_by(status=1).order_by(MachineRoom.name).all()]
+        options_original['platform_id'] = [{"label": p.name, "value": p.id} for p in
+                                           Platforms.query.filter_by(status=1).all()]
         return jsonify({
             "data": make_table_device(),
             "options": options_original,

@@ -40,6 +40,7 @@
                         <th>设备名称</th>
                         <th>IP</th>
                         <th>机房</th>
+                        <th>平台</th>
                         <th>厂商</th>
                         <th>型号</th>
                         <th>OS</th>
@@ -52,6 +53,7 @@
                         <th>设备归属</th>
                         <!--<th>文件管理</th>
                         <th>备注</th>-->
+                        <th>接口</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -60,6 +62,7 @@
                         <th>设备名称</th>
                         <th>IP</th>
                         <th>机房</th>
+                        <th>平台</th>
                         <th>厂商</th>
                         <th>型号</th>
                         <th>OS</th>
@@ -72,6 +75,7 @@
                         <th>设备归属</th>
                         <!--<th>文件管理</th>
                         <th>备注</th>-->
+                        <th>接口</th>
                         <th>操作</th>
                     </tr>
                     </tfoot>
@@ -81,14 +85,14 @@
     </div>
 
 
-    <!-- 模态框（Modal）备注  -->
-    <div class="modal fade" id="memo_editor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <!-- 模态框（Modal）查询接口  -->
+    <div class="modal fade" id="interface_query" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLongTitle">
-                        设备概要：
+                        接口信息：
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 											<span aria-hidden="true">
@@ -97,93 +101,26 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p id="row_id" hidden></p>
-                    <p>设备名称: <input type="text" name="machine_room_name" id="device_name" readonly="true"
-                                    style="border-style:none;width:300px"/></p>
-                    <p>管理IP: <input type="text" name="machine_room_address" id="deivce_ip" readonly="true"
-                                    style="border-style:none;width:400px"/></p>
-                    <p>{{ wtf.form_field(modal_form.body) }}</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                    <button type="button" class="btn btn-primary" onclick="update()" data-dismiss="modal">提交更改</button>
-                </div>
-
-                <div class="holder">
-                </div>
-                <ul class="posts" id="itemContainer">
-                </ul>
-                <div class="holder">
-                </div>
-
-
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal -->
-    </div>
-    <!-- 模态框（Modal）end -->
-
-    <!-- 模态框（Modal） 用于文件上传及管理-->
-    <div class="modal fade" id="file_upload" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">
-                        设备概要：
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-											<span aria-hidden="true">
-												&times;
-											</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <p id="row_id2" hidden></p>
-                        <div class="form-group m-form__group row m--margin-top-20">
-                            <label class="col-form-label col-lg-3 col-sm-12">
-                                设备名称:
-                            </label>
-                            <div class="col-lg-9 col-md-9 col-sm-12">
-                                <input type="text" class="form-control" id="device_name2" readonly="true"
-                                       style="border-style:none;width:400px">
-                            </div>
-                        </div>
-                        <div class="form-group m-form__group row m--margin-top-20">
-                            <label class="col-form-label col-lg-3 col-sm-12">
-                                管理IP:
-                            </label>
-                            <div class="col-lg-9 col-md-9 col-sm-12">
-                                <input type="text" class="form-control" id="device_ip2" readonly="true"
-                                       style="border-style:none;width:400px">
-                            </div>
-                        </div>
-                        <div class="form-group m-form__group row m--margin-top-20">
-                            <label class="col-form-label col-lg-3 col-sm-12">
-                                上传文件 *
-                            </label>
-                            <div class="col-lg-6 col-md-9 col-sm-12">
-                                <div class="m-dropzone dropzone m-dropzone--success dz-clickable"
-                                     action="upload_files" id="m-dropzone-three">
-                                    <div class="m-dropzone__msg dz-message needsclick">
-                                        <h3 class="m-dropzone__msg-title">
-                                            拖动文件至此或点击上传.
-                                        </h3>
-                                        <span class="m-dropzone__msg-desc">
-														仅允许WORD, PDF, IMAGE文件
-													</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="form-group">
-                            <div class="m_datatable" id="file_list"></div>
-                        </div>
-                    </form>
-
+                    <div class="m_datatable m-datatable--default m-datatable--loaded" style>
+                        <table id="device_int_table" class="display nowrap" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>名称</th>
+                                <th>描述</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>

@@ -229,6 +229,7 @@ class Platforms(db.Model):
     status = db.Column(db.SmallInteger, default=1, index=True)
     domains = db.relationship('Domains', backref='domain_platform', lazy='dynamic')
     lines = db.relationship('LineDataBank', backref='line_platform', lazy='dynamic')
+    devices = db.relationship('Device', backref='device_platform', lazy='dynamic')
 
 
 class Domains(db.Model):
@@ -489,11 +490,12 @@ class Device(db.Model):
     device_name = db.Column(db.String(200))
     device_belong = db.Column(db.Integer, db.ForeignKey('customer.id'))
     ip = db.Column(db.String(48), index=True, unique=True, nullable=False)
-    login_method = db.Column(db.String(10), default='telnet')
+    login_method = db.Column(db.String(10), default='TELNET')
     login_name = db.Column(db.String(20))
     login_password = db.Column(db.String(20))
     enable_password = db.Column(db.String(20), nullable=True)
     machine_room_id = db.Column(db.Integer, db.ForeignKey('machineroom_list.id'))
+    platform_id = db.Column(db.Integer, db.ForeignKey('platforms.id'))
     status = db.Column(db.Integer, nullable=False, default=1)
     community = db.Column(db.String(20), index=True)
     monitor_status = db.Column(db.SmallInteger)

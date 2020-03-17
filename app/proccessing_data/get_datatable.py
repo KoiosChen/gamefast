@@ -137,6 +137,16 @@ def make_table_vxlan(lines=None):
     return result
 
 
+def make_table_interface(lines=None):
+    if lines is None:
+        lines = Interfaces.query.all()
+    return [{"DT_RowId": "row_" + str(l.id),
+             "interface_name": l.interface_name,
+             "interface_desc": l.interface_desc if l.interface_desc else "",
+             "interface_type": l.interface_type if l.interface_type else "",
+             "interface_status": l.interface_status if l.interface_status else ""} for l in lines]
+
+
 def make_table_device(lines=None):
     if lines is None:
         lines = Device.query.all()
@@ -162,7 +172,9 @@ def make_table_device(lines=None):
              "device_belong": l.device_owner.name if l.device_owner else "",
              "device_belong_id": l.device_owner.id if l.device_owner else "",
              "machine_room": l.machine_room.name if l.machine_room else "",
-             "machine_room_id": l.machine_room.id if l.machine_room else ""
+             "machine_room_id": l.machine_room.id if l.machine_room else "",
+             "platform": l.device_platform.name if l.device_platform else "",
+             "platform_id": l.platform_id if l.platform_id else "",
              } for l in lines]
 
 
