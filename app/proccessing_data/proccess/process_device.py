@@ -49,6 +49,7 @@ def new_one(**kwargs):
     serial_number = kwargs.get("serial_number", "")
     vendor = kwargs.get("vendor")
     community = kwargs.get("community", "")
+    platform = kwargs.get("platform")
 
     logger.debug(kwargs)
 
@@ -66,6 +67,11 @@ def new_one(**kwargs):
         else:
             owner = new_data_obj("Customer", **{"name": device_owner})
 
+        if isinstance(eval(platform), int):
+            device_platform = Customer.query.get(eval(platform))
+        else:
+            device_platform = new_data_obj("Customer", **{"name": platform})
+
         new_device = Device(device_name=device_name,
                             device_owner=owner,
                             ip=device_ip,
@@ -79,8 +85,8 @@ def new_one(**kwargs):
                             os_version=os_version,
                             patch_version=patch_version,
                             serial_number=serial_number,
-                            community=community
+                            community=community,
+                            device_platform=device_platform
                             )
         db.session.add(new_device)
         return success_return(new_device, "") if db_commit() else false_return('', 'add device fail')
-

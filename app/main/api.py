@@ -32,6 +32,7 @@ def sync_interface():
         if len(data) > 0 and data.get('state') == 1:
             # do something to update the interface data for this device
             line.device_name = data.get("sysname")
+            line.monitor_status = 1
             for interface, int_info in data.get("interface").items():
                 update_interface = new_data_obj("Interfaces", **{"interface_name": interface, "device": line.id})
                 update_interface.interface_desc = int_info.get("DESC")
@@ -50,10 +51,9 @@ def sync_interface():
             return jsonify(db_commit())
         else:
             logger.warning(f"{data} no info for the interface")
-        # 这里要根据具体结果修改一下
-        return jsonify({'status': 'true'})
+            return jsonify(false_return(msg=f"{data} no info for the interface"))
     else:
-        return jsonify({'status': 'false', 'content': 'The device is not locked'})
+        return jsonify(false_return(msg='The device is not locked'))
 
 
 @main.route('/verify/ring', methods=["POST"])
