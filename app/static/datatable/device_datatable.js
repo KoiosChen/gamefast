@@ -189,7 +189,7 @@ var DatatableDevice = function () {
                 className: "center",
                 render: function (data, type, row) {
                     return '<a data-toggle="modal" data-target="#interface_query" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Query Interface">\
-                                    <i class="la la-edit"></i>\
+                                    <i class="la la-search"></i>\
                                 </a>';
 
                 }
