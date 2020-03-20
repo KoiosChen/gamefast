@@ -655,25 +655,46 @@ def line_update(line_data, line_obj):
                 l.domains.append(new_d)
         verify_ring_flag = True
 
-    if 'man' in to_update.keys() and to_update.get("man") == '0':
+    if 'a_man' in to_update.keys() and to_update.get("a_man") == '0':
         logger.debug(f"The MAN domains now are {l.domains}, delete the MAN domains and platform")
-        l.MAN_domains = []
-        l.MAN_platform = None
+        l.MAN_domains_a = []
+        l.MAN_platform_a = None
         db.session.commit()
 
-    # MAN domain update
-    if 'man_domains' in to_update.keys() and to_update['man_domains']:
-        platform_id = to_update.get('man_platform_id', l.MAN_platform)
+    if 'z_man' in to_update.keys() and to_update.get("z_man") == '0':
+        logger.debug(f"The MAN domains now are {l.domains}, delete the MAN domains and platform")
+        l.MAN_domains_z = []
+        l.MAN_platform_z = None
+        db.session.commit()
+
+    # Z MAN domain update
+    if 'z_man_domains' in to_update.keys() and to_update['z_man_domains']:
+        platform_id = to_update.get('z_man_platform_id', l.MAN_platform_z)
         # clear domains
-        if l.MAN_domains:
-            logger.debug(f"The MAN domains now are {l.domains}")
-            l.MAN_domains = []
+        if l.MAN_domains_z:
+            logger.debug(f"The MAN domains now are {l.MAN_domains_z}")
+            l.MAN_domains_z = []
             db.session.commit()
 
-        _d = to_update['man_domains'].split('_')
+        _d = to_update['z_man_domains'].split('_')
         for dm in _d:
             new_d = new_data_obj("Domains", **{"name": dm, "platform": platform_id})
-            l.MAN_domains.append(new_d)
+            l.MAN_domains_z.append(new_d)
+        verify_ring_flag = True
+
+    # A MAN domain update
+    if 'a_man_domains' in to_update.keys() and to_update['a_man_domains']:
+        platform_id = to_update.get('a_man_platform_id', l.MAN_platform_a)
+        # clear domains
+        if l.MAN_domains_a:
+            logger.debug(f"The MAN domains now are {l.MAN_domains_a}")
+            l.MAN_domains_a = []
+            db.session.commit()
+
+        _d = to_update['a_man_domains'].split('_')
+        for dm in _d:
+            new_d = new_data_obj("Domains", **{"name": dm, "platform": platform_id})
+            l.MAN_domains_a.append(new_d)
         verify_ring_flag = True
 
     # platform update
@@ -681,16 +702,21 @@ def line_update(line_data, line_obj):
         l.platform = to_update['platform_id']
         verify_ring_flag = True
 
-    if 'platform_id' in to_update.keys() and not to_update['platform_id']:
+    elif 'platform_id' in to_update.keys() and not to_update['platform_id']:
         l.platform = None
         if l.domains:
             logger.debug(f"The domains now are {l.domains}")
             l.domains = []
             db.session.commit()
 
-    # MAN platform update
-    if 'man_platform_id' in to_update.keys() and to_update['man_platform_id']:
-        l.MAN_platform = to_update['man_platform_id']
+    # a MAN platform update
+    if 'a_man_platform_id' in to_update.keys() and to_update['a_man_platform_id']:
+        l.MAN_platform_a = to_update['a_man_platform_id']
+        verify_ring_flag = True
+
+    # z MAN platform update
+    if 'z_man_platform_id' in to_update.keys() and to_update['z_man_platform_id']:
+        l.MAN_platform_z = to_update['z_man_platform_id']
         verify_ring_flag = True
 
     # update vlan description

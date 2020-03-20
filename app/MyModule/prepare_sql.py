@@ -1,5 +1,6 @@
 from ..models import Search_LineDataBank, Contacts, Interfaces, Domains, Device, MachineRoom, City, LineDataBank, \
-    Customer, Files, Post, User, Vlan, lines_domains, Platforms, VXLAN, DIA, MPLS, IPManager, IPGroup, IPSupplier, man_lines_domains
+    Customer, Files, Post, User, Vlan, lines_domains, Platforms, VXLAN, DIA, MPLS, IPManager, IPGroup, IPSupplier, \
+    man_lines_domains_a, man_lines_domains_z
 from sqlalchemy.sql import func
 from sqlalchemy.orm import aliased
 from sqlalchemy import or_, and_
@@ -48,9 +49,11 @@ def search_sql(post_data, tab):
     mpls_interconnect_ip = aliased(IPManager)
     mpls_route_ip = aliased(IPManager)
     backbone_platform = aliased(Platforms)
-    man_platform = aliased(Platforms)
+    man_platform_a = aliased(Platforms)
+    man_platform_z = aliased(Platforms)
     backbone_domain = aliased(Domains)
-    man_domain = aliased(Domains)
+    man_domain_a = aliased(Domains)
+    man_domain_z = aliased(Domains)
 
     start_time, stop_time = format_daterange(search_date_range)
 
@@ -90,16 +93,21 @@ def search_sql(post_data, tab):
                 base_sql = base_sql.outerjoin(Vlan)
                 or_fields_list.append(Vlan.name.contains(search_content))
             elif f == 'platform_domain':
-                base_sql = base_sql.outerjoin(backbone_platform, LineDataBank.platform == backbone_platform.id).\
-                    outerjoin(man_platform, LineDataBank.MAN_platform == man_platform.id). \
-                    outerjoin(lines_domains).\
-                    outerjoin(backbone_domain).\
-                    outerjoin(man_lines_domains).\
-                    outerjoin(man_domain)
+                base_sql = base_sql.outerjoin(backbone_platform, LineDataBank.platform == backbone_platform.id). \
+                    outerjoin(man_platform_a, LineDataBank.MAN_platform_a == man_platform_a.id). \
+                    outerjoin(man_domain_z, LineDataBank.MAN_domains_z == man_domain_z.id). \
+                    outerjoin(lines_domains). \
+                    outerjoin(backbone_domain). \
+                    outerjoin(man_lines_domains_a). \
+                    outerjoin(man_domain_a). \
+                    outerjoin(man_lines_domains_z). \
+                    outerjoin(man_domain_z)
                 or_fields_list.append(backbone_platform.name.contains(search_content))
                 or_fields_list.append(backbone_domain.name.contains(search_content))
-                or_fields_list.append(man_platform.name.contains(search_content))
-                or_fields_list.append(man_domain.name.contains(search_content))
+                or_fields_list.append(man_platform_a.name.contains(search_content))
+                or_fields_list.append(man_domain_a.name.contains(search_content))
+                or_fields_list.append(man_domain_z.name.contains(search_content))
+                or_fields_list.append(man_platform_z.name.contains(search_content))
             elif f == 'pop':
                 base_sql = base_sql.outerjoin(a_interface, LineDataBank.a_pop_interface == a_interface.id). \
                     outerjoin(z_interface, LineDataBank.z_pop_interface == z_interface.id). \

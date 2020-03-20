@@ -32,8 +32,8 @@ var DatatableDPLC = function () {
             {label: "骨干平台:", name: "platform_id", type: "select"},
             {label: "骨干环:", name: "domains", type: "select"},
             {
-                label: "是否有城网:",
-                name: "man",
+                label: "A端城网:",
+                name: "a_man",
                 type: "select",
                 options: [
                     {label: "无城网", value: 0},
@@ -41,11 +41,26 @@ var DatatableDPLC = function () {
                 ],
                 def: 0
             },
-            {label: "城网平台:", name: "man_platform_id", type: "select"},
-            {label: "城网环:", name: "man_domains", type: "select"},
+            {label: "A城网平台:", name: "a_man_platform_id", type: "select"},
+            {label: "A城网环:", name: "a_man_domains", type: "select"},
+            {
+                label: "Z端城网:",
+                name: "z_man",
+                type: "select",
+                options: [
+                    {label: "无城网", value: 0},
+                    {label: "有城网", value: 1}
+                ],
+                def: 0
+            },
+
+            {label: "Z城网平台:", name: "z_man_platform_id", type: "select"},
+            {label: "Z城网环:", name: "z_man_domains", type: "select"},
+            {label: "A侧城网: ", name: "a_chain_man", type: "radio"},
             {label: "A侧(单链/畸形）: ", name: "a_chain", type: "radio"},
             {label: "主路由:", name: "main_route", type: "radio"},
             {label: "Z侧(单链/畸形）： ", name: 'z_chain', type: "radio"},
+            {label: "Z侧城网: ", name: "z_chain_man", type: "radio"},
             {label: "客户商务联系人姓名:", name: "biz_contact_name"},
             {label: "客户商务联系人电话:", name: "biz_contact_phoneNumber"},
             {label: "客户商务联系人邮箱:", name: "biz_contact_email"},
@@ -273,19 +288,23 @@ var DatatableDPLC = function () {
             {data: "protect"},
             {
                 data: null, render: function (data, type, row) {
-                    let man_platform = data.man_platform + ':' + data.man_domains;
-                    let backbone_platform = '平台: ' + data.platform + '<br>' + '环: ' + data.domains_bind + '<br>';
-                    if (data.man === '1' && data.platform !== '') {
-                        return backbone_platform + man_platform
-                    } else if (data.man === '1' && data.platform === '') {
-                        return man_platform
-                    } else if (data.man === '0' && data.platform !== '') {
-                        return backbone_platform
-                    } else {
-                        return ''
+                    let a_man_platform = "A: " + data.a_man_platform + ': ' + data.a_man_domains;
+                    let z_man_platform = "Z: " + data.z_man_platform + ': ' + data.z_man_domains;
+                    let backbone_platform = '骨干: ' + data.platform + ': ' + data.domains_bind;
+                    let platform = Array();
+
+                    if (data.a_man === '1') {
+                        platform.push(a_man_platform)
                     }
+                    if (data.platform !== '') {
+                        platform.push(backbone_platform)
+                    }
+                    if (data.z_man === '1') {
+                        platform.push(z_man_platform)
+                    }
+                    return platform.join('<br>')
                 },
-                editField: ['platform_id', 'domains', 'man', 'man_platform_id', 'man_domains']
+                editField: ['platform_id', 'domains', 'a_man', 'a_man_platform_id', 'a_man_domains', 'z_man', 'z_man_platform_id', 'z_man_domains']
             },
             {
                 data: null, render: function (data, type, row) {
@@ -396,11 +415,19 @@ $(document).ready(function () {
         }
     });
 
-    dplc_editor.dependent('man', function (val, data, callback) {
+    dplc_editor.dependent('a_man', function (val, data, callback) {
         if (val === 0) {
-            return {hide: ['man_platform_id', 'man_domains']}
+            return {hide: ['a_man_platform_id', 'a_man_domains']}
         } else {
-            return {show: ['man_platform_id', 'man_domains']}
+            return {show: ['a_man_platform_id', 'a_man_domains']}
+        }
+    });
+
+    dplc_editor.dependent('z_man', function (val, data, callback) {
+        if (val === 0) {
+            return {hide: ['z_man_platform_id', 'z_man_domains']}
+        } else {
+            return {show: ['z_man_platform_id', 'z_man_domains']}
         }
     });
 
@@ -420,7 +447,7 @@ $(document).ready(function () {
     });
 
 
-    dplc_editor.dependent('man_platform_id', function (val, data, callback) {
+    dplc_editor.dependent('a_man_platform_id', function (val, data, callback) {
         $.ajax({
             url: '/get_domain',
             data: {
@@ -429,7 +456,22 @@ $(document).ready(function () {
             dataType: 'json',
             type: 'post',
             success: function (jsonData) {
-                let options = {"options": {"man_domains": jsonData}};
+                let options = {"options": {"a_man_domains": jsonData}};
+                callback(options)
+            }
+        });
+    });
+
+    dplc_editor.dependent('z_man_platform_id', function (val, data, callback) {
+        $.ajax({
+            url: '/get_domain',
+            data: {
+                "data": val
+            },
+            dataType: 'json',
+            type: 'post',
+            success: function (jsonData) {
+                let options = {"options": {"z_man_domains": jsonData}};
                 callback(options)
             }
         });
