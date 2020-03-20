@@ -44,7 +44,8 @@
 
 
 {% block pagecontent %}
-    <div class="m-portlet m-portlet--success m-portlet--head-sm" data-portlet="true">
+    <div class="m-portlet m-portlet--success m-portlet--head-sm" data-portlet="true"
+         xmlns="http://www.w3.org/1999/html">
         <div class="m-portlet__head">
             <div class="m-portlet__head-caption">
                 <div class="m-portlet__head-title">
@@ -82,14 +83,14 @@
                     <span></span>
                 </div>
                 <div class="input-group col-lg-4 col-md-9 col-sm-12" id="search_m_daterange">
-                                <input type="text" class="form-control m-input" readonly="" name="search_daterange"
-                                       placeholder="选择割接时间范围">
-                                <div class="input-group-append">
+                    <input type="text" class="form-control m-input" readonly="" name="search_daterange"
+                           placeholder="选择割接时间范围">
+                    <div class="input-group-append">
                                     <span class="input-group-text">
                                         <i class="la la-calendar-check-o"></i>
                                     </span>
-                                </div>
-                            </div>
+                    </div>
+                </div>
                 <div class="col-lg-1">
                     <button type="submit" class="btn btn-brand" id="search_submit">
                         搜索
@@ -156,6 +157,12 @@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="m_line_data" role="tabpanel">
+                    <div>
+                        显示/隐藏:
+                        <button class="toggle-vis btn m-btn--pill m-btn--air btn-link" type="button" data-column="3">线路属性</button>-
+                        <button class="toggle-vis btn m-btn--pill m-btn--air btn-link" type="button" data-column="10">主用路由</button>-
+                        <button class="toggle-vis btn m-btn--pill m-btn--air btn-link" type="button" data-column="16">停用时间</button>
+                    </div>
                     <div class="m_datatable m-datatable m-datatable--default m-datatable--loaded" style>
                         <table id="example" class="display nowrap" style="width:100%">
                             <thead>

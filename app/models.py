@@ -20,6 +20,14 @@ lines_domains = db.Table('lines_domains',
                          db.Column('lines', db.Integer, db.ForeignKey('line_data_bank.id'), primary_key=True),
                          db.Column('domains', db.Integer, db.ForeignKey('domains.id'), primary_key=True))
 
+man_lines_domains_a = db.Table('man_lines_domains_a',
+                               db.Column('lines', db.Integer, db.ForeignKey('line_data_bank.id'), primary_key=True),
+                               db.Column('man_domains', db.Integer, db.ForeignKey('domains.id'), primary_key=True))
+
+man_lines_domains_z = db.Table('man_lines_domains_z',
+                               db.Column('lines', db.Integer, db.ForeignKey('line_data_bank.id'), primary_key=True),
+                               db.Column('man_domains', db.Integer, db.ForeignKey('domains.id'), primary_key=True))
+
 lines_cutoverorder = db.Table('lines_cutoverorder',
                               db.Column('lines', db.Integer, db.ForeignKey('line_data_bank.id'), primary_key=True),
                               db.Column('cutoverorder', db.String(50), db.ForeignKey('cutover_order.id'),
@@ -157,9 +165,13 @@ class Interconnection(db.Model):
     # ots number ots或者oss中的编号
     order_number = db.Column(db.String(20))
     customer = db.Column(db.Integer, db.ForeignKey('customer.id'), index=True)
+    # 引接缆客户端地址
+    a_client_addr = db.Column(db.String(200), index=True)
+    # 引接缆我司机房
     pop_device = db.Column(db.Integer, db.ForeignKey('device_list.id'), index=True)
     pop_interface = db.Column(db.Integer, db.ForeignKey('interfaces.id'), index=True)
     odf_info = db.Column(db.String(100))
+    # 客户设备信息，纯文字记录
     opposite_side_device = db.Column(db.String(100))
     interface_uptime = db.Column(db.DateTime)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
@@ -227,8 +239,16 @@ class Platforms(db.Model):
     name = db.Column(db.String(20), index=True, nullable=False)
     desc = db.Column(db.String(200))
     status = db.Column(db.SmallInteger, default=1, index=True)
+    type = db.Column(db.String(20), default='backbone', index=True)
     domains = db.relationship('Domains', backref='domain_platform', lazy='dynamic')
-    lines = db.relationship('LineDataBank', backref='line_platform', lazy='dynamic')
+    lines = db.relationship('LineDataBank', backref='line_platform', foreign_keys='LineDataBank.platform',
+                            lazy='dynamic')
+    lines_man_a = db.relationship("LineDataBank", backref='line_man_platform_a',
+                                  foreign_keys='LineDataBank.MAN_platform_a',
+                                  lazy='dynamic')
+    lines_man_z = db.relationship("LineDataBank", backref='line_man_platform_z',
+                                  foreign_keys='LineDataBank.MAN_platform_z',
+                                  lazy='dynamic')
     devices = db.relationship('Device', backref='device_platform', lazy='dynamic')
 
 
@@ -288,8 +308,11 @@ class LineDataBank(db.Model):
     channel_type = db.Column(db.SmallInteger, default=1, index=True)
     channel_number = db.Column(db.Integer, index=True)
     channel_unit = db.Column(db.String(20), default="G", index=True)
+
     protect = db.Column(db.Boolean, default=False, index=True)
+
     vlan = db.Column(db.Integer, db.ForeignKey('vlan.id'), index=True)
+
     main_route = db.Column(db.String(1000))
     main_e = db.Column(db.String(1000))
     backup_route = db.Column(db.String(1000))
@@ -297,6 +320,7 @@ class LineDataBank(db.Model):
     a_e = db.Column(db.String(1000))
     z_chain = db.Column(db.String(1000))
     z_e = db.Column(db.String(1000))
+
     line_operator = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     operate_time = db.Column(db.DateTime, index=True)
     memo = db.Column(db.String(500))
@@ -310,6 +334,11 @@ class LineDataBank(db.Model):
     posts = db.relationship('Post', backref='line_posts', lazy='dynamic')
     line_desc = db.Column(db.String(1000))
     __table_args__ = (UniqueConstraint('line_code', 'sub_line_code', name='_line_code_combine'),)
+    # 城网只有domain的概念，此处沿用platform对应domain的概念，这里的platform为可为上海城网、北京城网
+    MAN_platform_a = db.Column(db.Integer, db.ForeignKey('platforms.id'), index=True)
+    MAN_domains_a = db.relationship('Domains', secondary=man_lines_domains_a, backref=db.backref('man_lines_a'))
+    MAN_platform_z = db.Column(db.Integer, db.ForeignKey('platforms.id'), index=True)
+    MAN_domains_z = db.relationship('Domains', secondary=man_lines_domains_z, backref=db.backref('man_lines_z'))
 
     def __repr__(self):
         return '<Line code  %r>' % self.line_code
@@ -1002,7 +1031,7 @@ all_domains = ['domain1', 'domain2', 'domain3', 'domain4', 'domain5', 'domain6',
                'domain22', 'domain23', 'domain25', 'domain26', 'domain27', 'domain30', 'domain31', 'domain32',
                'domain33', 'domain34', 'domain35', 'domain37', 'domain38', 'domain39']
 
-multi_domains = domain_select = [
+multi_domains = [
     'domain5_domain15',
     'domain6_domain8',
     'domain5_domain38',

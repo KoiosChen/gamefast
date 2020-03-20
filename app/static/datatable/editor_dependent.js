@@ -90,7 +90,7 @@ var a_pop_show = function (editor) {
 
 
 var z_pop_show = function (editor) {
-    editor.dependent('search_city', function (val, data, callback) {
+    editor.dependent('search_city_z', function (val, data, callback) {
         $.ajax({
             url: '/search_city',
             async: false,

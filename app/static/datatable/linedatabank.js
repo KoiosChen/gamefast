@@ -5,7 +5,7 @@ var DatatableDPLC = function () {
         ajax: "/editor_test",
         table: "#example",
         fields: [
-            {label: "搜索A端城市：", name: "search_city",},
+            {label: "搜索A端城市：", name: "search_city_a",},
             {label: "A端城市", name: "a_pop_city_id", type: "select"},
             {label: "A端机房", name: "a_pop_id", type: "select"},
             {label: "A端设备", name: "a_pop_device_id", type: "select"},
@@ -29,21 +29,38 @@ var DatatableDPLC = function () {
             {label: "QinQ外层2", name: "qinq_outside2"},
             {label: "QinQ内层", name: "qinq_inside"},
             {label: "保护:", name: "protect", type: "select", options: ["是", "否"]},
-            {label: "平台:", name: "platform_id", type: "select"},
-            {label: "环:", name: "domains", type: "select"},
+            {label: "骨干平台:", name: "platform_id", type: "select"},
+            {label: "骨干环:", name: "domains", type: "select"},
             {
-                label: "是否有城网:",
-                name: "man",
-                type: "radio",
+                label: "A端城网:",
+                name: "a_man",
+                type: "select",
                 options: [
                     {label: "无城网", value: 0},
                     {label: "有城网", value: 1}
                 ],
                 def: 0
             },
+            {label: "A城网平台:", name: "a_man_platform_id", type: "select"},
+            {label: "A城网环:", name: "a_man_domains", type: "select"},
+            {
+                label: "Z端城网:",
+                name: "z_man",
+                type: "select",
+                options: [
+                    {label: "无城网", value: 0},
+                    {label: "有城网", value: 1}
+                ],
+                def: 0
+            },
+
+            {label: "Z城网平台:", name: "z_man_platform_id", type: "select"},
+            {label: "Z城网环:", name: "z_man_domains", type: "select"},
+            {label: "A侧城网: ", name: "a_chain_man", type: "radio"},
             {label: "A侧(单链/畸形）: ", name: "a_chain", type: "radio"},
             {label: "主路由:", name: "main_route", type: "radio"},
             {label: "Z侧(单链/畸形）： ", name: 'z_chain', type: "radio"},
+            {label: "Z侧城网: ", name: "z_chain_man", type: "radio"},
             {label: "客户商务联系人姓名:", name: "biz_contact_name"},
             {label: "客户商务联系人电话:", name: "biz_contact_phoneNumber"},
             {label: "客户商务联系人邮箱:", name: "biz_contact_email"},
@@ -61,7 +78,7 @@ var DatatableDPLC = function () {
     $('#example').on('click', 'tbody td', function (e) {
         let index = $(this).index();
         let product_model = $(this).parent().find('td').eq(1).text().search('DCA|SDWAN');
-        let head_name = $('#example').find("thead").eq(0).find("tr").eq(0).find("th").eq(index).text()
+        let head_name = $('#example').find("thead").eq(0).find("tr").eq(0).find("th").eq(index).text();
         // 路由
         if (head_name === "主用路由") {
             let a_z_chain = [];
@@ -147,195 +164,24 @@ var DatatableDPLC = function () {
         }
         // vlan
         else if (head_name === "Vlan") {
-            editor.dependent('vlan_type', function (val, data, callback) {
-                if (val === 'access' || val === 'trunk') {
-                    return {hide: ['vlan_map_to', 'qinq_outside2', 'qinq_inside']}
-                } else if (val === 'qinq') {
-                    return {
-                        show: ['qinq_inside'],
-                        hide: ['vlan_map_to', 'qinq_outside2']
-                    }
-                } else if (val === 'multi_qinq') {
-                    return {
-                        show: ['qinq_outside2', 'qinq_inside'],
-                        hide: ['vlan_map_to']
-                    }
-                } else if (val === 'vlan_map') {
-                    return {
-                        show: ['vlan_map_to'],
-                        hide: ['qinq_outside2', 'qinq_inside']
-                    }
-                }
-            });
-            editor.bubble(this, {
-                submit: 'changed'
-            });
-        }
-        // vlan
-        else if (head_name === "平台") {
-            editor.dependent('man', function (val, data, callback) {
-                if (val === 1) {
-                    alert('have')
-                } else if (val === 0) {
-                    alert('no')
-                }
-            });
             editor.bubble(this, {
                 submit: 'changed'
             });
         }
         // A info
         else if (head_name === "A端信息") {
-            editor.dependent('search_city', function (val, data, callback) {
-                $.ajax({
-                    url: '/search_city',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        if (jsonData.status === 'true') {
-                            let options = {"options": {"a_pop_city_id": jsonData.content}};
-                            callback(options)
-                        }
-                    }
-                });
-            });
-
-            editor.dependent('search_city_z', function (val, data, callback) {
-                $.ajax({
-                    url: '/search_city',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        if (jsonData.status === 'true') {
-                            let options = {"options": {"z_pop_city_id": jsonData.content}};
-                            callback(options)
-                        }
-
-                    }
-                });
-            });
-
-
-            editor.dependent('a_pop_city_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_pop',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"a_pop_id": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
-
-            editor.dependent('a_pop_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_device',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"a_pop_device_id": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
-
-            editor.dependent('a_pop_device_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_interface',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"a_pop_interface_id": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
             editor.bubble(this, {
                 submit: 'changed'
             });
         }
         // Z info
         else if (head_name === "Z端信息") {
-            editor.dependent('z_pop_city_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_pop',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"z_pop_id": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
-
-            editor.dependent('z_pop_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_device',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"z_pop_device_id": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
-
-            editor.dependent('z_pop_device_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_interface',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"z_pop_interface_id": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
             editor.bubble(this, {
                 submit: 'changed'
             });
         }
         // platform and domain
         else if (head_name === "平台") {
-            editor.dependent('platform_id', function (val, data, callback) {
-                $.ajax({
-                    url: '/get_domain',
-                    data: {
-                        "data": val
-                    },
-                    dataType: 'json',
-                    type: 'post',
-                    success: function (jsonData) {
-                        let options = {"options": {"domains": jsonData}};
-                        callback(options)
-                    }
-                });
-            });
             editor.bubble(this, {
                 submit: 'changed'
             });
@@ -442,9 +288,23 @@ var DatatableDPLC = function () {
             {data: "protect"},
             {
                 data: null, render: function (data, type, row) {
-                    return '平台: ' + data.platform + '<br>' + '环: ' + data.domains_bind;
+                    let a_man_platform = "A: " + data.a_man_platform + ': ' + data.a_man_domains;
+                    let z_man_platform = "Z: " + data.z_man_platform + ': ' + data.z_man_domains;
+                    let backbone_platform = '骨干: ' + data.platform + ': ' + data.domains_bind;
+                    let platform = Array();
+
+                    if (data.a_man === '1') {
+                        platform.push(a_man_platform)
+                    }
+                    if (data.platform !== '') {
+                        platform.push(backbone_platform)
+                    }
+                    if (data.z_man === '1') {
+                        platform.push(z_man_platform)
+                    }
+                    return platform.join('<br>')
                 },
-                editField: ['platform_id', 'domains', 'man']
+                editField: ['platform_id', 'domains', 'a_man', 'a_man_platform_id', 'a_man_domains', 'z_man', 'z_man_platform_id', 'z_man_domains']
             },
             {
                 data: null, render: function (data, type, row) {
@@ -454,7 +314,7 @@ var DatatableDPLC = function () {
                         return ""
                     }
                 },
-                editField: ['search_city', 'a_pop_city_id', 'a_pop_id', 'a_pop_device_id', 'a_pop_interface_id'],
+                editField: ['search_city_a', 'a_pop_city_id', 'a_pop_id', 'a_pop_device_id', 'a_pop_interface_id'],
             },
             {
                 data: null, render: function (data, type, row) {
@@ -508,7 +368,7 @@ var DatatableDPLC = function () {
         buttons: []
     });
 
-    $('a.toggle-vis').on('click', function (e) {
+    $('button.toggle-vis').on('click', function (e) {
         e.preventDefault();
 
         // Get the column API object
@@ -518,11 +378,14 @@ var DatatableDPLC = function () {
         column.visible(!column.visible());
     });
 
-    return table
+    let results = new Array(editor, table)
+    return results
 };
 
 $(document).ready(function () {
-    var dplc_table = DatatableDPLC();
+    var dplc_tables = DatatableDPLC();
+    var dplc_editor = dplc_tables[0];
+    var dplc_table = dplc_tables[1];
     var vxlan_table = DatatableVXLAN();
     var dia_ip = DatatableDIA();
     var dia_table = dia_ip[0];
@@ -530,6 +393,92 @@ $(document).ready(function () {
     var the_mpls = DatatableMPLS();
     var mpls_table = the_mpls[0];
     var mpls_attribute_table = the_mpls[1];
+
+    dplc_editor.dependent('vlan_type', function (val, data, callback) {
+        if (val === 'access' || val === 'trunk') {
+            return {hide: ['vlan_map_to', 'qinq_outside2', 'qinq_inside']}
+        } else if (val === 'qinq') {
+            return {
+                show: ['qinq_inside'],
+                hide: ['vlan_map_to', 'qinq_outside2']
+            }
+        } else if (val === 'multi_qinq') {
+            return {
+                show: ['qinq_outside2', 'qinq_inside'],
+                hide: ['vlan_map_to']
+            }
+        } else if (val === 'vlan_map') {
+            return {
+                show: ['vlan_map_to'],
+                hide: ['qinq_outside2', 'qinq_inside']
+            }
+        }
+    });
+
+    dplc_editor.dependent('a_man', function (val, data, callback) {
+        if (val === 0) {
+            return {hide: ['a_man_platform_id', 'a_man_domains']}
+        } else {
+            return {show: ['a_man_platform_id', 'a_man_domains']}
+        }
+    });
+
+    dplc_editor.dependent('z_man', function (val, data, callback) {
+        if (val === 0) {
+            return {hide: ['z_man_platform_id', 'z_man_domains']}
+        } else {
+            return {show: ['z_man_platform_id', 'z_man_domains']}
+        }
+    });
+
+    dplc_editor.dependent('platform_id', function (val, data, callback) {
+        $.ajax({
+            url: '/get_domain',
+            data: {
+                "data": val
+            },
+            dataType: 'json',
+            type: 'post',
+            success: function (jsonData) {
+                let options = {"options": {"domains": jsonData}};
+                callback(options)
+            }
+        });
+    });
+
+
+    dplc_editor.dependent('a_man_platform_id', function (val, data, callback) {
+        $.ajax({
+            url: '/get_domain',
+            data: {
+                "data": val
+            },
+            dataType: 'json',
+            type: 'post',
+            success: function (jsonData) {
+                let options = {"options": {"a_man_domains": jsonData}};
+                callback(options)
+            }
+        });
+    });
+
+    dplc_editor.dependent('z_man_platform_id', function (val, data, callback) {
+        $.ajax({
+            url: '/get_domain',
+            data: {
+                "data": val
+            },
+            dataType: 'json',
+            type: 'post',
+            success: function (jsonData) {
+                let options = {"options": {"z_man_domains": jsonData}};
+                callback(options)
+            }
+        });
+    });
+
+    a_pop_show(dplc_editor);
+    z_pop_show(dplc_editor);
 
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -574,7 +523,9 @@ $(document).ready(function () {
         console.log(search_field);
         let search_content = $('#search_content').val();
         let search_field_date = $('#search_field_date').val();
+        console.log(search_field_date)
         let search_date_range = $('#search_m_daterange .form-control').val();
+        console.log(search_date_range)
         let myajax = {
             'search_field': JSON.stringify(search_field),
             'search_content': search_content,

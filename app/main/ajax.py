@@ -394,6 +394,10 @@ def get_route():
             send_content = {"a_city": line_data.a_interface.device_interface.machine_room.cities.city,
                             "z_city": line_data.z_interface.device_interface.machine_room.cities.city,
                             "platform": line_data.line_platform.name,
+                            "a_man_platform": line_data.man_line_platform_a.name,
+                            "a_man_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_a])),
+                            "z_man_platform": line_data.man_line_platform_z.name,
+                            "z_man_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_z])),
                             "vlan": line_data.vlans.name,
                             "domains": '_'.join(sorted([d.name for d in line_data.domains]))}
             logger.debug(send_content)
@@ -464,13 +468,16 @@ def get_route():
 @permission_required(Permission.MAN_ON_DUTY)
 def get_domain():
     logger.debug('get pop')
+    man_domains = {'3': ['domain1', 'domain2'], '4': 'domain2'}
     platform_id = request.form.get('data')
-    if platform_id == "1":
-        return jsonify(all_domains + multi_domains)
-    elif not platform_id:
+    if not platform_id:
         return jsonify([{}])
-    else:
+    elif platform_id == "1":
+        return jsonify(all_domains + multi_domains)
+    elif platform_id == "2":
         return jsonify(erps_instance)
+    else:
+        return jsonify(man_domains[platform_id])
 
 
 @main.route('/search_city', methods=["POST"])
