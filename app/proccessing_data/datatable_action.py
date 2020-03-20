@@ -636,38 +636,61 @@ def line_update(line_data, line_obj):
             verify_ring_flag = True
         l.z_pop_interface = to_update['z_pop_interface_id']
 
-    # domain update
-    if 'domains' in to_update.keys():
+    # backbone domain update
+    if 'domains' in to_update.keys() and to_update['domains']:
+        platform_id = to_update.get('platform_id', l.platform)
         if l.domains:
-            print("now ", l.domains)
+            logger.debug(f"The domains now are {l.domains}")
             l.domains = []
             db.session.commit()
-        if 'ERPS' in to_update['domains']:
-            if not Domains.query.filter_by(name=to_update['domains']).first():
-                new_d = Domains(name=to_update['domains'], platform=2)
-                db.session.add(new_d)
-                db.session.commit()
-            else:
-                new_d = Domains.query.filter_by(name=to_update['domains']).first()
 
+        if 'ERPS' in to_update['domains']:
+            new_d = new_data_obj("Domains", **{"name": to_update['domains'], "platform": platform_id})
             l.domains.append(new_d)
 
         else:
             _d = to_update['domains'].split('_')
-
             for dm in _d:
-                if not Domains.query.filter_by(name=dm).first():
-                    new_d = Domains(name=dm, platform=1)
-                    db.session.add(new_d)
-                    db.session.commit()
-                else:
-                    new_d = Domains.query.filter_by(name=dm).first()
-
+                new_d = new_data_obj("Domains", **{"name": dm, "platform": platform_id})
                 l.domains.append(new_d)
         verify_ring_flag = True
+
+    if 'man' in to_update.keys() and to_update.get("man") == '0':
+        logger.debug(f"The MAN domains now are {l.domains}, delete the MAN domains and platform")
+        l.MAN_domains = []
+        l.MAN_platform = None
+        db.session.commit()
+
+    # MAN domain update
+    if 'man_domains' in to_update.keys() and to_update['man_domains']:
+        platform_id = to_update.get('man_platform_id', l.MAN_platform)
+        # clear domains
+        if l.MAN_domains:
+            logger.debug(f"The MAN domains now are {l.domains}")
+            l.MAN_domains = []
+            db.session.commit()
+
+        _d = to_update['man_domains'].split('_')
+        for dm in _d:
+            new_d = new_data_obj("Domains", **{"name": dm, "platform": platform_id})
+            l.MAN_domains.append(new_d)
+        verify_ring_flag = True
+
     # platform update
-    if 'platform_id' in to_update.keys():
+    if 'platform_id' in to_update.keys() and to_update['platform_id']:
         l.platform = to_update['platform_id']
+        verify_ring_flag = True
+
+    if 'platform_id' in to_update.keys() and not to_update['platform_id']:
+        l.platform = None
+        if l.domains:
+            logger.debug(f"The domains now are {l.domains}")
+            l.domains = []
+            db.session.commit()
+
+    # MAN platform update
+    if 'man_platform_id' in to_update.keys() and to_update['man_platform_id']:
+        l.MAN_platform = to_update['man_platform_id']
         verify_ring_flag = True
 
     # update vlan description

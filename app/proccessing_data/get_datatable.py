@@ -67,6 +67,10 @@ def make_table(lines=None, page_start=None, length=None):
              "platform_id": l.line_platform.id if l.line_platform else {},
              "domains_bind": '_'.join(sorted([d.name for d in l.domains])) if l.domains else "",
              "domains": '_'.join(sorted([d.name for d in l.domains])) if l.domains else {},
+             "man_platform": l.line_man_platform.name if l.line_man_platform else "",
+             "man_platform_id": l.MAN_platform if l.MAN_platform else "",
+             "man_domains": '_'.join(sorted([d.name for d in l.MAN_domains])) if l.MAN_domains else "",
+             "man": "1" if l.MAN_platform else "0",
              "product_type": l.product_type,
              "product_model": l.product_model,
              "validate_rrpp_status": l.validate_rrpp_status,
@@ -393,8 +397,12 @@ def make_options():
                                        Device.query.all()],
             "z_pop_interface_id": [{}] + [{"label": interface.interface_name, "value": interface.id} for interface
                                           in Interfaces.query.all()],
-            "platform_id": [{}] + [{"label": p.name, "value": p.id} for p in Platforms.query.all()],
+            "platform_id": [{}] + [{"label": p.name, "value": p.id} for p in
+                                   Platforms.query.filter(Platforms.type.__eq__("backbone")).all()],
+            "man_platform_id": [{}] + [{"label": p.name, "value": p.id} for p in
+                                       Platforms.query.filter(Platforms.type.__ne__("backbone")).all()],
             "domains": [{}] + all_domains + multi_domains + erps_instance,
+            "man_domains": [{}] + ['domain1', 'domain2'],
             "mode": [{"label": "网关模式", "value": 1}, {"label": "路由模式", "value": 2}],
             "supplier_id": [
                 {"label": supplier.supplier.name + " / " + supplier.line_code + " / " + mode_dict[supplier.mode],

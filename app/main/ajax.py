@@ -464,13 +464,16 @@ def get_route():
 @permission_required(Permission.MAN_ON_DUTY)
 def get_domain():
     logger.debug('get pop')
+    man_domains = {'3': ['domain1', 'domain2'], '4': 'domain2'}
     platform_id = request.form.get('data')
-    if platform_id == "1":
-        return jsonify(all_domains + multi_domains)
-    elif not platform_id:
+    if not platform_id:
         return jsonify([{}])
-    else:
+    elif platform_id == "1":
+        return jsonify(all_domains + multi_domains)
+    elif platform_id == "2":
         return jsonify(erps_instance)
+    else:
+        return jsonify(man_domains[platform_id])
 
 
 @main.route('/search_city', methods=["POST"])
