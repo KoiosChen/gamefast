@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
-from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import config
@@ -36,7 +35,6 @@ class SQLAlchemy(SQLAlchemyBase):
 redis_db = redis.Redis(host='localhost', port=6379, db=7, decode_responses=True)
 
 bootstrap = Bootstrap()
-moment = Moment()
 db = SQLAlchemy()
 login_manager = LoginManager()
 scheduler = APScheduler()
@@ -70,7 +68,6 @@ def create_app(config_name):
 
     bootstrap.init_app(app)
     sess.init_app(app)
-    moment.init_app(app)
     db.app = app
     db.init_app(app)
     db.create_scoped_session()
