@@ -52,8 +52,8 @@ class sendmail:
 
         msg['Subject'] = Header(self.SUBJECT, "utf-8")
         msg['From'] = self.FROM
-        msg['To'] = self.TO
-        msg['BCc'] = self.BCC
+        msg['To'] = ','.join(self.TO) if isinstance(self.TO, list) else self.TO
+        msg['BCc'] = ','.join(self.BCC) if isinstance(self.BCC, list) else self.BCC
         msg["Accept-Language"] = "zh-CN"
         msg["Accept-Charset"] = "ISO-8859-1,utf-8,gb2312"
         logger.debug(type(self.TO))
@@ -69,7 +69,7 @@ class sendmail:
             send_msg = msg.as_string()
             logger.debug('************** mail content ***************\n')
             logger.debug(f'{send_msg}')
-            server.sendmail(from_addr=self.FROM, to_addrs=to_ + bcc_, msg=send_msg)
+            server.sendmail(from_addr=self.FROM, to_addrs=total_sent_to, msg=send_msg)
             server.quit()
             logger.info(f">>> It is success to send the mail!")
             return True
