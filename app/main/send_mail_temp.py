@@ -1,6 +1,6 @@
 from flask import request, jsonify, session, render_template
 from flask_login import login_required
-from ..models import Permission, LineDataBank, CutoverOrder, MailTemplet, company_regex
+from ..models import Permission, LineDataBank, CutoverOrder, MailTemplet, company_regex, MailResult_Path
 from ..decorators import permission_required
 from .. import logger, db, nesteddict
 from . import main
@@ -21,7 +21,7 @@ def send_cutover_mail_from_excel():
         return jsonify({'status': 'false', 'content': '未上传文件'})
 
     new_cutorder = CutoverOrder()
-    filepath = os.path.join('mail_result', new_cutorder.id)
+    filepath = os.path.join(MailResult_Path, new_cutorder.id)
     if not os.path.exists(filepath):
         logger.debug(f'create new result director {filepath}')
         os.mkdir(filepath)
