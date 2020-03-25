@@ -63,7 +63,9 @@ class sendmail:
             send_msg = msg.as_string()
             logger.info('************** mail content ***************\n')
             logger.debug(f'{send_msg}')
-            server.sendmail(self.FROM, [self.TO, self.BCC], send_msg)
+            to_ = self.TO if isinstance(self.TO, list) else [self.TO]
+            bcc_ = self.BCC if isinstance(self.BCC, list) else [self.BCC]
+            server.sendmail(self.FROM, to_ + bcc_, send_msg)
             server.quit()
             logger.info(f">>> It is success to send the mail to {self.TO}, {self.BCC}!")
             return True
