@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from app.MyModule import py_syslog
 from app.MyModule import SeqPickle, SchedulerControl
 from app.MyModule import AllocateQueueWork, RequestPost
+from app.common import init_path
 
 __author__ = 'Koios'
 
@@ -32,6 +33,9 @@ if init_status == '0':
 else:
     # 根据数据库配置修改scheduler计划, 用户覆盖默认配置文件中的配置
     SchedulerControl.scheduler_modify()
+
+# 初始化路径
+init_path()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=1111, debug=False)
