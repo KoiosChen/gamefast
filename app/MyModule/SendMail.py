@@ -65,10 +65,12 @@ class sendmail:
             logger.debug(f'{send_msg}')
             to_ = self.TO if isinstance(self.TO, list) else [self.TO]
             bcc_ = self.BCC if isinstance(self.BCC, list) else [self.BCC]
+            total_sent_to = to_ + bcc_
+            logger.debug(total_sent_to)
             server.sendmail(self.FROM, to_ + bcc_, send_msg)
             server.quit()
-            logger.info(f">>> It is success to send the mail to {self.TO}, {self.BCC}!")
+            logger.info(f">>> It is success to send the mail to {str(total_sent_to)}!")
             return True
         except Exception as e:
-            logger.info(f">>> It is failed to send the mail to {self.TO}, {self.BCC} for {e}!")
+            logger.info(f">>> It is failed to send the mail for {e}!")
             return False
