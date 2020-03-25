@@ -52,24 +52,26 @@ class sendmail:
 
         msg['Subject'] = Header(self.SUBJECT, "utf-8")
         msg['From'] = self.FROM
-        msg['To'] = self.TO
-        msg['BCc'] = self.BCC
+        msg['To'] = ','.join(self.TO) if isinstance(self.TO, list) else self.TO
+        msg['BCc'] = ','.join(self.BCC) if isinstance(self.BCC, list) else self.BCC
         msg["Accept-Language"] = "zh-CN"
         msg["Accept-Charset"] = "ISO-8859-1,utf-8,gb2312"
+        logger.debug(type(self.TO))
+        logger.debug(type(self.BCC))
+        to_ = self.TO if isinstance(self.TO, list) else [self.TO]
+        bcc_ = self.BCC if isinstance(self.BCC, list) else [self.BCC]
+        total_sent_to = to_ + bcc_
+        logger.debug(total_sent_to)
         try:
             server = smtplib.SMTP(timeout=30)
             server.connect(self.HOST, "25")
             server.login(self.FROM, self.PASSWD)
             send_msg = msg.as_string()
-            logger.info('************** mail content ***************\n')
+            logger.debug('************** mail content ***************\n')
             logger.debug(f'{send_msg}')
-            to_ = self.TO if isinstance(self.TO, list) else [self.TO]
-            bcc_ = self.BCC if isinstance(self.BCC, list) else [self.BCC]
-            total_sent_to = to_ + bcc_
-            logger.debug(total_sent_to)
-            server.sendmail(self.FROM, to_ + bcc_, send_msg)
+            server.sendmail(from_addr=self.FROM, to_addrs=total_sent_to, msg=send_msg)
             server.quit()
-            logger.info(f">>> It is success to send the mail to {str(total_sent_to)}!")
+            logger.info(f">>> It is success to send the mail!")
             return True
         except Exception as e:
             logger.info(f">>> It is failed to send the mail for {e}!")
