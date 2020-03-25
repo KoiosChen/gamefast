@@ -62,17 +62,14 @@ class sendmail:
         bcc_ = self.BCC if isinstance(self.BCC, list) else [self.BCC]
         total_sent_to = to_ + bcc_
         logger.debug(total_sent_to)
-        try:
-            server = smtplib.SMTP(timeout=30)
-            server.connect(self.HOST, "25")
-            server.login(self.FROM, self.PASSWD)
-            send_msg = msg.as_string()
-            logger.debug('************** mail content ***************\n')
-            logger.debug(f'{send_msg}')
-            server.sendmail(from_addr=self.FROM, to_addrs=to_ + bcc_, msg=send_msg)
-            server.quit()
-            logger.info(f">>> It is success to send the mail to {str(total_sent_to)}!")
-            return True
-        except Exception as e:
-            logger.info(f">>> It is failed to send the mail for {e}!")
-            return False
+        server = smtplib.SMTP(timeout=30)
+        server.connect(self.HOST, "25")
+        server.login(self.FROM, self.PASSWD)
+        send_msg = msg.as_string()
+        logger.debug('************** mail content ***************\n')
+        logger.debug(f'{send_msg}')
+        server.sendmail(from_addr=self.FROM, to_addrs=to_ + bcc_, msg=send_msg)
+        server.quit()
+        logger.info(f">>> It is success to send the mail to {str(total_sent_to)}!")
+        return True
+
