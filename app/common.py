@@ -1,4 +1,4 @@
-from . import db, logger
+from . import db, logger, redis_db
 from .models import CONFIG_FILE_PATH, QRCode_PATH, MailResult_Path, MailTemplet_Path, Temp_File_Path, UploadFile_Path, \
     Cutover_Path_Temp, MailTemplet_Path_Temp, UploadFile_Path_Temp, CACTI_PIC_FOLDER, UPLOAD_FOLDER
 import os
@@ -24,6 +24,16 @@ def db_commit():
         logger.error(f"db commit error for {e}")
         db.session.rollback()
         return false_return("", f"db commit fail for {e}")
+
+
+def init_mailto():
+    """
+    默认mail_to whnoc@nbl.net.cn，mail_bcc: chenjinzhang@nbl.net.cn
+    """
+    if not redis_db.exists('mail_to'):
+        redis_db.lpush("mail_to", "whnoc@nbl.net.cn")
+    if not redis_db.exists('mail_bcc'):
+        redis_db.lpush("mail_bcc", "chenjinzhang@nbl.net.cn")
 
 
 def init_path():
@@ -53,4 +63,3 @@ def init_path():
               QRCode_PATH, Temp_File_Path]:
         if not os.path.exists(p):
             os.makedirs(p)
-
