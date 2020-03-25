@@ -138,7 +138,7 @@ def send_cutover_mail_from_excel():
         attrs = list()
         for a in attachments:
             attrs.append(SM.addAttachFile(a))
-        send_flag = False
+        send_flag = True
         if send_flag:
             if SM.send(addattach=attrs):
                 new_cutorder.total = len(attachments)
