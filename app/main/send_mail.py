@@ -16,9 +16,9 @@ from ..proccessing_data.proccess.public_methods import save_xlsx
 @permission_required(Permission.MAN_ON_DUTY)
 def update_mail_templet():
     f = request.files.get('file')  # 获取文件对象
-    if not os.path.exists(MailTemplet_Path_Temp):
-        os.mkdir(MailTemplet_Path_Temp)
-    complete_filename = os.path.join(MailTemplet_Path_Temp, f.filename)
+    if not os.path.exists(MailTemplet_Path):
+        os.mkdir(MailTemplet_Path)
+    complete_filename = os.path.join(MailTemplet_Path, f.filename)
     f.save(complete_filename)
     session['mail_templet_upload'] = complete_filename
     f.close()
@@ -55,32 +55,32 @@ def new_templet():
     else:
         return jsonify({'status': 'fail', 'content': "未上传文件"})
 
-    for ef in os.listdir(MailTemplet_Path):
-        print(ef)
-        target_file = os.path.join(MailTemplet_Path, ef)
-        if os.path.isfile(target_file):
-            target_md5 = md5_file(target_file)
-            print(target_md5, source_md5)
-            if target_md5 == source_md5:
-                logger.info('file exist')
-                result_filepath = target_file
-                exist_flag = True
-                break
-    if exist_flag:
-        # 如果目标文件夹已经存在该文件，则删除零时文件夹中的文件，直接用目标文件夹中的已存在文件
-        os.remove(templet_filepath)
-    else:
-        target_filename = source_md5 + '.' + os.path.split(templet_filepath)[-1].split('.')[-1]
-        shutil.move(templet_filepath, os.path.join(MailTemplet_Path, target_filename))
-        result_filepath = os.path.join(MailTemplet_Path, target_filename)
+    # for ef in os.listdir(MailTemplet_Path):
+    #     print(ef)
+    #     target_file = os.path.join(MailTemplet_Path, ef)
+    #     if os.path.isfile(target_file):
+    #         target_md5 = md5_file(target_file)
+    #         print(target_md5, source_md5)
+    #         if target_md5 == source_md5:
+    #             logger.info('file exist')
+    #             result_filepath = target_file
+    #             exist_flag = True
+    #             break
+    # if exist_flag:
+    #     # 如果目标文件夹已经存在该文件，则删除零时文件夹中的文件，直接用目标文件夹中的已存在文件
+    #     os.remove(templet_filepath)
+    # else:
+    #     target_filename = source_md5 + '.' + os.path.split(templet_filepath)[-1].split('.')[-1]
+    #     shutil.move(templet_filepath, os.path.join(MailTemplet_Path, target_filename))
+    #     result_filepath = os.path.join(MailTemplet_Path, target_filename)
 
     if not MailTemplet.query.filter_by(name=templet_name).first() and not hid:
-        new_one = MailTemplet(name=templet_name, desc=templet_desc, attachment_path=result_filepath)
+        new_one = MailTemplet(name=templet_name, desc=templet_desc, attachment_path=templet_filepath)
     elif hid:
         new_one = MailTemplet.query.get(int(hid))
         if os.path.exists(new_one.attachment_path):
             os.remove(new_one.attachment_path)
-        new_one.attachment_path = result_filepath
+        new_one.attachment_path = templet_filepath
         if templet_desc:
             new_one.desc = templet_desc
     else:
