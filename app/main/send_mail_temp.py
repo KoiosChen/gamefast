@@ -42,7 +42,7 @@ def send_cutover_mail_from_excel():
     cutover_reason = mail_json.get('cutover_reason')
     cutover_emergency = mail_json.get('cutover_emergency', None)
     cutover_duration = mail_json.get('cutover_duration') if mail_json.get('cutover_duration') else "割接"
-    cutover_email = mail_json.setdefault('cutover_email', 'whnoc@nbl.net.cn')
+    cutover_email = mail_json.get('cutover_email')
 
     # 验证参数
     pass
@@ -134,7 +134,7 @@ def send_cutover_mail_from_excel():
         document.write(filename)
         document.close()
     try:
-        SM = sendmail(subject='割接通知自动汇总_' + str(datetime.datetime.now()), mail_to=cutover_email)
+        SM = sendmail(subject='割接通知自动汇总_' + str(datetime.datetime.now()))
         attrs = list()
         for a in attachments:
             attrs.append(SM.addAttachFile(a))
