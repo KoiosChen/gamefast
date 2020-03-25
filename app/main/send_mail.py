@@ -21,6 +21,7 @@ def update_mail_templet():
     complete_filename = os.path.join(MailTemplet_Path_Temp, f.filename)
     f.save(complete_filename)
     session['mail_templet_upload'] = complete_filename
+    f.close()
     return complete_filename
 
 
