@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 from app.MyModule import py_syslog
 from app.MyModule import SeqPickle, SchedulerControl
 from app.MyModule import AllocateQueueWork, RequestPost
-from app.common import init_path
+from app.common import init_path, init_mailto
 
 __author__ = 'Koios'
 
@@ -36,6 +36,9 @@ else:
 
 # 初始化路径
 init_path()
+
+# 初始化邮件发送对象
+init_mailto()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=1111, debug=False)
