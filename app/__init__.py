@@ -13,8 +13,6 @@ import queue
 from app.MyModule import Snmp
 from flask_sqlalchemy import SQLAlchemy as SQLAlchemyBase
 from sqlalchemy.pool import NullPool
-from flasgger import Swagger
-from flask_restplus import Api
 import multiprocessing
 
 
