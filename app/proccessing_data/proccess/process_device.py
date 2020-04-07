@@ -47,9 +47,9 @@ def new_one(**kwargs):
     os_version = kwargs.get("os_version", "")
     patch_version = kwargs.get("patch_version", "")
     serial_number = kwargs.get("serial_number", "")
-    vendor = kwargs.get("vendor")
+    vendor = kwargs.get("device_vendor", "")
     community = kwargs.get("community", "")
-    platform = kwargs.get("platform")
+    platform = kwargs.setdefault("platform", "")
 
     logger.debug(kwargs)
 
@@ -57,20 +57,17 @@ def new_one(**kwargs):
         return {"status": False, "content": f"{device_name} - {device_ip} {device_model} exist"}
 
     else:
-        if isinstance(eval(machine_room), int):
-            mr = MachineRoom.query.filter_by(id=eval(machine_room), status=1).first()
-        else:
+        try:
+            machine_room_id = eval(machine_room)
+            mr = MachineRoom.query.filter_by(id=machine_room_id, status=1).first()
+        except NameError:
             mr = MachineRoom.query.filter_by(name=machine_room, status=1).first()
 
-        if isinstance(eval(device_owner), int):
-            owner = Customer.query.get(eval(device_owner))
-        else:
+        try:
+            device_owner_id = eval(device_owner)
+            owner = Customer.query.get(device_owner_id)
+        except NameError:
             owner = new_data_obj("Customer", **{"name": device_owner})
-
-        if isinstance(eval(platform), int):
-            device_platform = Customer.query.get(eval(platform))
-        else:
-            device_platform = new_data_obj("Customer", **{"name": platform})
 
         new_device = Device(device_name=device_name,
                             device_owner=owner,
@@ -85,8 +82,14 @@ def new_one(**kwargs):
                             os_version=os_version,
                             patch_version=patch_version,
                             serial_number=serial_number,
-                            community=community,
-                            device_platform=device_platform
+                            community=community
                             )
+        if platform:
+            try:
+                platform_id = eval(platform)
+                device_platform = Customer.query.get(platform_id)
+            except NameError:
+                device_platform = new_data_obj("Customer", **{"name": platform})
+            new_device.device_platform = device_platform
         db.session.add(new_device)
         return success_return(new_device, "") if db_commit() else false_return('', 'add device fail')

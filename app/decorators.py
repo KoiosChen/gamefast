@@ -19,6 +19,16 @@ def permission_required(permission):
     return decorator
 
 
+def permission(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        print('{}.{}'.format(f.__module__, f.__name__))
+        print(f.__doc__)
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 def admin_required(f):
     return permission_required(Permission.ADMINISTER)(f)
 

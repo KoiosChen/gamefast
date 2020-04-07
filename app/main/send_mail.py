@@ -1,7 +1,7 @@
 from flask import session, render_template, request, jsonify
 from flask_login import login_required
 from ..models import Permission, Role, Customer, MailTemplet, MailTemplet_Path, MailTemplet_Path_Temp, Cutover_Path_Temp
-from ..decorators import permission_required
+from ..decorators import permission_required, permission
 from .. import logger, db
 from . import main
 import os
@@ -14,6 +14,7 @@ from ..proccessing_data.proccess.public_methods import save_xlsx
 @main.route('/update_mail_templet', methods=['POST'])
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
+@permission
 def update_mail_templet():
     f = request.files.get('file')  # 获取文件对象
     if not os.path.exists(MailTemplet_Path):
@@ -102,7 +103,12 @@ def new_templet():
 @main.route('/mail_templet_manager', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
+@permission
 def mail_templet_manager():
+    """
+    邮件模板管理
+    :return:
+    """
     if request.method == 'GET':
         logger.info('User {} is checking mail templet list'.format(session['LOGINNAME']))
         mt = [(m.id, m.name) for m in MailTemplet.query.filter_by(status=1).all()]

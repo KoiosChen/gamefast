@@ -135,9 +135,11 @@ def update_machine_room_from_excel():
 @permission_required(Permission.MAN_ON_DUTY)
 def import_machine_room_to_database():
     import_data = import_machine_room_file(session['machineroom_source_file'], 'Sheet1')
-    for data in import_data:
-        process_machine_room.new_one(**data)
-    return {"status": "true", "content": "Import complete"}
+    if import_data:
+        for data in import_data:
+            process_machine_room.new_one(**data)
+        return jsonify({"status": "true", "content": "Import complete"})
+    return jsonify({"status": "false", "content": "导入失败"})
 
 
 @main.route('/update_device_from_excel', methods=['POST'])
@@ -155,7 +157,7 @@ def import_device_to_database():
     import_data = import_device_file(session['device_source_file'], 'Sheet1')
     for data in import_data:
         process_device.new_one(**data)
-    return {"status": "true", "content": "Import complete"}
+    return jsonify({"status": "true", "content": "Import complete"})
 
 
 @main.route('/import_device_from_excel', methods=['POST'])
