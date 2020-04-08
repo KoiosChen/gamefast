@@ -30,7 +30,7 @@ var DropzoneDevice = function () {
                     contentType: 'application/json; charset=UTF-8',
                     success: function (result) {
                         if (result.status === 'true') {
-                            mApp.unblock('#file_upload .modal-content');
+                            mApp.unblock('#device_batch_upload .modal-content');
                             $("#file_upload").modal('hide');
                             $('#ajax_data').mDatatable().destroy();
                             DatatableRemoteAjaxDemo.init();
