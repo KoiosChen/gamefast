@@ -31,4 +31,4 @@ def do_sync(devices, sync_content):
                                   'sync_' + sync_content + '::' + device.ip)
             logger.info(f"request result {result}")
             results.append(result.get("msg"))
-    return success_return(results)
+    return success_return(msg=results)
