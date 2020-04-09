@@ -214,8 +214,10 @@ def search_sql(post_data, tab):
 
     daterange_sql = and_(getattr(LineDataBank, search_field_date).__le__(stop_time),
                          getattr(LineDataBank, search_field_date).__ge__(start_time))
-
-    final_sql = base_sql.filter(status_sql, product_sql, fuzzy_sql, daterange_sql)
+    if 'search_field_data' in post_data.keys():
+        final_sql = base_sql.filter(status_sql, product_sql, fuzzy_sql, daterange_sql)
+    else:
+        final_sql = base_sql.filter(status_sql, product_sql, fuzzy_sql)
 
     logger.debug(final_sql)
 
