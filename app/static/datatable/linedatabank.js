@@ -383,16 +383,17 @@ var DatatableDPLC = function () {
 };
 
 $(document).ready(function () {
+    var vxlan_table;
+    var dia_ip;
+    var dia_table;
+    var ip_table;
+    var the_mpls;
+    var mpls_table;
+    var mpls_attribute_table;
     var dplc_tables = DatatableDPLC();
     var dplc_editor = dplc_tables[0];
     var dplc_table = dplc_tables[1];
-    var vxlan_table = DatatableVXLAN();
-    var dia_ip = DatatableDIA();
-    var dia_table = dia_ip[0];
-    var ip_table = dia_ip[1];
-    var the_mpls = DatatableMPLS();
-    var mpls_table = the_mpls[0];
-    var mpls_attribute_table = the_mpls[1];
+
 
     dplc_editor.dependent('vlan_type', function (val, data, callback) {
         if (val === 'access' || val === 'trunk') {
@@ -446,7 +447,6 @@ $(document).ready(function () {
         });
     });
 
-
     dplc_editor.dependent('a_man_platform_id', function (val, data, callback) {
         $.ajax({
             url: '/get_domain',
@@ -480,17 +480,21 @@ $(document).ready(function () {
     a_pop_show(dplc_editor);
     z_pop_show(dplc_editor);
 
-
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         let sf = $("#search_field");
         let n = ($(this).attr('href'));
         if (n === "#m_vxlan") {
             console.log('m_vxlan');
-            vxlan_table.draw(false);
-            $("#search_field option[value='DIA']").remove();
-            $("#search_field option[value='MPLS']").remove();
-            sf.append("<option value='VXLAN'> VXLAN </option>");
-            sf.selectpicker('refresh');
+            if (vxlan_table) {
+                vxlan_table.draw(false);
+                $("#search_field option[value='DIA']").remove();
+                $("#search_field option[value='MPLS']").remove();
+                sf.append("<option value='VXLAN'> VXLAN </option>");
+                sf.selectpicker('refresh');
+            } else {
+                vxlan_table = DatatableVXLAN();
+            }
+
         } else if (n === "#m_line_data") {
             console.log('m_line_data');
             dplc_table.draw(false);
@@ -499,23 +503,34 @@ $(document).ready(function () {
             $("#search_field option[value='MPLS']").remove();
             sf.selectpicker('refresh');
         } else if (n === "#m_dia") {
-            console.log('m_dia');
-            dia_table.draw(false);
-            ip_table.draw(false);
-            $("#search_field option[value='VXLAN']").remove();
-            $("#search_field option[value='MPLS']").remove();
-            sf.append("<option value='DIA'> DIA </option>");
-            sf.selectpicker('refresh');
+            if (dia_table) {
+                console.log('m_dia');
+                dia_table.draw(false);
+                ip_table.draw(false);
+                $("#search_field option[value='VXLAN']").remove();
+                $("#search_field option[value='MPLS']").remove();
+                sf.append("<option value='DIA'> DIA </option>");
+                sf.selectpicker('refresh');
+            } else {
+                dia_ip = DatatableDIA();
+                dia_table = dia_ip[0];
+                ip_table = dia_ip[1];
+            }
         } else if (n === "#m_mpls") {
-            console.log('m_mpls');
-            mpls_table.draw(false);
-            mpls_attribute_table.draw(false);
-            $("#search_field option[value='VXLAN']").remove();
-            $("#search_field option[value='DIA']").remove();
-            sf.append("<option value='MPLS'> MPLS </option>");
-            sf.selectpicker('refresh');
+            if (mpls_table) {
+                console.log('m_mpls');
+                mpls_table.draw(false);
+                mpls_attribute_table.draw(false);
+                $("#search_field option[value='VXLAN']").remove();
+                $("#search_field option[value='DIA']").remove();
+                sf.append("<option value='MPLS'> MPLS </option>");
+                sf.selectpicker('refresh');
+            } else {
+                the_mpls = DatatableMPLS();
+                mpls_table = the_mpls[0];
+                mpls_attribute_table = the_mpls[1];
+            }
         }
-
     });
 
     $("#search_submit").click(function () {
