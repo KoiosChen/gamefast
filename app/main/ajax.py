@@ -571,8 +571,8 @@ def editor_test():
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def line_data_table_postquery():
-    records_total, search_result = search_sql(request.form, tab=['DPLC', 'DCA'])
-    # logger.debug(search_result)
+    if 'search_field' in request.form.keys():
+        records_total, search_result = search_sql(request.form, tab=['DPLC', 'DCA'])
 
     return jsonify({
         "draw": int(request.form.get('draw')),
