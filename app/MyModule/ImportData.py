@@ -34,8 +34,8 @@ def import_machine_room_file(filepath, sheet_name, start_row=1, columns=6):
              'machine_room_city': new_data_obj('City', **{'city': row[0].value}).id,
              'machine_room_type': row[5].value,
              'machine_room_admin': new_data_obj('Contacts', **{'name': row[3].value, 'phoneNumber': row[4].value}).id,
-             "machine_room_lift": row[6].value} for index, row in enumerate(sheet.rows) if
-            index >= start_row]
+             "machine_room_lift": row[6].value}
+            for index, row in enumerate(sheet.rows) if index >= start_row]
     else:
         return False
 
