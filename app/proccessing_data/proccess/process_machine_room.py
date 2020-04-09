@@ -40,10 +40,13 @@ def new_one(**kwargs):
                                        city=machine_room_city)
         db.session.add(new_machine_room)
         commit_result = db_commit()
-        if commit_result:
+        if commit_result['code'] == 'success':
             if noc_contact_name:
                 new_contact = public_methods.new_data_obj("Contacts",
                                                           **{"name": noc_contact_name, "phoneNumber": noc_contact_phone,
                                                              "email": noc_contact_email})
                 db.session.add(new_contact)
-        return success_return(new_machine_room, "") if db_commit() else false_return('', 'add machine room fail')
+            elif machine_room_admin:
+                new_machine_room.noc_contact = machine_room_admin
+        return success_return(data=new_machine_room, msg='机房添加成功') \
+            if db_commit().get("code") == 'success' else false_return(msg='add machine room fail')
