@@ -1,9 +1,11 @@
 from ..models import channel_type, LineDataBank, Device, Interfaces, all_domains, multi_domains, erps_instance, \
     Platforms, MachineRoom, City, IPManager, IPGroup, IPSupplier
+from .. import logger
 from sqlalchemy import or_
 
 
 def make_table(lines=None, page_start=None, length=None):
+    logger.debug(f">>> making table")
     if lines is None:
         lines = LineDataBank.query.filter(LineDataBank.record_status.__eq__(1),
                                           LineDataBank.line_status.__ne__(100),
