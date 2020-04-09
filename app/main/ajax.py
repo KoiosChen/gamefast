@@ -572,7 +572,7 @@ def editor_test():
 @permission_required(Permission.MAN_ON_DUTY)
 def line_data_table_postquery():
     records_total, search_result = search_sql(request.form, tab=['DPLC', 'DCA'])
-
+    logger.info('To make table')
     return jsonify({
         "draw": int(request.form.get('draw')),
         "recordsTotal": records_total,
@@ -623,7 +623,7 @@ def dia_table_postquery():
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def mpls_table_postquery():
-    logger.debug('query_dia_table ')
+    logger.debug('query_mpls_table ')
     records_total, search_result = search_sql(request.form, tab=['MPLS'])
     # logger.debug(search_result)
 

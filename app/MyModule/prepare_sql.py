@@ -225,5 +225,5 @@ def search_sql(post_data, tab):
 
     logger.debug(f">>>> Lines: {records_total} Pages: {int(records_total / length)} from {page_start} to {length}")
 
-    return records_total, final_sql.group_by(LineDataBank.id).order_by(LineDataBank.operate_time.desc()).offset(
+    return records_total, final_sql.order_by(LineDataBank.operate_time.desc()).offset(
         page_start).limit(length).all()
