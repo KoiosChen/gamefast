@@ -31,8 +31,8 @@ var DropzoneDevice = function () {
                     success: function (result) {
                         if (result.status === 'true') {
                             mApp.unblock('#device_batch_upload .modal-content');
-                            $("#file_upload").modal('hide');
-                            $('#ajax_data').mDatatable().destroy();
+                            $("#device_batch_upload").modal('hide');
+                            $('#device_table').mDatatable().destroy();
                             DatatableRemoteAjaxDemo.init();
                             toastr.info(result.content);
                             //setTimeout("location.reload()", 1000);
