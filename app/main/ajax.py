@@ -632,7 +632,7 @@ def mpls_table_postquery():
     logger.debug('query_mpls_table ')
     records_total, search_result = search_sql(request.form, tab=['MPLS'])
     # logger.debug(search_result)
-    data = make_table_mpls(lines=search_result),
+    data = make_table_mpls(lines=search_result)
     return jsonify({
         "draw": int(request.form.get('draw')),
         "recordsTotal": records_total,
@@ -810,9 +810,10 @@ def query_ip_supplier_table():
 
     elif request.method == 'GET':
         logger.debug('query_ipsupplier_table ')
+        data = make_table_ip_supplier()
         return jsonify({
-            "data": make_table_ip_supplier(),
-            "options": make_options(),
+            "data": data,
+            "options": make_options(data),
             "files": []
         })
 
@@ -886,7 +887,7 @@ def action_mpls_route():
                 _id, field = re.findall(r"data\[(\w+)\]\[(\w+)\]", key)[0]
                 print(_id, field, value)
                 processing_data[_id][field] = value
-        return eval(action)(processing_data) if action else {"error": "action not defined"}
+        return jsonify(eval(action)(processing_data)) if action else jsonify({"error": "action not defined"})
 
 
 @main.route('/query_supplier_ip_table', methods=['GET', 'POST'])
@@ -899,17 +900,17 @@ def query_supplier_ip_table():
             row_id = dict(request.form).get('site').split('_')[1]
             print('query ip table ', row_id)
             ip_list = IPSupplier.query.get(row_id).available_ip_group.ip_list.all()
-            print(ip_list)
+            data = make_table_supplier_ip(ip_list)
             return jsonify({
-                "data": make_table_supplier_ip(ip_list),
-                "options": make_options(),
+                "data": data,
+                "options": make_options(data),
                 "files": []
             })
         except Exception as e:
             logger.error(e)
             return jsonify({
                 "data": [],
-                "options": make_options(),
+                "options": make_options([]),
                 "files": []
             })
 
@@ -944,9 +945,10 @@ def query_dia_table():
 
     elif request.method == 'GET':
         logger.debug('query_dia_table ')
+        data = make_table_dia()
         return jsonify({
-            "data": make_table_dia(),
-            "options": make_options(),
+            "data": data,
+            "options": make_options(data),
             "files": []
         })
 
@@ -963,16 +965,17 @@ def query_ip_table():
             print('query ip table ', row_id)
             line = LineDataBank.query.get(row_id)
             ip_list = line.dia_attribute.first().available_dia_ip.ip_list.all()
-            options = make_options()
+            data = make_table_ip(ip_list)
+            options = make_options(data)
             return jsonify({
-                "data": make_table_ip(ip_list),
+                "data": data,
                 "options": options,
                 "files": []
             })
         except Exception as e:
             return jsonify({
                 "data": [],
-                "options": make_options(),
+                "options": make_options([]),
                 "files": []
             })
 
@@ -1011,9 +1014,10 @@ def query_mpls_table():
 
     elif request.method == 'GET':
         logger.debug('query_mpls_table ')
+        data = make_table_mpls()
         return jsonify({
-            "data": make_table_mpls(),
-            "options": make_options(),
+            "data": data,
+            "options": make_options(data),
             "files": []
         })
 
@@ -1028,15 +1032,16 @@ def query_mpls_attribute_table():
             row_id = dict(request.form).get('site').split('_')[1]
             print('query_mpls_attribute_table ', row_id)
             ip_list = MPLS.query.filter_by(line_id=row_id).first().mpls_route_ip.ip_list.all()
+            data = make_table_mpls_attribute(ip_list)
             return jsonify({
-                "data": make_table_mpls_attribute(ip_list),
-                "options": make_options(),
+                "data": data,
+                "options": make_options(data),
                 "files": []
             })
         except Exception as e:
             return jsonify({
                 "data": [],
-                "options": make_options(),
+                "options": make_options([]),
                 "files": []
             })
 
@@ -1044,7 +1049,7 @@ def query_mpls_attribute_table():
         logger.debug('query_query_mpls_attribute_table_table ')
         return jsonify({
             "data": [],
-            "options": make_options(),
+            "options": make_options([]),
             "files": []
         })
 
