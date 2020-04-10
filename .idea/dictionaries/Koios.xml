@@ -11,6 +11,7 @@
       <w>sysname</w>
       <w>tablename</w>
       <w>vlan</w>
+      <w>vlans</w>
     </words>
   </dictionary>
 </component>
