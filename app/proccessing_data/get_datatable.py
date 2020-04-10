@@ -14,8 +14,8 @@ def make_table(lines=None, page_start=None, length=None):
             LineDataBank.create_time.desc()).offset(page_start).limit(length)
 
     data = list()
-    tmp = dict()
     for l in lines:
+        tmp = dict()
         tmp['DT_RowId'] = "row_" + str(l.id)
         tmp['customer_name'] = l.customer_linedata.name if l.customer else ""
         tmp['line_code'] = l.line_code if l.line_code else ""
