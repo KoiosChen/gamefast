@@ -13,82 +13,139 @@ def make_table(lines=None, page_start=None, length=None):
                                               LineDataBank.product_model.__eq__('DCA'))).order_by(
             LineDataBank.create_time.desc()).offset(page_start).limit(length)
 
-    return [{"DT_RowId": "row_" + str(l.id),
-             "customer_name": l.customer_linedata.name if l.customer_linedata.name else "",
-             "line_code": l.line_code if l.line_code else "",
-             "sub_line_code": l.sub_line_code if l.sub_line_code else "",
-             "a_client_addr": l.a_client_addr if l.a_client_addr else "",
-             "a_pop_city": l.a_interface.device_interface.machine_room.cities.city if l.a_interface else {},
-             "a_pop_city_id": l.a_interface.device_interface.machine_room.cities.id if l.a_interface else {},
-             "a_pop": l.a_interface.device_interface.machine_room.name if l.a_interface else "",
-             "a_pop_id": l.a_interface.device_interface.machine_room.id if l.a_interface else {},
-             "a_pop_device": l.a_interface.device_interface.device_name if l.a_interface else "",
-             "a_pop_device_id": l.a_interface.device_interface.id if l.a_interface else {},
-             "a_pop_interface": l.a_interface.interface_name if l.a_interface else "",
-             "a_pop_interface_id": l.a_interface.id if l.a_interface else {},
-             "a_pop_ip": l.a_interface.device_interface.ip if l.a_interface else "",
-             "z_client_addr": l.z_client_addr if l.z_client_addr else "",
-             "z_pop_city": l.z_interface.device_interface.machine_room.cities.city if l.z_interface else "",
-             "z_pop_city_id": l.z_interface.device_interface.machine_room.cities.id if l.z_interface else {},
-             "z_pop": l.z_interface.device_interface.machine_room.name if l.z_interface else "",
-             "z_pop_id": l.z_interface.device_interface.machine_room.id if l.z_interface else {},
-             "z_pop_device": l.z_interface.device_interface.device_name if l.z_interface else "",
-             "z_pop_device_id": l.z_interface.device_interface.id if l.z_interface else {},
-             "z_pop_interface": l.z_interface.interface_name if l.z_interface else "",
-             "z_pop_interface_id": l.z_interface.id if l.z_interface else {},
-             "z_pop_ip": l.z_interface.device_interface.ip if l.z_interface else "",
-             "channel": channel_type.get(l.channel_type, 9) + ": " + str(l.channel_number) + l.channel_unit,
-             "vlan": l.vlans.name if l.vlan else '',
-             "vlan_desc": l.vlans.desc if l.vlan and l.vlans.desc is not None else "",
-             "mode": l.dia_attribute.first().mode if l.dia_attribute.first() else "",
-             "qinq_inside": ','.join(
-                 [v.name for v in l.vlans.children if
-                  v.type == 'qinq_inside']) if l.vlan and l.vlans.type == 'qinq' else '',
-             "qinq_outside2": ','.join(
-                 [v.name for v in l.vlans.children if v.type == 'multi_qinq']) if l.vlan else '',
-             "vlan_map_to": ','.join(
-                 [v.name for v in l.vlans.children if
-                  v.type == 'vlan_map_to']) if l.vlan and l.vlans.type == 'vlan_map' else '',
-             "vlan_type": l.vlans.type if l.vlans else 'access',
-             "main_route": l.main_route if l.main_route else "",
-             "a_chain": l.a_chain if l.a_chain else "",
-             "z_chain": l.z_chain if l.z_chain else "",
-             "operator": l.operator.username if l.operator else "",
-             "protect": "否" if l.protect == 0 else "是",
-             "biz_contact_name": l.biz_contact.name if l.biz else "",
-             "biz_contact_phoneNumber": l.biz_contact.phoneNumber if l.biz else "",
-             "biz_contact_email": l.biz_contact.email if l.biz else "",
-             "noc_contact_name": l.noc_contact.name if l.noc else "",
-             "noc_contact_phoneNumber": l.noc_contact.phoneNumber if l.noc else "",
-             "noc_contact_email": l.noc_contact.email if l.noc else "",
-             "customer_manager_name": l.customer_manager_contact.name if l.customer_manager else "",
-             "customer_manager_phoneNumber": l.customer_manager_contact.phoneNumber if l.customer_manager else "",
-             "start_date": str(l.operate_time),
-             "stop_date": str(l.line_stop_time) if l.line_stop_time else "",
-             "platform": l.line_platform.name if l.line_platform else "",
-             "platform_id": l.line_platform.id if l.line_platform else {},
-             "domains_bind": '_'.join(sorted([d.name for d in l.domains])) if l.domains else "",
-             "domains": '_'.join(sorted([d.name for d in l.domains])) if l.domains else {},
+    data = list()
+    tmp = dict()
+    for l in lines:
+        tmp['DT_RowId'] = "row_" + str(l.id)
+        tmp['customer_name'] = l.customer_linedata.name if l.customer else ""
+        tmp['line_code'] = l.line_code if l.line_code else ""
+        tmp['sub_line_code'] = l.sub_line_code if l.sub_line_code else ""
+        tmp['a_client_addr'] = l.a_client_addr if l.a_client_addr else ""
+        if l.a_pop_interface:
+            _int = l.a_interface
+            _device = _int.device_interface
+            _pop = _device.machine_room
+            _city = _pop.cities
+            tmp['a_pop_city'] = _city.city
+            tmp['a_pop_city_id'] = _city.id
+            tmp['a_pop'] = _pop.name
+            tmp['a_pop_id'] = _pop.id
+            tmp['a_pop_device'] = _device.device_name
+            tmp['a_pop_device_id'] = _device.id
+            tmp['a_pop_interface'] = _int.interface_name
+            tmp['a_pop_interface_id'] = _int.id
+            tmp['a_pop_ip'] = _device.ip
+        else:
+            tmp['a_pop_city'] = {}
+            tmp['a_pop_city_id'] = {}
+            tmp['a_pop'] = ""
+            tmp['a_pop_id'] = {}
+            tmp['a_pop_device'] = ""
+            tmp['a_pop_device_id'] = {}
+            tmp['a_pop_interface'] = ""
+            tmp['a_pop_interface_id'] = {}
+            tmp['a_pop_ip'] = ""
 
-             "a_man_platform": l.line_man_platform_a.name if l.line_man_platform_a else "",
-             "a_man_platform_id": l.MAN_platform_a if l.MAN_platform_a else "",
-             "a_man_domains": '_'.join(sorted([d.name for d in l.MAN_domains_a])) if l.MAN_domains_a else "",
-             "a_man": "1" if l.MAN_platform_a else "0",
+        if l.z_pop_interface:
+            _int = l.z_interface
+            _device = _int.device_interface
+            _pop = _device.machine_room
+            _city = _pop.cities
+            tmp['z_pop_city'] = _city.city
+            tmp['z_pop_city_id'] = _city.id
+            tmp['z_pop'] = _pop.name
+            tmp['z_pop_id'] = _pop.id
+            tmp['z_pop_device'] = _device.device_name
+            tmp['z_pop_device_id'] = _device.id
+            tmp['z_pop_interface'] = _int.interface_name
+            tmp['z_pop_interface_id'] = _int.id
+            tmp['z_pop_ip'] = _device.ip
+        else:
+            tmp['z_pop_city'] = {}
+            tmp['z_pop_city_id'] = {}
+            tmp['z_pop'] = ""
+            tmp['z_pop_id'] = {}
+            tmp['z_pop_device'] = ""
+            tmp['z_pop_device_id'] = {}
+            tmp['z_pop_interface'] = ""
+            tmp['z_pop_interface_id'] = {}
+            tmp['z_pop_ip'] = ""
 
-             "z_man_platform": l.line_man_platform_z.name if l.line_man_platform_z else "",
-             "z_man_platform_id": l.MAN_platform_z if l.MAN_platform_z else "",
-             "z_man_domains": '_'.join(sorted([d.name for d in l.MAN_domains_z])) if l.MAN_domains_z else "",
-             "z_man": "1" if l.MAN_platform_z else "0",
+        tmp['channel'] = channel_type.get(l.channel_type, 9) + ": " + str(l.channel_number) + l.channel_unit
 
-             "product_type": l.product_type,
-             "product_model": l.product_model,
-             "validate_rrpp_status": l.validate_rrpp_status,
-             "line_desc": l.line_desc if l.line_desc else "",
-             "cloud_provider": l.cloud_attribute.first().cloud_provider if (
-                                                                                   l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else "",
-             "cloud_accesspoint": l.cloud_attribute.first().cloud_accesspoint if (
-                                                                                         l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else "",
-             } for l in lines]
+        if l.vlan:
+            _vlans = l.vlans
+            tmp['vlan'] = _vlans.name
+            tmp['vlan_desc'] = _vlans.desc if _vlans.desc else ""
+            tmp['vlan_type'] = _vlans.type
+            tmp['qinq_inside'] = ','.join(
+                [v.name for v in _vlans.children if v.type == 'qinq_inside']) if l.vlans.type == 'qinq' else ''
+            tmp['vlan_map_to'] = ','.join(
+                [v.name for v in l.vlans.children if v.type == 'vlan_map_to']) if l.vlans.type == 'vlan_map' else ''
+        else:
+            tmp['vlan'] = ""
+            tmp['vlan_desc'] = ""
+            tmp['vlan_type'] = "access"
+            tmp['qinq_inside'] = ""
+            tmp['vlan_map_to'] = ""
+
+        tmp['mode'] = l.dia_attribute.first().mode if l.dia_attribute.first() else ""
+        tmp['main_route'] = l.main_route if l.main_route else ""
+        tmp['a_chain'] = l.a_chain if l.a_chain else ""
+        tmp['z_chain'] = l.z_chain if l.z_chain else ""
+        tmp['operator'] = l.operator.username if l.line_operator else ""
+        tmp['protect'] = "否" if l.protect == 0 else "是"
+        if l.biz:
+            _contact = l.biz_contact
+            tmp['biz_contact_name'] = _contact.name
+            tmp['biz_contact_phoneNumber'] = _contact.phoneNumber
+            tmp['biz_contact_email'] = _contact.email
+        else:
+            tmp['biz_contact_name'] = ""
+            tmp['biz_contact_phoneNumber'] = ""
+            tmp['biz_contact_email'] = ""
+        if l.noc:
+            _contact = l.noc_contact
+            tmp['noc_contact_name'] = _contact.name
+            tmp['noc_contact_phoneNumber'] = _contact.phoneNumber
+            tmp['noc_contact_email'] = _contact.email
+        else:
+            tmp['noc_contact_name'] = ""
+            tmp['noc_contact_phoneNumber'] = ""
+            tmp['noc_contact_email'] = ""
+        if l.customer_manager:
+            _contact = l.customer_manager_contact
+            tmp['customer_manager_name'] = _contact.name
+            tmp['customer_manager_phoneNumber'] = _contact.phoneNumber
+        else:
+            tmp['customer_manager_name'] = ""
+            tmp['customer_manager_phoneNumber'] = ""
+        tmp['start_date'] = str(l.operate_time)
+        tmp['stop_date'] = str(l.line_stop_time) if l.line_stop_time else ""
+
+        tmp['platform'] = l.line_platform.name if l.line_platform else ""
+        tmp['platform_id'] = l.line_platform.id if l.line_platform else {}
+        tmp['domains_bind'] = '_'.join(sorted([d.name for d in l.domains])) if l.domains else ""
+        tmp['domains'] = '_'.join(sorted([d.name for d in l.domains])) if l.domains else {}
+        tmp['a_man_platform'] = l.line_man_platform_a.name if l.line_man_platform_a else ""
+        tmp['a_man_platform_id'] = l.MAN_platform_a if l.MAN_platform_a else ""
+        tmp['a_man_domains'] = '_'.join(sorted([d.name for d in l.MAN_domains_a])) if l.MAN_domains_a else ""
+        tmp['a_man'] = "1" if l.MAN_platform_a else "0"
+        tmp['z_man_platform'] = l.line_man_platform_z.name if l.line_man_platform_z else ""
+        tmp['z_man_platform_id'] = l.MAN_platform_z if l.MAN_platform_z else ""
+        tmp['z_man_domains'] = '_'.join(sorted([d.name for d in l.MAN_domains_z])) if l.MAN_domains_z else ""
+        tmp['z_man'] = "1" if l.MAN_platform_z else "0"
+        tmp['product_type'] = l.product_type
+        tmp['product_model'] = l.product_model
+        tmp['validate_rrpp_status'] = l.validate_rrpp_status
+        tmp['line_desc'] = l.line_desc if l.line_desc else ""
+        tmp['cloud_provider'] = l.cloud_attribute.first().cloud_provider \
+            if (l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else ""
+        tmp['cloud_accesspoint'] = l.cloud_attribute.first().cloud_accesspoint \
+            if (l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else ""
+        data.append(tmp)
+
+    return data
 
 
 def make_table_vxlan(lines=None):
