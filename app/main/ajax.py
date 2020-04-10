@@ -395,9 +395,9 @@ def get_route():
             send_content = {"a_city": line_data.a_interface.device_interface.machine_room.cities.city,
                             "z_city": line_data.z_interface.device_interface.machine_room.cities.city,
                             "platform": line_data.line_platform.name,
-                            "a_man_platform": line_data.man_line_platform_a.name,
+                            "a_man_platform": line_data.line_man_platform_a.name,
                             "a_man_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_a])),
-                            "z_man_platform": line_data.man_line_platform_z.name,
+                            "z_man_platform": line_data.line_man_platform_z.name,
                             "z_man_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_z])),
                             "vlan": line_data.vlans.name,
                             "domains": '_'.join(sorted([d.name for d in line_data.domains]))}
