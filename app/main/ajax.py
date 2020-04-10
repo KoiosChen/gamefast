@@ -26,6 +26,7 @@ from ..MyModule import SyncDevice
 import os
 from sqlalchemy import or_
 from ..common import success_return, false_return
+import time
 
 
 @main.route('/file_list', methods=['GET', 'POST'])
@@ -571,14 +572,17 @@ def editor_test():
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def line_data_table_postquery():
+    s = time.time()
     records_total, search_result = search_sql(request.form, tab=['DPLC', 'DCA'])
     logger.info('To make table')
+    data = make_table(lines=search_result)
+
     return jsonify({
         "draw": int(request.form.get('draw')),
         "recordsTotal": records_total,
         "recordsFiltered": records_total,
-        "data": make_table(lines=search_result),
-        "options": make_options(),
+        "data": data,
+        "options": make_options(data),
         "files": []
     })
 

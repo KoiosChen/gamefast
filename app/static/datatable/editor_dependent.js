@@ -1,41 +1,46 @@
 var search_city = function (editor) {
     editor.dependent('search_city_a', function (val, data, callback) {
-        $.ajax({
-            url: '/search_city',
-            async: false,
-            data: {
-                "data": val
-            },
-            dataType: 'json',
-            type: 'post',
-            success: function (jsonData) {
-                if (jsonData.status === 'true') {
-                    let options = {"options": {"a_pop_city_id": jsonData.content}};
-                    callback(options)
+        if (val) {
+            $.ajax({
+                url: '/search_city',
+                async: false,
+                data: {
+                    "data": val
+                },
+                dataType: 'json',
+                type: 'post',
+                success: function (jsonData) {
+                    if (jsonData.status === 'true') {
+                        let options = {"options": {"a_pop_city_id": jsonData.content}};
+                        callback(options)
+                    }
                 }
-            }
-        });
+            });
+        }
+
     });
 }
 
 
 var a_pop_show = function (editor) {
     editor.dependent('search_city_a', function (val, data, callback) {
-        $.ajax({
-            url: '/search_city',
-            async: false,
-            data: {
-                "data": val
-            },
-            dataType: 'json',
-            type: 'post',
-            success: function (jsonData) {
-                if (jsonData.status === 'true') {
-                    let options = {"options": {"a_pop_city_id": jsonData.content}};
-                    callback(options)
+        if (val) {
+            $.ajax({
+                url: '/search_city',
+                async: false,
+                data: {
+                    "data": val
+                },
+                dataType: 'json',
+                type: 'post',
+                success: function (jsonData) {
+                    if (jsonData.status === 'true') {
+                        let options = {"options": {"a_pop_city_id": jsonData.content}};
+                        callback(options)
+                    }
                 }
-            }
-        });
+            });
+        }
     });
 
 
@@ -91,21 +96,23 @@ var a_pop_show = function (editor) {
 
 var z_pop_show = function (editor) {
     editor.dependent('search_city_z', function (val, data, callback) {
-        $.ajax({
-            url: '/search_city',
-            async: false,
-            data: {
-                "data": val
-            },
-            dataType: 'json',
-            type: 'post',
-            success: function (jsonData) {
-                if (jsonData.status === 'true') {
-                    let options = {"options": {"z_pop_city_id": jsonData.content}};
-                    callback(options)
+        if (val) {
+            $.ajax({
+                url: '/search_city',
+                async: false,
+                data: {
+                    "data": val
+                },
+                dataType: 'json',
+                type: 'post',
+                success: function (jsonData) {
+                    if (jsonData.status === 'true') {
+                        let options = {"options": {"z_pop_city_id": jsonData.content}};
+                        callback(options)
+                    }
                 }
-            }
-        });
+            });
+        }
     });
 
 
@@ -123,6 +130,7 @@ var z_pop_show = function (editor) {
                 callback(options)
             }
         });
+
     });
 
     editor.dependent('z_pop_id', function (val, data, callback) {

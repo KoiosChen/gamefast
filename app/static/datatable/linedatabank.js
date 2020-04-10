@@ -547,21 +547,29 @@ $(document).ready(function () {
             'search_field_date': search_field_date,
             'search_date_range': search_date_range
         };
-        dplc_table.settings()[0].ajax.data = myajax;
-        dplc_table.ajax.reload();
+        if (dplc_table) {
+            dplc_table.settings()[0].ajax.data = myajax;
+            dplc_table.ajax.reload();
+        }
 
-        vxlan_table.settings()[0].ajax.data = myajax;
-        vxlan_table.ajax.reload();
+        if (vxlan_table) {
+            vxlan_table.settings()[0].ajax.data = myajax;
+            vxlan_table.ajax.reload();
+        }
 
-        dia_table.settings()[0].ajax.data = myajax;
-        dia_table.ajax.reload();
-        ip_table.clear();
-        ip_table.draw();
+        if (dia_table) {
+            dia_table.settings()[0].ajax.data = myajax;
+            dia_table.ajax.reload();
+            ip_table.clear();
+            ip_table.draw();
+        }
 
-        mpls_table.settings()[0].ajax.data = myajax;
-        mpls_table.ajax.reload();
-        mpls_attribute_table.clear();
-        mpls_attribute_table.draw();
+        if (mpls_table) {
+            mpls_table.settings()[0].ajax.data = myajax;
+            mpls_table.ajax.reload();
+            mpls_attribute_table.clear();
+            mpls_attribute_table.draw();
+        }
     });
 
     $('#search_m_daterange').on('cancel.daterangepicker', function (ev, picker) {
