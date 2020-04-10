@@ -14,6 +14,8 @@ def mpls_route_new(content):
     line_id = content.get('site').split('_')[1]
     line = LineDataBank.query.get(line_id)
     mpls = line.mpls_attribute.first()
+    if mpls is None:
+        mpls = new_data_obj("MPLS", **{"line_id": line_id})
     _ip = content.get('route_ip')
     _netmask = content.get('route_netmask')
 

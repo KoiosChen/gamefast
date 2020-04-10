@@ -400,7 +400,7 @@ def make_table_mpls(lines=None):
                                           LineDataBank.line_status.__ne__(100),
                                           LineDataBank.product_model.__eq__('MPLS')).order_by(
             LineDataBank.create_time.desc()).all()
-    result = [{"DT_RowId": "row_" + str(l.id),
+    return [{"DT_RowId": "row_" + str(l.id),
                "customer_name": l.customer_linedata.name,
                "line_code": l.line_code,
                "sub_line_code": l.sub_line_code if l.sub_line_code else "",
@@ -444,9 +444,6 @@ def make_table_mpls(lines=None):
                "validate_rrpp_status": l.validate_rrpp_status,
                "route_protocal": l.mpls_attribute.first().access_way if l.mpls_attribute.first() else "",
                } for l in lines]
-    print(result)
-    return result
-
 
 def make_table_mpls_attribute(lines=None):
     r = [{"DT_RowId": "row_" + str(im.id),
@@ -464,19 +461,19 @@ def make_options(data=None):
     tmp_pop_a = list()
     tmp_pop_z = list()
     for d in data:
-        if d['a_pop_interface_id']:
+        if d.get('a_pop_interface_id'):
             tmp_a.append({"label": d['a_pop_interface'], "value": d['a_pop_interface_id']})
-        if d['z_pop_interface_id']:
+        if d.get('z_pop_interface_id'):
             tmp_z.append({"label": d['z_pop_interface'], "value": d['z_pop_interface_id']})
 
-        if d['a_pop_device_id']:
+        if d.get('a_pop_device_id'):
             tmp_d_a.append({"label": d['a_pop_device'], "value": d['a_pop_device_id']})
-        if d['z_pop_device_id']:
+        if d.get('z_pop_device_id'):
             tmp_d_z.append({"label": d['z_pop_device'], "value": d['z_pop_device_id']})
 
-        if d['a_pop_id']:
+        if d.get('a_pop_id'):
             tmp_pop_a.append({"label": d['a_pop'], "value": d['a_pop_id']})
-        if d['z_pop_id']:
+        if d.get('z_pop_id'):
             tmp_pop_z.append({"label": d['z_pop'], "value": d['z_pop_id']})
 
     mode_dict = {1: "网关模式", 2: "路由模式"}
