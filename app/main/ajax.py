@@ -594,13 +594,14 @@ def vxlan_table_postquery():
     logger.debug('query_vxlan_table ')
     records_total, search_result = search_sql(request.form, tab=['VXLAN'])
     # logger.debug(search_result)
+    data = make_table_vxlan(lines=search_result)
 
     return jsonify({
         "draw": int(request.form.get('draw')),
         "recordsTotal": records_total,
         "recordsFiltered": records_total,
-        "data": make_table_vxlan(lines=search_result),
-        "options": make_options(),
+        "data": data,
+        "options": make_options(data),
         "files": []
     })
 
@@ -612,13 +613,14 @@ def dia_table_postquery():
     logger.debug('query_dia_table ')
     records_total, search_result = search_sql(request.form, tab=['DIA'])
     # logger.debug(search_result)
+    data = make_table_dia(lines=search_result)
 
     return jsonify({
         "draw": int(request.form.get('draw')),
         "recordsTotal": records_total,
         "recordsFiltered": records_total,
-        "data": make_table_dia(lines=search_result),
-        "options": make_options(),
+        "data": data,
+        "options": make_options(data),
         "files": []
     })
 
@@ -630,13 +632,13 @@ def mpls_table_postquery():
     logger.debug('query_mpls_table ')
     records_total, search_result = search_sql(request.form, tab=['MPLS'])
     # logger.debug(search_result)
-
+    data = make_table_mpls(lines=search_result),
     return jsonify({
         "draw": int(request.form.get('draw')),
         "recordsTotal": records_total,
         "recordsFiltered": records_total,
-        "data": make_table_mpls(lines=search_result),
-        "options": make_options(),
+        "data": data,
+        "options": make_options(data),
         "files": []
     })
 
