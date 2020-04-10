@@ -2,6 +2,7 @@ from ..models import channel_type, LineDataBank, Device, Interfaces, all_domains
     Platforms, MachineRoom, City, IPManager, IPGroup, IPSupplier
 from .. import logger
 from sqlalchemy import or_
+import time
 
 
 def make_table(lines=None, page_start=None, length=None):
@@ -15,12 +16,14 @@ def make_table(lines=None, page_start=None, length=None):
 
     data = list()
     for l in lines:
+        s = time.time()
         tmp = dict()
         tmp['DT_RowId'] = "row_" + str(l.id)
         tmp['customer_name'] = l.customer_linedata.name if l.customer else ""
         tmp['line_code'] = l.line_code if l.line_code else ""
         tmp['sub_line_code'] = l.sub_line_code if l.sub_line_code else ""
         tmp['a_client_addr'] = l.a_client_addr if l.a_client_addr else ""
+        tmp['z_client_addr'] = l.z_client_addr if l.z_client_addr else ""
         if l.a_pop_interface:
             _int = l.a_interface
             _device = _int.device_interface
@@ -140,10 +143,14 @@ def make_table(lines=None, page_start=None, length=None):
         tmp['validate_rrpp_status'] = l.validate_rrpp_status
         tmp['line_desc'] = l.line_desc if l.line_desc else ""
         tmp['cloud_provider'] = l.cloud_attribute.first().cloud_provider \
-            if (l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else ""
+            if (
+                       l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else ""
         tmp['cloud_accesspoint'] = l.cloud_attribute.first().cloud_accesspoint \
-            if (l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else ""
+            if (
+                       l.product_model.upper() == "SDWAN" or l.product_model.upper() == "DCA") and l.cloud_attribute.all() else ""
         data.append(tmp)
+        tt = time.time() - s
+        logger.debug(f'>>>> spend {tt}')
 
     return data
 
@@ -449,22 +456,42 @@ def make_table_mpls_attribute(lines=None):
     return r
 
 
-def make_options():
+def make_options(data=None):
+    tmp_a = list()
+    tmp_z = list()
+    tmp_d_a = list()
+    tmp_d_z = list()
+    tmp_pop_a = list()
+    tmp_pop_z = list()
+    for d in data:
+        if d['a_pop_interface_id']:
+            tmp_a.append({"label": d['a_pop_interface'], "value": d['a_pop_interface_id']})
+        if d['z_pop_interface_id']:
+            tmp_z.append({"label": d['z_pop_interface'], "value": d['z_pop_interface_id']})
+
+        if d['a_pop_device_id']:
+            tmp_d_a.append({"label": d['a_pop_device'], "value": d['a_pop_device_id']})
+        if d['z_pop_device_id']:
+            tmp_d_z.append({"label": d['z_pop_device'], "value": d['z_pop_device_id']})
+
+        if d['a_pop_id']:
+            tmp_pop_a.append({"label": d['a_pop'], "value": d['a_pop_id']})
+        if d['z_pop_id']:
+            tmp_pop_z.append({"label": d['z_pop'], "value": d['z_pop_id']})
+
     mode_dict = {1: "网关模式", 2: "路由模式"}
-    return {"a_pop_id": [{}] + [{"label": pop.name, "value": pop.id} for pop in MachineRoom.query.all()],
-            "a_pop_city_id": [{}] + [{"label": city.city, "value": city.id} for city in City.query.all()],
-            "a_pop_device_id": [{}] + [{"label": device.device_name, "value": device.id} for device in
-                                       Device.query.all()],
-            "a_pop_interface_id": [{}] + [{"label": interface.interface_name, "value": interface.id} for interface
-                                          in Interfaces.query.all()],
-            "z_pop_id": [{}] + [{"label": pop.name, "value": pop.id} for pop in MachineRoom.query.all()],
-            "z_pop_city_id": [{}] + [{"label": city.city, "value": city.id} for city in City.query.all()],
-            "z_pop_device_id": [{}] + [{"label": device.device_name, "value": device.id} for device in
-                                       Device.query.all()],
-            "z_pop_interface_id": [{}] + [{"label": interface.interface_name, "value": interface.id} for interface
-                                          in Interfaces.query.all()],
-            "platform_id": [{}] + [{"label": p.name, "value": p.id} for p in
-                                   Platforms.query.filter(Platforms.type.__eq__("backbone")).all()],
+    cities = [{"label": city.city, "value": city.id} for city in City.query.all()]
+    platforms = [{"label": p.name, "value": p.id} for p in
+                 Platforms.query.filter(Platforms.type.__eq__("backbone")).all()]
+    return {"a_pop_id": [{}] + tmp_pop_a,
+            "a_pop_city_id": [{}] + cities,
+            "a_pop_device_id": [{}] + tmp_d_a,
+            "a_pop_interface_id": [{}] + tmp_a,
+            "z_pop_id": [{}] + tmp_pop_z,
+            "z_pop_city_id": [{}] + cities,
+            "z_pop_device_id": [{}] + tmp_d_z,
+            "z_pop_interface_id": [{}] + tmp_z,
+            "platform_id": [{}] + platforms,
             "a_man_platform_id": [{}] + [{"label": p.name, "value": p.id} for p in
                                          Platforms.query.filter(Platforms.type.__ne__("backbone")).all()],
             "z_man_platform_id": [{}] + [{"label": p.name, "value": p.id} for p in

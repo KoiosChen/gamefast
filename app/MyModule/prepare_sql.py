@@ -95,13 +95,14 @@ def search_sql(post_data, tab):
             elif f == 'platform_domain':
                 base_sql = base_sql.outerjoin(backbone_platform, LineDataBank.platform == backbone_platform.id). \
                     outerjoin(man_platform_a, LineDataBank.MAN_platform_a == man_platform_a.id). \
-                    outerjoin(man_domain_z, LineDataBank.MAN_domains_z == man_domain_z.id). \
+                    outerjoin(man_platform_z, LineDataBank.MAN_platform_z == man_platform_z.id). \
                     outerjoin(lines_domains). \
                     outerjoin(backbone_domain). \
                     outerjoin(man_lines_domains_a). \
                     outerjoin(man_domain_a). \
                     outerjoin(man_lines_domains_z). \
                     outerjoin(man_domain_z)
+
                 or_fields_list.append(backbone_platform.name.contains(search_content))
                 or_fields_list.append(backbone_domain.name.contains(search_content))
                 or_fields_list.append(man_platform_a.name.contains(search_content))
