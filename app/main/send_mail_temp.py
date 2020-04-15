@@ -42,6 +42,7 @@ def send_cutover_mail_from_excel():
     cutover_reason = mail_json.get('cutover_reason')
     cutover_emergency = mail_json.get('cutover_emergency', None)
     cutover_duration = mail_json.get('cutover_duration') if mail_json.get('cutover_duration') else "割接"
+    cutover_email = mail_json.get('cutover_email')
 
     # 验证参数
     pass
@@ -90,7 +91,6 @@ def send_cutover_mail_from_excel():
 
     attachments = list()
     for company, mail_detail in company_mailtemplet.items():
-        logger.debug(f"{company} {mail_detail}")
         templet_obj = mail_detail['templet'][0] if mail_detail['templet'] and mail_detail['templet'][
             0] else MailTemplet.query.get(1)
         mail_title = templet_obj.mail_title
@@ -115,20 +115,20 @@ def send_cutover_mail_from_excel():
                                      'body03': str(append_content),
                                      'body04': str(the_line.get("line_code"))
                                  })
-
+        emergency = "紧急" if cutover_emergency else ''
         document.merge(customer=company,
                        date_in_title=start_time.strftime("%Y年%m月%d日"),
                        cutover_title=cutover_title,
                        cutover_starttime=start_time.strftime('%Y-%m-%d %H:%M'),
                        cutover_stoptime=stop_time.strftime('%Y-%m-%d %H:%M'),
                        cutover_atoz=cutover_from_to,
-                       body01="紧急" if cutover_emergency else '',
+                       body01=emergency,
                        body02=send_date.strftime("%Y年%m月%d日"),
                        body03=cutover_lines,
                        cutover_reason=cutover_reason,
                        cutover_duration=cutover_duration)
 
-        filename = mail_title + "割接通知" + "-" + str(company) + '.docx'
+        filename = mail_title + f"{emergency}割接通知" + "-" + str(company) + '.docx'
         filename = os.path.join(filepath, filename)
         attachments.append(filename)
         document.write(filename)
