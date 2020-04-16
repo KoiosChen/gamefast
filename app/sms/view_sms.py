@@ -10,7 +10,9 @@ from ..MyModule.RequestPost import post_request
 from ..proccessing_data.proccess.public_methods import new_data_obj
 import json
 
-# SMS_TEMPLATE = {"SMS_187951938": {'name': "港华", "content": '尊敬的客户：您好！关于贵司线路编号：{order}，节点信息：{node}，带宽：{bandwidth}故障，中断时间：{time}。最近进展：{progress}。烦请知悉！服务热线：400-720-8880',"white_list": "13817730962,15618098089", "sign": "应通科技"}}
+# SMS_TEMPLATE = {"SMS_187951938": {'name': "港华",
+#                                   "content": '尊敬的客户：您好！关于贵司线路编号：{order}，节点信息：{node}，带宽：{bandwidth}故障，中断时间：{time}。最近进展：{progress}。烦请知悉！服务热线：400-720-8880',
+#                                   "white_list": "13817730962,15618098089", "sign": "应通科技"}}
 
 
 @sms.route('/sms', methods=['GET'])
@@ -64,7 +66,7 @@ def send_sms_via_ali():
         new_data_obj('SMSOrder',
                      **{'id': args['order_number'],
                         'total': len(args['phones'].split(',')),
-                        'phones': args['phones'],
+                        'phones': ','.join([x.strip() for x in args['phones'].split(',')]),
                         'sent_content': f"【{template['sign']}】" + content,
                         'operator': session['SELFID']})
         return jsonify({"code": "success", "message": result})
