@@ -10,10 +10,7 @@ from ..MyModule.RequestPost import post_request
 from ..proccessing_data.proccess.public_methods import new_data_obj
 import json
 
-# SMS_TEMPLATE = {"1": {'name': "港华", "content": '尊敬的客户：您好！关于贵司线路编号：{order}，节点信息：{node}，带宽：{bandwidth}故障，中断时间：{time}。最近进展：{progress}。烦请知悉！服务热线：400-720-8880',"white_list": "13817730962,15618098089", "sign": "北京应通"}}
-
-
-SMS_TEMPLATE = json.loads(redis_db.get('SMS_TEMPLATE')) if redis_db.exists('SMS_TEMPLATE') else {}
+# SMS_TEMPLATE = {"SMS_187951938": {'name': "港华", "content": '尊敬的客户：您好！关于贵司线路编号：{order}，节点信息：{node}，带宽：{bandwidth}故障，中断时间：{time}。最近进展：{progress}。烦请知悉！服务热线：400-720-8880',"white_list": "13817730962,15618098089", "sign": "应通科技"}}
 
 
 @sms.route('/sms', methods=['GET'])
@@ -27,6 +24,8 @@ def send_mail():
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def sms_template_attributes():
+    SMS_TEMPLATE = json.loads(redis_db.get('SMS_TEMPLATE')) if redis_db.exists('SMS_TEMPLATE') else {}
+
     args = request.json
     template_id = args['template_id']
     if not template_id:
@@ -44,6 +43,8 @@ def sms_template_attributes():
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def send_sms_via_ali():
+    SMS_TEMPLATE = json.loads(redis_db.get('SMS_TEMPLATE')) if redis_db.exists('SMS_TEMPLATE') else {}
+
     args = request.json
     logger.debug(args)
     phones = args['phones']
