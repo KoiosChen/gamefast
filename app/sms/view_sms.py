@@ -17,6 +17,7 @@ import json
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def send_mail():
+    SMS_TEMPLATE = json.loads(redis_db.get('SMS_TEMPLATE')) if redis_db.exists('SMS_TEMPLATE') else {}
     return render_template('send_sms.html', sms_template=[[key, value['name']] for key, value in SMS_TEMPLATE.items()])
 
 
