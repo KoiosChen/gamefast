@@ -104,6 +104,18 @@ class CutoverOrder(db.Model):
         self.id = str(uuid.uuid1())
 
 
+class SMSOrder(db.Model):
+    __tablename__ = 'sms_order'
+    id = db.Column(db.String(64), primary_key=True, default=str(uuid.uuid4()))
+    total = db.Column(db.Integer, default=0)
+    success = db.Column(db.Integer)
+    fail = db.Column(db.Integer)
+    phones = db.Column(db.String(200))
+    sent_content = db.Column(db.String(300), comment='已发送内容')
+    operator = db.Column(db.Integer, db.ForeignKey('users.id'))
+    create_time = db.Column(db.DateTime, default=datetime.datetime.now)
+
+
 class OperateLog(db.Model):
     __tablename__ = 'operate_log'
     id = db.Column(db.Integer, primary_key=True)
@@ -678,6 +690,7 @@ class User(UserMixin, db.Model):
     post = db.relationship('Post', backref='author', lazy='dynamic')
     lines = db.relationship('LineDataBank', backref='operator', lazy='dynamic')
     supplier = db.relationship('IPSupplier', backref='supplier_operator', lazy='dynamic')
+    sms_order = db.relationship('SMSOrder', backref='sms_sender', lazy='dynamic')
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -1116,8 +1129,9 @@ Temp_File_Path = os.path.join(PATH_PREFIX, 'static/tmp_file/temp')
 REQUEST_RETRY_TIMES = 1
 REQUEST_RETRY_TIMES_PER_TIME = 1
 
-SYNC_DEVICE_URL = {"interface": "http://127.0.0.1:5222/interface",
-                   "device_info": "http://127.0.0.1:6666/devices",
-                   "verify_ring": "http://10.250.62.1:5111/check_rrpp"}
+API_URL = {"interface": "http://127.0.0.1:5222/interface",
+           "device_info": "http://127.0.0.1:6666/devices",
+           "verify_ring": "http://10.250.62.1:5111/check_rrpp",
+           "ali_sms": "http://10.250.62.1:5333/sms"}
 
 ACCESS_DOMAIN = "http://10.172.172.164:1111/assets/"

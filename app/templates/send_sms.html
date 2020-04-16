@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+
+{% block subheader %}
+    <div class="m-subheader ">
+        <div class="d-flex align-items-center">
+            <div class="mr-auto">
+                <h3 class="m-subheader__title m-subheader__title--separator">
+                    业务管理
+                </h3>
+                <ul class="m-subheader__breadcrumbs m-nav m-nav--inline">
+                    <li class="m-nav__item m-nav__item--home">
+                        <a href="#" class="m-nav__link m-nav__link--icon">
+                            <i class="m-nav__link-icon la la-home"></i>
+                        </a>
+                    </li>
+                    <li class="m-nav__separator">
+                        -
+                    </li>
+                    <li class="m-nav__item">
+                        <a href="" class="m-nav__link">
+											<span class="m-nav__link-text">
+												业务管理
+											</span>
+                        </a>
+                    </li>
+                    <li class="m-nav__separator">
+                        -
+                    </li>
+                    <li class="m-nav__item">
+                        <a href="" class="m-nav__link">
+											<span class="m-nav__link-text">
+												发送短信
+											</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block pagecontent %}
+    <div class="m-portlet m-portlet--success m-portlet--head-solid-bg">
+        <div class="m-portlet__head">
+            <div class="m-portlet__head-caption">
+                <div class="m-portlet__head-title">
+                    <h3 class="m-portlet__head-text">
+                        短信发送
+                        <small>
+                            发送、查询
+                        </small>
+                    </h3>
+                </div>
+            </div>
+            <div class="m-portlet__head-tools">
+                <ul class="m-portlet__nav">
+                    <li class="m-portlet__nav-item">
+                        <a id="send_sms" class="m-portlet__nav-link m-portlet__nav-link--icon">
+                            <i class="flaticon-paper-plane"></i>
+                        </a>
+                    </li>
+
+                    <!--<li class="m-portlet__nav-item">
+                        <a id="newOne" class="m-portlet__nav-link m-portlet__nav-link--icon">
+                            <i class="fa fa-envelope-o"></i>
+                        </a>
+                    </li>-->
+                </ul>
+            </div>
+        </div>
+        <div class="m-portlet__body">
+            <div class="m_datatable" id="ajax_data"></div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="send_sms_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        发送短信
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="m-form m-form--fit m-form--label-align-right" id="send_sms_form">
+                        <div class="m-form__content">
+                            <div class="m-alert m-alert--icon alert alert-danger m--hide" role="alert"
+                                 id="send_sms_form_msg">
+                                <div class="m-alert__icon">
+                                    <i class="la la-warning"></i>
+                                </div>
+                                <div class="m-alert__text">
+                                    填写信息有误，请检查重填后再次提交！
+                                </div>
+                                <div class="m-alert__close">
+                                    <button type="button" class="close" data-close="alert" aria-label="Close"></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                短信模板
+                            </label>
+                            <div class="col-lg-6 col-md-9 col-sm-12">
+                                <select class="form-control m-input" name="sms_template" id="sms_template">
+                                    {% for r in sms_template %}
+                                        <option value={{ r[0] }}>{{ r[1] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="m--margin-top-20" style="float:left">
+                            <label class="col-form-label col-lg-12 col-sm-24" style="float:left" id="template_content">
+                            </label>
+                        </div>
+
+                        <div class="form-group m-form__group row m--margin-top-20">
+                            <label class="col-form-label col-lg-3 col-sm-12">
+                                发送至手机号:
+                            </label>
+                            <div class="col-lg-9 col-md-9 col-sm-12">
+                                <textarea placeholder="用逗号分隔" class="form-control m-input m-input--air" name="targetPhone" id="targetPhone"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer" id="submit_buttons">
+                            <button type="button" class="btn btn-danger" id="clear_all_data">
+                                清空
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                关闭
+                            </button>
+                            <button type="submit" class="btn btn-primary" id="sending">
+                                发送短信
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal）end -->
+{% endblock %}
+
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        function ajax_template(id) {
+            $.ajax({
+                type: "POST",          //提交方式          
+                url: "sms_template_attributes",  //获取短信模板对应属性
+                data: JSON.stringify({"template_id": id}),
+                contentType: "application/json; charset=utf-8",
+                success: function (msg) {
+                    if (msg['code'] === 'success') {
+                        $("div[id*='send_content_div']").remove();
+                        $("#template_content").html(msg['data']['content']);
+                        $("#targetPhone").val(msg['data']['white_list']);
+                        console.log(msg);
+                        let m = msg['data']['params'];
+                        $.each(m, function (i) {
+                            console.log(m[i]);
+                            let newDiv = document.createElement('div');
+                            newDiv.setAttribute('id', 'send_content_div_' + m[i]);
+                            newDiv.setAttribute('class', "form-group m-form__group row m--margin-top-20");
+                            let newLabel = document.createElement('label');
+                            newLabel.setAttribute('class', "col-form-label col-lg-3 col-sm-12");
+                            newLabel.appendChild(document.createTextNode(m[i]));
+                            let newChildDiv = document.createElement('div');
+                            newChildDiv.setAttribute("class", "col-lg-9 col-md-9 col-sm-12");
+                            let newInput = document.createElement('input');
+                            newInput.setAttribute('class', "form-control m-input m-input--air");
+                            newInput.setAttribute('id', 'send_content_id_' + m[i]);
+
+                            newChildDiv.appendChild(newInput);
+                            newDiv.appendChild(newLabel);
+                            newDiv.appendChild(newChildDiv);
+                            $("#submit_buttons").before(newDiv);
+                        })
+
+
+                    } else {
+                        toastr.warning(msg['message']);
+                    }
+                },
+                error: function (xhr, msg, e) {
+                    toastr.warning("短信发送失败");
+                }
+            });
+        }
+
+        $('#m_datetimepicker_2_modal').on('cancel.daterangepicker', function (ev, picker) {
+            //do something, like clearing an input
+            $('input[name="daterange"]').val('');
+        });
+
+        $("#send_sms").click(function () {
+            $("#send_sms_modal").removeData("bs.modal").modal('show');
+
+            ajax_template($("#sms_template").val())
+        });
+
+        $("#sms_template").change(function () {
+            ajax_template($(this).val())
+        })
+
+        // toastr options
+        toastr.options = {
+            "closeButton": true, //是否显示关闭按钮
+            "debug": false, //是否使用debug模式
+            "progressBar": false,
+            "positionClass": "toast-top-center",//弹出窗的位置
+            "showDuration": "2000",//显示的动画时间
+            "hideDuration": "1000",//消失的动画时间
+            "timeOut": "2000", //展现时间
+            "extendedTimeOut": "1000",//加长展示时间
+            "showEasing": "swing",//显示时的动画缓冲方式
+            "hideEasing": "linear",//消失时的动画缓冲方式
+            "showMethod": "fadeIn",//显示时的动画方式
+            "hideMethod": "fadeOut" //消失时的动画方式
+        };
+
+        $("#clear_all_data").click(function () {
+            if (confirm("是否确认清空数据？")) {
+                $("#cutover_title_2").val("");
+                $("input[name$='][A]']").val("");
+                $("input[name$='][Z]']").val("");
+                $('input[name="daterange"]').val('');
+
+                $("#cutover_reason_2").val("");
+                $("#cutover_duration_2").val("");
+                $("#emergency_2").prop("checked", false);
+                $("#m_datepicker_1_modal_2").val("");
+                $('#m_form_excel_msg').addClass('m--hide').hide();
+                $("div.form-control-feedback").remove();
+            }
+        });
+    </script>
+    <script src="../static/sms/sms_order.js" type="text/javascript"></script>
+    <script src="../static/metronic/bootstrap-daterangepicker.js" type="text/javascript"></script>
+    <script src="../static/sms/form-controls-sms.js" type="text/javascript"></script>
+{% endblock %}

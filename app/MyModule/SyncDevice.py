@@ -1,5 +1,5 @@
 from .. import logger, redis_db, db
-from ..models import Device, SYNC_DEVICE_URL
+from ..models import Device, API_URL
 import requests
 from ..MyModule.RequestPost import post_request
 import uuid
@@ -19,7 +19,7 @@ def do_sync(devices, sync_content):
     results = list()
     for device in devices:
         if device:
-            result = post_request(SYNC_DEVICE_URL.get(sync_content),
+            result = post_request(API_URL.get(sync_content),
                                   {
                                       'ip': device.ip,
                                       'order_number': device.ip,

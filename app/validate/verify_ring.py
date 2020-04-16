@@ -2,14 +2,14 @@ import requests
 import threading
 from .. import logger, redis_db
 from ..MyModule.RequestPost import post_request
-from ..models import SYNC_DEVICE_URL
+from ..models import API_URL
 import uuid
 import json
 
 
 def verify_ring(line):
     logger.debug('verfiy rrpp ' + str(line.id))
-    api_url = SYNC_DEVICE_URL.get("verify_ring")
+    api_url = API_URL.get("verify_ring")
     if line.a_interface and line.z_interface and line.line_platform and line.vlans and line.main_route and line.domains:
         send_content = {"order_number": line.line_code,
                         "a_city": line.a_interface.device_interface.machine_room.cities.city,
