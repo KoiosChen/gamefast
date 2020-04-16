@@ -45,16 +45,15 @@ let FormControlsSMS = function () {
                         contentType: 'application/json; charset=UTF-8',
                         success: function (result) {
                             if (result.code === 'success') {
-                                alert(result.message)
-                                // mApp.unblock('#send_sms_modal .modal-content');
-                                // $("#sendmail2").modal('hide');
-                                // $('#ajax_data').mDatatable().destroy();
-                                // // DatatableRemoteAjaxCutover.init();
-                                // toastr.info(result.content);
-                                // //setTimeout("location.reload()", 1000);
+                                mApp.unblock('#send_sms_modal .modal-content');
+                                $("#send_sms_modal").modal('hide');
+                                $('#ajax_data').mDatatable().destroy();
+                                DatatableRemoteAjaxSMS.init();
+                                toastr.info(result.message);
+                                //setTimeout("location.reload()", 1000);
                             } else {
-                                mApp.unblock('#sendmail2 .modal-content');
-                                $('#sendmail2').modal('hide');
+                                mApp.unblock('#send_sms_modal .modal-content');
+                                $('#send_sms_modal').modal('hide');
                                 toastr.warning(result.message);
                             }
 
