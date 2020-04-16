@@ -1,7 +1,7 @@
 from ... import db, logger
 from flask import jsonify, session
 from ...models import LineDataBank, Domains, Customer, MachineRoom, Vlan, Contacts, User, Interfaces, Cloud, VXLAN, \
-    IPSupplier, IPManager, IPGroup, DNSManager, DIA, City, MPLS
+    IPSupplier, IPManager, IPGroup, DNSManager, DIA, City, MPLS, SMSOrder
 from ...proccessing_data.get_datatable import make_table, make_table_ip_supplier, make_table_supplier_ip, make_table_ip
 from ...validate.verify_fields import verify_fields, chain_add_validate, verify_required, verify_network, \
     verify_net_in_net

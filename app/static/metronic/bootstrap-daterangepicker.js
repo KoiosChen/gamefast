@@ -132,6 +132,13 @@ var BootstrapDatepicker = function () {
                 rightArrow: '<i class="la la-angle-right"></i>'
             }
         });
+
+        $('#m_datetimepicker_2_modal').datetimepicker({
+            todayHighlight: true,
+            autoclose: true,
+            pickerPosition: 'bottom-left',
+            format: 'yyyy/mm/dd hh:ii'
+        });
     }
 
     return {

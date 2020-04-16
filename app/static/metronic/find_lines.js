@@ -1,3 +1,4 @@
+
 //== Class definition
 
 var DatatableRemoteAjaxCustomer = function () {

@@ -11,7 +11,7 @@ from app.common import init_path, init_mailto
 
 __author__ = 'Koios'
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'testing')
+app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
 
