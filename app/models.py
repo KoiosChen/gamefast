@@ -1132,6 +1132,6 @@ REQUEST_RETRY_TIMES_PER_TIME = 1
 API_URL = {"interface": "http://127.0.0.1:5222/interface",
            "device_info": "http://127.0.0.1:6666/devices",
            "verify_ring": "http://10.250.62.1:5111/check_rrpp",
-           "ali_sms": "http://10.250.62.1:5333/sms"}
+           "ali_sms": "http://10.250.62.1:9998/sendsms"}
 
 ACCESS_DOMAIN = "http://10.172.172.164:1111/assets/"
