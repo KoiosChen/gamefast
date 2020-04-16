@@ -137,9 +137,6 @@
                         </div>
 
                         <div class="modal-footer" id="submit_buttons">
-                            <button type="button" class="btn btn-danger" id="clear_all_data">
-                                清空
-                            </button>
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                 关闭
                             </button>
@@ -236,23 +233,7 @@
             "hideMethod": "fadeOut" //消失时的动画方式
         };
 
-        $("#clear_all_data").click(function () {
-            if (confirm("是否确认清空数据？")) {
-                $("#cutover_title_2").val("");
-                $("input[name$='][A]']").val("");
-                $("input[name$='][Z]']").val("");
-                $('input[name="daterange"]').val('');
-
-                $("#cutover_reason_2").val("");
-                $("#cutover_duration_2").val("");
-                $("#emergency_2").prop("checked", false);
-                $("#m_datepicker_1_modal_2").val("");
-                $('#m_form_excel_msg').addClass('m--hide').hide();
-                $("div.form-control-feedback").remove();
-            }
-        });
     </script>
     <script src="../static/sms/sms_order.js" type="text/javascript"></script>
-    <script src="../static/metronic/bootstrap-daterangepicker.js" type="text/javascript"></script>
     <script src="../static/sms/form-controls-sms.js" type="text/javascript"></script>
 {% endblock %}
