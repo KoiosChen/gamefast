@@ -50,10 +50,8 @@ def send_sms_via_ali():
 
     args = request.json
     logger.debug(args)
-    phones = args['phones']
-    phones = phones.replace(' ', '')
-    phones = phones.replace('，', ',')
-    args['phones'] = phones
+    phones = args['phones'].replace(' ', '').replace('，', ',')
+    args['phones'] = ','.join([x.strip('\u202c').strip('\u202d') for x in phones.split(',')])
     template_id = args.get("template_id")
 
     if template_id in SMS_TEMPLATE.keys():
@@ -66,7 +64,7 @@ def send_sms_via_ali():
         new_data_obj('SMSOrder',
                      **{'id': args['order_number'],
                         'total': len(args['phones'].split(',')),
-                        'phones': ','.join([x.strip('\u202c').strip('\u202d') for x in args['phones'].split(',')]),
+                        'phones': args['phones'],
                         'sent_content': f"【{template['sign']}】" + content,
                         'operator': session['SELFID']})
         return jsonify({"code": "success", "message": result})
