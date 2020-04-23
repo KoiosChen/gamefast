@@ -401,49 +401,50 @@ def make_table_mpls(lines=None):
                                           LineDataBank.product_model.__eq__('MPLS')).order_by(
             LineDataBank.create_time.desc()).all()
     return [{"DT_RowId": "row_" + str(l.id),
-               "customer_name": l.customer_linedata.name,
-               "line_code": l.line_code,
-               "sub_line_code": l.sub_line_code if l.sub_line_code else "",
-               "a_client_addr": l.a_client_addr if l.a_client_addr else "",
-               "a_pop_city": l.a_interface.device_interface.machine_room.cities.city if l.a_interface else {},
-               "a_pop_city_id": l.a_interface.device_interface.machine_room.cities.id if l.a_interface else {},
-               "a_pop": l.a_interface.device_interface.machine_room.name if l.a_interface else "",
-               "a_pop_id": l.a_interface.device_interface.machine_room.id if l.a_interface else {},
-               "a_pop_device": l.a_interface.device_interface.device_name if l.a_interface else "",
-               "a_pop_device_id": l.a_interface.device_interface.id if l.a_interface else {},
-               "a_pop_interface": l.a_interface.interface_name if l.a_interface else "",
-               "a_pop_interface_id": l.a_interface.id if l.a_interface else {},
-               "a_pop_ip": l.a_interface.device_interface.ip if l.a_interface else "",
-               "z_client_addr": l.z_client_addr if l.z_client_addr else "",
-               "channel": channel_type[l.channel_type] + ":" + str(l.channel_number) + l.channel_unit,
-               "vlan": l.vlans.name if l.vlan else '',
-               "vlan_desc": l.vlans.desc if l.vlan and l.vlans.desc is not None else "",
-               "vlan_type": l.vlans.type if l.vlans else 'access',
-               "access_way": l.mpls_attribute.first().access_way if l.mpls_attribute.first() else "",
-               "route_protocol": l.mpls_attribute.first().route_protocol if l.mpls_attribute.first() else "",
-               "as_number": l.mpls_attribute.first().as_number if l.mpls_attribute.first() else "",
-               "vrf": l.mpls_attribute.first().vrf if l.mpls_attribute.first() else "",
-               "rt": l.mpls_attribute.first().rt if l.mpls_attribute.first() else "",
-               "interconnect_client": l.mpls_attribute.first().mpls_interconnect_ip.ip_list.first().IP if l.mpls_attribute.first() and l.mpls_attribute.first().mpls_interconnect_ip else "",
-               "interconnect_pe": l.mpls_attribute.first().mpls_interconnect_ip.ip_list.first().gateway if l.mpls_attribute.first() and l.mpls_attribute.first().mpls_interconnect_ip else "",
-               "interconnect_netmask": l.mpls_attribute.first().mpls_interconnect_ip.ip_list.first().netmask if l.mpls_attribute.first() and l.mpls_attribute.first().mpls_interconnect_ip else "",
-               "operator": l.operator.username if l.operator else "",
-               "biz_contact_name": l.biz_contact.name if l.biz else "",
-               "biz_contact_phoneNumber": l.biz_contact.phoneNumber if l.biz else "",
-               "biz_contact_email": l.biz_contact.email if l.biz else "",
-               "noc_contact_name": l.noc_contact.name if l.noc else "",
-               "noc_contact_phoneNumber": l.noc_contact.phoneNumber if l.noc else "",
-               "noc_contact_email": l.noc_contact.email if l.noc else "",
-               "customer_manager_name": l.customer_manager_contact.name if l.customer_manager else "",
-               "customer_manager_phoneNumber": l.customer_manager_contact.phoneNumber if l.customer_manager else "",
-               "start_date": str(l.operate_time),
-               "stop_date": str(l.line_stop_time) if l.line_stop_time else "",
-               "product_type": l.product_type,
-               "product_model": l.product_model,
-               "line_desc": l.line_desc if l.line_desc else "",
-               "validate_rrpp_status": l.validate_rrpp_status,
-               "route_protocal": l.mpls_attribute.first().access_way if l.mpls_attribute.first() else "",
-               } for l in lines]
+             "customer_name": l.customer_linedata.name,
+             "line_code": l.line_code,
+             "sub_line_code": l.sub_line_code if l.sub_line_code else "",
+             "a_client_addr": l.a_client_addr if l.a_client_addr else "",
+             "a_pop_city": l.a_interface.device_interface.machine_room.cities.city if l.a_interface else {},
+             "a_pop_city_id": l.a_interface.device_interface.machine_room.cities.id if l.a_interface else {},
+             "a_pop": l.a_interface.device_interface.machine_room.name if l.a_interface else "",
+             "a_pop_id": l.a_interface.device_interface.machine_room.id if l.a_interface else {},
+             "a_pop_device": l.a_interface.device_interface.device_name if l.a_interface else "",
+             "a_pop_device_id": l.a_interface.device_interface.id if l.a_interface else {},
+             "a_pop_interface": l.a_interface.interface_name if l.a_interface else "",
+             "a_pop_interface_id": l.a_interface.id if l.a_interface else {},
+             "a_pop_ip": l.a_interface.device_interface.ip if l.a_interface else "",
+             "z_client_addr": l.z_client_addr if l.z_client_addr else "",
+             "channel": channel_type[l.channel_type] + ":" + str(l.channel_number) + l.channel_unit,
+             "vlan": l.vlans.name if l.vlan else '',
+             "vlan_desc": l.vlans.desc if l.vlan and l.vlans.desc is not None else "",
+             "vlan_type": l.vlans.type if l.vlans else 'access',
+             "access_way": l.mpls_attribute.first().access_way if l.mpls_attribute.first() else "",
+             "route_protocol": l.mpls_attribute.first().route_protocol if l.mpls_attribute.first() else "",
+             "as_number": l.mpls_attribute.first().as_number if l.mpls_attribute.first() else "",
+             "vrf": l.mpls_attribute.first().vrf if l.mpls_attribute.first() else "",
+             "rt": l.mpls_attribute.first().rt if l.mpls_attribute.first() else "",
+             "interconnect_client": l.mpls_attribute.first().mpls_interconnect_ip.ip_list.first().IP if l.mpls_attribute.first() and l.mpls_attribute.first().mpls_interconnect_ip else "",
+             "interconnect_pe": l.mpls_attribute.first().mpls_interconnect_ip.ip_list.first().gateway if l.mpls_attribute.first() and l.mpls_attribute.first().mpls_interconnect_ip else "",
+             "interconnect_netmask": l.mpls_attribute.first().mpls_interconnect_ip.ip_list.first().netmask if l.mpls_attribute.first() and l.mpls_attribute.first().mpls_interconnect_ip else "",
+             "operator": l.operator.username if l.operator else "",
+             "biz_contact_name": l.biz_contact.name if l.biz else "",
+             "biz_contact_phoneNumber": l.biz_contact.phoneNumber if l.biz else "",
+             "biz_contact_email": l.biz_contact.email if l.biz else "",
+             "noc_contact_name": l.noc_contact.name if l.noc else "",
+             "noc_contact_phoneNumber": l.noc_contact.phoneNumber if l.noc else "",
+             "noc_contact_email": l.noc_contact.email if l.noc else "",
+             "customer_manager_name": l.customer_manager_contact.name if l.customer_manager else "",
+             "customer_manager_phoneNumber": l.customer_manager_contact.phoneNumber if l.customer_manager else "",
+             "start_date": str(l.operate_time),
+             "stop_date": str(l.line_stop_time) if l.line_stop_time else "",
+             "product_type": l.product_type,
+             "product_model": l.product_model,
+             "line_desc": l.line_desc if l.line_desc else "",
+             "validate_rrpp_status": l.validate_rrpp_status,
+             "route_protocal": l.mpls_attribute.first().access_way if l.mpls_attribute.first() else "",
+             } for l in lines]
+
 
 def make_table_mpls_attribute(lines=None):
     r = [{"DT_RowId": "row_" + str(im.id),
@@ -460,21 +461,22 @@ def make_options(data=None):
     tmp_d_z = list()
     tmp_pop_a = list()
     tmp_pop_z = list()
-    for d in data:
-        if d.get('a_pop_interface_id'):
-            tmp_a.append({"label": d['a_pop_interface'], "value": d['a_pop_interface_id']})
-        if d.get('z_pop_interface_id'):
-            tmp_z.append({"label": d['z_pop_interface'], "value": d['z_pop_interface_id']})
+    if data is not None:
+        for d in data:
+            if d.get('a_pop_interface_id'):
+                tmp_a.append({"label": d['a_pop_interface'], "value": d['a_pop_interface_id']})
+            if d.get('z_pop_interface_id'):
+                tmp_z.append({"label": d['z_pop_interface'], "value": d['z_pop_interface_id']})
 
-        if d.get('a_pop_device_id'):
-            tmp_d_a.append({"label": d['a_pop_device'], "value": d['a_pop_device_id']})
-        if d.get('z_pop_device_id'):
-            tmp_d_z.append({"label": d['z_pop_device'], "value": d['z_pop_device_id']})
+            if d.get('a_pop_device_id'):
+                tmp_d_a.append({"label": d['a_pop_device'], "value": d['a_pop_device_id']})
+            if d.get('z_pop_device_id'):
+                tmp_d_z.append({"label": d['z_pop_device'], "value": d['z_pop_device_id']})
 
-        if d.get('a_pop_id'):
-            tmp_pop_a.append({"label": d['a_pop'], "value": d['a_pop_id']})
-        if d.get('z_pop_id'):
-            tmp_pop_z.append({"label": d['z_pop'], "value": d['z_pop_id']})
+            if d.get('a_pop_id'):
+                tmp_pop_a.append({"label": d['a_pop'], "value": d['a_pop_id']})
+            if d.get('z_pop_id'):
+                tmp_pop_z.append({"label": d['z_pop'], "value": d['z_pop_id']})
 
     mode_dict = {1: "网关模式", 2: "路由模式"}
     cities = [{"label": city.city, "value": city.id} for city in City.query.all()]
