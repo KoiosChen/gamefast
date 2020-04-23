@@ -1,6 +1,6 @@
 from flask import request, jsonify, render_template, session
 from flask_login import login_required
-from ..models import Permission, API_URL, SMSOrder
+from ..models import Permission, API_URL, SMSOrder, SMSSendResult
 from ..decorators import permission_required
 from .. import logger, db, nesteddict, redis_db
 from . import sms
@@ -9,6 +9,8 @@ import uuid
 from ..MyModule.RequestPost import post_request
 from ..proccessing_data.proccess.public_methods import new_data_obj
 import json
+from ..common import success_return, false_return
+
 
 # SMS_TEMPLATE = {"SMS_187951938": {'name': "港华",
 #                                   "content": '尊敬的客户：您好！关于贵司线路编号：{order}，节点信息：{node}，带宽：{bandwidth}故障，中断时间：{time}。最近进展：{progress}。烦请知悉！服务热线：400-720-8880',
@@ -61,12 +63,14 @@ def send_sms_via_ali():
         result = post_request(API_URL.get('ali_sms'), args)
         logger.debug(result)
         content = template['content'].format(**args['params'])
-        new_data_obj('SMSOrder',
-                     **{'id': args['order_number'],
-                        'total': len(args['phones'].split(',')),
-                        'phones': args['phones'],
-                        'sent_content': f"【{template['sign']}】" + content,
-                        'operator': session['SELFID']})
+        new_order = new_data_obj('SMSOrder',
+                                 **{'id': args['order_number'],
+                                    'total': len(args['phones'].split(',')),
+                                    'phones': args['phones'],
+                                    'sent_content': f"【{template['sign']}】" + content,
+                                    'operator': session['SELFID']})
+        for phone in args['phones'].split(','):
+            new_data_obj('SMSSendResult', **{'phone': phone, 'sms_order': new_order})
         return jsonify({"code": "success", "message": result})
     else:
         return jsonify({"code": "false", "message": "模板不存在"})
@@ -106,3 +110,27 @@ def sms_order():
             "data": data
         }
         return jsonify(rest)
+
+
+@sms.route('/sms_send_result', methods=['POST'])
+@login_required
+@permission_required(Permission.MAN_ON_DUTY)
+def sms_send_result():
+    data = request.json
+    order_number = data.get('order_number')
+    phone = data.get('phone_number')
+    status = data['data']['SendStatus']
+    send_date = data['data']['SendDate']
+    err_code = data['data']['err_code']
+    order = SMSOrder.query.get(order_number)
+    if order:
+        phone_ = order.send_results.filter_by(phone=phone).first()
+        if phone_:
+            phone_.status = status
+            phone_.err_code = err_code
+            phone_.send_date = send_date
+            return success_return(msg='更新成功')
+        else:
+            return false_return(msg=f'<{phone}> 订单中不存在此号码')
+    else:
+        return false_return(msg=f'<{order_number}> 订单号不存在')
