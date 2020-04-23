@@ -2,11 +2,9 @@ var DatatableInterface = function (row_id) {
     let int_table_id = $("#device_int_table");
     let table = int_table_id.DataTable({
         dom: "Bfrtip",
-        scrollY: '80vh',
         scrollCollapse: true,
         paging: false,
         "processing": true,
-        "scrollX": true,
         ajax: {
             url: "/query_interface_table",
             data: {"row_id": row_id}
@@ -16,13 +14,13 @@ var DatatableInterface = function (row_id) {
             {data: "interface_name"},
             {data: "interface_desc"},
             {data: "interface_type"},
-            {data: "interface_status"},
+            {data: "interface_status"}
         ],
         select: {
             style: 'os',
-            selector: 'td:first-child'
+            selector: 'td:first-child',
         },
-        buttons: []
+        buttons: [],
     });
 
     return table
@@ -122,26 +120,6 @@ var DatatableDevice = function () {
         ajax: "/query_device_table",
         "order": [[0, 'desc']],
         "columnDefs": [
-            // {
-            //     // targets用于指定操作的列，从第0列开始，-1为最后一列，这里第六列
-            //     // return后边是我们希望在指定列填入的按钮代码
-            //     "targets": 13,
-            //     "render": function (data, type, full, meta) {
-            //         return '<a data-toggle="modal" data-target="#memo_editor" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
-            //                         <i class="la la-edit"></i>\
-            //                     </a>';
-            //     }
-            // },
-            // {
-            //     // targets用于指定操作的列，从第0列开始，-1为最后一列
-            //     // return后边是我们希望在指定列填入的按钮代码
-            //     "targets": 12,
-            //     "render": function (data, type, full, meta) {
-            //         return '<a data-toggle="modal" data-target="#file_upload" class="m-portlet__nav-link btn m-btn m-btn--hover-accent m-btn--icon m-btn--icon-only m-btn--pill" title="Edit details">\
-            //                         <i class="la la-file"></i>\
-            //                     </a>';
-            //     }
-            // },
             {"visible": false, "targets": []}
         ],
         columns: [

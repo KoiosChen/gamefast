@@ -87,7 +87,7 @@ var DatatableRemoteAjaxMailTemplet = function () {
                     textAlign: 'center',
                     // callback function support for column rendering
                     template: function (row) {
-                        var status = {
+                        let status = {
                             'true': {'title': '正常', 'class': ' m-badge--success'},
                             'false': {'title': '禁用', 'class': ' m-badge--danger'},
                         };
