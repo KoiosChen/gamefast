@@ -113,7 +113,20 @@ class SMSOrder(db.Model):
     phones = db.Column(db.String(200))
     sent_content = db.Column(db.String(300), comment='已发送内容')
     operator = db.Column(db.Integer, db.ForeignKey('users.id'))
+    send_results = db.relationship('SMSSendResult', backref='sms_order', lazy='dynamic')
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
+
+
+class SMSSendResult(db.Model):
+    __tablename__ = 'sms_send_result'
+    id = db.Column(db.String(64), primary_key=True, default=str(uuid.uuid4()))
+    order_id = db.Column(db.String(64), db.ForeignKey('sms_order.id'))
+    phone = db.Column(db.String(15))
+    status = db.Column(db.SmallInteger, default=1, comment="SendStatus 1：等待回执  2：发送失败。  3：发送成功。")
+    send_date = db.Column(db.DateTime)
+    err_code = db.Column(db.String(100))
+    create_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    update_at = db.Column(db.DateTime, onupdate=datetime.datetime.now)
 
 
 class OperateLog(db.Model):
