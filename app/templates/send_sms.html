@@ -152,6 +152,61 @@
     </div>
 
     <!-- 模态框（Modal）end -->
+
+    <!-- 模态框（Modal）查询接口  -->
+    <div class="modal fade" id="send_result_query" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">
+                        发送结果：
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+											<span aria-hidden="true">
+												&times;
+											</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="m_datatable m-datatable--default m-datatable--loaded" style>
+                        <table id="send_result_table" class="display nowrap" style="width:100%">
+                            <thead>
+                            <tr>
+                                <th>手机号</th>
+                                <th>状态</th>
+                                <th>错误码</th>
+                                <th>发送时间</th>
+                            </tr>
+                            </thead>
+                            <tfoot>
+                            <tr>
+                                <th>手机号</th>
+                                <th>状态</th>
+                                <th>错误码</th>
+                                <th>发送时间</th>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+
+                <div class="holder">
+                </div>
+                <ul class="posts" id="itemContainer">
+                </ul>
+                <div class="holder">
+                </div>
+
+
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal -->
+    </div>
 {% endblock %}
 
 
@@ -200,6 +255,16 @@
                     toastr.warning("短信发送失败");
                 }
             });
+        }
+
+        function CheckResult(id) {
+            $('#m_form_new_templet_msg').addClass('m--hide').hide();
+            $("div.form-control-feedback").remove();
+            $('#modal_templet_name').html("模板管理");
+            $('#hid').html(id);
+            $('#templet_name').val(templet_name);
+            $('#templet_desc').val(templet_desc);
+            $('#templet_name').attr('readonly', true);
         }
 
         $('#m_datetimepicker_2_modal').on('cancel.daterangepicker', function (ev, picker) {

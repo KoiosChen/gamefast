@@ -66,16 +66,23 @@ let DatatableRemoteAjaxSMS = function () {
                     width: 400,
                     textAlign: 'center',
                 }, {
-                    field: 'total',
-                    title: '发送数量',
+                    field: 'phones',
+                    title: '手机号',
+                    width: 200,
                     textAlign: 'center',
-                    width: 50,
+                },{
+                    field: 'SendResult',
+                    title: '查询结果',
+                    textAlign: 'center',
+                    width: 100,
                     // sortable: 'asc', // default sort
                     filterable: false, // disable or enable filtering
-                    // basic templating support for column rendering,
+                    template: function (row) {
+                        return '<a ' + 'onClick="return CheckResult(' + row.id + ')" class="m-portlet__nav-link btn m-btn m-btn--hover-info m-btn--icon m-btn--icon-only m-btn--pill m-btn--wide" title="发送结果">' + '<i class="fa fa-angle-double-right"></i>' + '</a>';
+                    },
                 }, {
-                    field: 'phones',
-                    title: '发送手机',
+                    field: 'total',
+                    title: '发送数量',
                     textAlign: 'center',
                 }, {
                     field: 'sent_content',
@@ -89,6 +96,7 @@ let DatatableRemoteAjaxSMS = function () {
                     field: 'sent_time',
                     title: '发送时间',
                     type: 'date',
+                    textAlign: 'center',
                     format: 'MM/DD/YYYY',
                 }],
         });
