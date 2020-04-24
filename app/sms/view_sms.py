@@ -14,9 +14,9 @@ from collections import defaultdict
 from ..proccessing_data.get_datatable import make_options, make_send_result
 
 
-# SMS_TEMPLATE = {"SMS_187951938": {'name': "港华",
-#                                   "content": '尊敬的客户：您好！关于贵司线路编号：{order}，节点信息：{node}，带宽：{bandwidth}故障，中断时间：{time}。最近进展：{progress}。烦请知悉！服务热线：400-720-8880',
-#                                   "white_list": "13817730962,15618098089", "sign": "应通科技"}}
+SMS_TEMPLATE = {"SMS_188990047": {'name': "港华",
+                                  "content": '尊敬的客户：您好！关于贵司线路编号{order}，节点{node} 发生故障，中断时间：{time}。最新进展：{progress}。烦请知悉！服务热线：400-720-8880',
+                                  "white_list": "", "sign": "应通科技"}}
 
 
 @sms.route('/sms', methods=['GET'])
@@ -119,6 +119,7 @@ def sms_order():
 @permission_required(Permission.MAN_ON_DUTY)
 def sms_send_result():
     data = request.json
+    logger.debug(f'>>>> Get callback of sms: {data}')
     order_number = data.get('order_number')
     phone = data.get('phone_number')
     status = data['data']['SendStatus']
@@ -127,10 +128,13 @@ def sms_send_result():
     order = SMSOrder.query.get(order_number)
     if order:
         phone_ = order.send_results.filter_by(phone=phone).first()
+        logger.debug(f'>>>> send result of {order} is {phone_}')
         if phone_:
             phone_.status = status
             phone_.err_code = err_code
             phone_.send_date = send_date
+            db.session.add(phone_)
+            db.session.commit()
             return success_return(msg='更新成功')
         else:
             return false_return(msg=f'<{phone}> 订单中不存在此号码')
