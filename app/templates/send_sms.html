@@ -132,7 +132,8 @@
                                 发送至手机号:
                             </label>
                             <div class="col-lg-9 col-md-9 col-sm-12">
-                                <textarea placeholder="用逗号分隔" class="form-control m-input m-input--air" name="targetPhone" id="targetPhone"></textarea>
+                                <textarea placeholder="用逗号分隔" class="form-control m-input m-input--air"
+                                          name="targetPhone" id="targetPhone"></textarea>
                             </div>
                         </div>
 
@@ -154,13 +155,13 @@
     <!-- 模态框（Modal）end -->
 
     <!-- 模态框（Modal）查询接口  -->
-    <div class="modal fade" id="send_result_query" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <div class="modal fade" id="send_result_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">
-                        发送结果：
+                    <h5 class="modal-title" id="sendResultModalLongTitle">
+                        短信发送结果：
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 											<span aria-hidden="true">
@@ -212,6 +213,26 @@
 
 {% block scripts %}
     {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='jPages-master/css/jPages.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='jPages-master/css/animate.css') }}">
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/dataTables.fixedColumns.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/mycss/datatable/select.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="../static/Editor-1.6.5/css/editor.dataTables.css">
+
+    <script type="text/javascript" charset="utf8" src="../static/datatable/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/dataTables.fixedColumns.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/dataTables.select.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="../static/datatable/showdown.min.js"></script>
+    <script src="../static/jPages-master/js/jPages.min.js"></script>
+    <script src="../static/js/moment.min.js"></script>
+    <script src="../static/js/daterangepicker.js"></script>
+    <script type="text/javascript" src="../static/Editor-1.6.5/js/dataTables.editor.js"></script>
+    <script src="../static/metronic/bootstrap-daterangepicker.js" type="text/javascript"></script>
+    <script src="../static/metronic-default/assets/demo/default/custom/components/portlets/tools.js"
+            type="text/javascript"></script>
     <script>
         function ajax_template(id) {
             $.ajax({
@@ -258,13 +279,15 @@
         }
 
         function CheckResult(id) {
-            $('#m_form_new_templet_msg').addClass('m--hide').hide();
-            $("div.form-control-feedback").remove();
-            $('#modal_templet_name').html("模板管理");
-            $('#hid').html(id);
-            $('#templet_name').val(templet_name);
-            $('#templet_desc').val(templet_desc);
-            $('#templet_name').attr('readonly', true);
+            if (tableObj) {
+                tableObj.settings()[0].ajax.data = {"row_id": id};
+                tableObj.ajax.reload();
+            }
+            else {
+                tableObj = DatatableSendResult(id)
+            }
+            $("#send_result_modal").removeData("bs.modal").modal('show');
+
         }
 
         $('#m_datetimepicker_2_modal').on('cancel.daterangepicker', function (ev, picker) {
@@ -274,7 +297,6 @@
 
         $("#send_sms").click(function () {
             $("#send_sms_modal").removeData("bs.modal").modal('show');
-
             ajax_template($("#sms_template").val())
         });
 

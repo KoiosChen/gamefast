@@ -1,5 +1,5 @@
 from ..models import channel_type, LineDataBank, Device, Interfaces, all_domains, multi_domains, erps_instance, \
-    Platforms, MachineRoom, City, IPManager, IPGroup, IPSupplier
+    Platforms, MachineRoom, City, IPManager, IPGroup, IPSupplier, SMSSendResult
 from .. import logger
 from sqlalchemy import or_
 import time
@@ -222,6 +222,16 @@ def make_table_interface(lines=None):
              "interface_desc": l.interface_desc if l.interface_desc else "",
              "interface_type": l.interface_type if l.interface_type else "",
              "interface_status": l.interface_status if l.interface_status else ""} for l in lines]
+
+
+def make_send_result(lines=None):
+    if lines is None:
+        lines = SMSSendResult.query.all()
+    return [{"DT_RowId": "row_" + str(l.id),
+             "phone": l.phone,
+             "status": l.status,
+             "err_code": l.err_code if l.err_code else "",
+             "send_date": l.send_date if l.send_date else ""} for l in lines]
 
 
 def make_table_device(lines=None):

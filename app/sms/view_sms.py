@@ -10,6 +10,8 @@ from ..MyModule.RequestPost import post_request
 from ..proccessing_data.proccess.public_methods import new_data_obj
 import json
 from ..common import success_return, false_return
+from collections import defaultdict
+from ..proccessing_data.get_datatable import make_options, make_send_result
 
 
 # SMS_TEMPLATE = {"SMS_187951938": {'name': "港华",
@@ -134,3 +136,19 @@ def sms_send_result():
             return false_return(msg=f'<{phone}> 订单中不存在此号码')
     else:
         return false_return(msg=f'<{order_number}> 订单号不存在')
+
+
+@sms.route('/query_send_result_table', methods=['GET'])
+@login_required
+@permission_required(Permission.MAN_ON_DUTY)
+def query_send_result_table():
+    logger.debug('query interface device ')
+    _id = request.args.get("row_id")
+    logger.debug(_id)
+    sms_order = SMSOrder.query.get(_id).send_results.all()
+    options_original = make_options()
+    return jsonify({
+        "data": [] if not sms_order else make_send_result(sms_order),
+        "options": options_original,
+        "files": []
+    })
