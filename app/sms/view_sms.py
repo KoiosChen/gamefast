@@ -1,7 +1,7 @@
 from flask import request, jsonify, render_template, session
 from flask_login import login_required
-from ..models import Permission, API_URL, SMSOrder, SMSSendResult
-from ..decorators import permission_required
+from ..models import Permission, API_URL, SMSOrder, SMSSendResult, PermissionIP
+from ..decorators import permission_required, permission_ip
 from .. import logger, db, nesteddict, redis_db
 from . import sms
 import re
@@ -115,8 +115,7 @@ def sms_order():
 
 
 @sms.route('/sms_send_result', methods=['POST'])
-@login_required
-@permission_required(Permission.MAN_ON_DUTY)
+@permission_ip(PermissionIP)
 def sms_send_result():
     data = request.json
     logger.debug(f'>>>> Get callback of sms: {data}')
