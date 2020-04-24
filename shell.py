@@ -2,7 +2,8 @@
 import os
 from app import create_app, db
 from app.models import Contacts, User, Role, MachineRoom, Device, City, LineDataBank, Customer, Vlan, Domains, \
-    Platforms, IPGroup, IPSupplier, MPLS, Post, MailTemplet, CutoverOrder, DIA, Interfaces, IPManager, PATH_PREFIX
+    Platforms, IPGroup, IPSupplier, MPLS, Post, MailTemplet, CutoverOrder, DIA, Interfaces, IPManager, PATH_PREFIX, \
+    SMSSendResult, SMSOrder
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
 
@@ -18,7 +19,8 @@ def make_shell_context():
                 Device=Device, LineDataBank=LineDataBank, Vlan=Vlan, IPSupplier=IPSupplier,
                 IPGroup=IPGroup,
                 Customer=Customer, MPLS=MPLS, Domains=Domains, Platforms=Platforms, Post=Post, MailTemplet=MailTemplet,
-                CutoverOrder=CutoverOrder, DIA=DIA, Interfaces=Interfaces, IPManager=IPManager, PATH_PREFIX=PATH_PREFIX)
+                CutoverOrder=CutoverOrder, DIA=DIA, Interfaces=Interfaces, IPManager=IPManager, PATH_PREFIX=PATH_PREFIX,
+                SMSOrder=SMSOrder, SMSSendResult=SMSSendResult)
 
 
 manager.add_command("shell", Shell(make_context=make_shell_context))

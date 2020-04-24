@@ -1,11 +1,39 @@
 //== Class definition
+var tableObj;
+let DatatableSendResult = function (rowId) {
+    let tableId = $("#send_result_table");
+    let table = tableId.DataTable({
+        dom: "Bfrtip",
+        scrollCollapse: true,
+        paging: false,
+        "processing": true,
+        ajax: {
+            url: "/query_send_result_table",
+            data: {"row_id": rowId,},
+        },
+        "order": [[0, 'desc',],],
+        columns: [
+            {data: "phone",},
+            {data: "status",},
+            {data: "err_code",},
+            {data: "send_date",},
+        ],
+        select: {
+            style: 'os',
+            selector: 'td:first-child',
+        },
+        buttons: [],
+    });
+
+    return table
+}
+
 
 let DatatableRemoteAjaxSMS = function () {
     //== Private functions
 
     // basic demo
     let demo = function () {
-
         let datatable = $('#ajax_data').mDatatable({
             // data source definition
             data: {
@@ -78,7 +106,7 @@ let DatatableRemoteAjaxSMS = function () {
                     // sortable: 'asc', // default sort
                     filterable: false, // disable or enable filtering
                     template: function (row) {
-                        return '<a ' + 'onClick="return CheckResult(' + row.id + ')" class="m-portlet__nav-link btn m-btn m-btn--hover-info m-btn--icon m-btn--icon-only m-btn--pill m-btn--wide" title="发送结果">' + '<i class="fa fa-angle-double-right"></i>' + '</a>';
+                        return '<a ' + 'onClick="return CheckResult(\'' + row.id + '\')" class="m-portlet__nav-link btn m-btn m-btn--hover-info m-btn--icon m-btn--icon-only m-btn--pill m-btn--wide" title="发送结果">' + '<i class="fa fa-angle-double-right"></i>' + '</a>';
                     },
                 }, {
                     field: 'total',
