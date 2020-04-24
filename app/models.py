@@ -117,10 +117,6 @@ class SMSOrder(db.Model):
     send_results = db.relationship('SMSSendResult', backref='sms_order', lazy='dynamic')
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
 
-    def __init__(self, **kwargs):
-        super(SMSOrder, self).__init__(**kwargs)
-        self.id = str(uuid.uuid1())
-
 
 class SMSSendResult(db.Model):
     __tablename__ = 'sms_send_result'
