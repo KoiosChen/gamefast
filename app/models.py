@@ -100,13 +100,14 @@ class CutoverOrder(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
     cutover_send_date = db.Column(db.Date)
 
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super(CutoverOrder, self).__init__(**kwargs)
         self.id = str(uuid.uuid1())
 
 
 class SMSOrder(db.Model):
     __tablename__ = 'sms_order'
-    id = db.Column(db.String(64), primary_key=True, default=str(uuid.uuid4()))
+    id = db.Column(db.String(64), primary_key=True)
     total = db.Column(db.Integer, default=0)
     success = db.Column(db.Integer)
     fail = db.Column(db.Integer)
@@ -116,10 +117,14 @@ class SMSOrder(db.Model):
     send_results = db.relationship('SMSSendResult', backref='sms_order', lazy='dynamic')
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
 
+    def __init__(self, **kwargs):
+        super(SMSOrder, self).__init__(**kwargs)
+        self.id = str(uuid.uuid1())
+
 
 class SMSSendResult(db.Model):
     __tablename__ = 'sms_send_result'
-    id = db.Column(db.String(64), primary_key=True, default=str(uuid.uuid4()))
+    id = db.Column(db.String(64), primary_key=True)
     order_id = db.Column(db.String(64), db.ForeignKey('sms_order.id'))
     phone = db.Column(db.String(15))
     status = db.Column(db.SmallInteger, default=1, comment="SendStatus 1：等待回执  2：发送失败。  3：发送成功。")
@@ -127,6 +132,10 @@ class SMSSendResult(db.Model):
     err_code = db.Column(db.String(100))
     create_at = db.Column(db.DateTime, default=datetime.datetime.now)
     update_at = db.Column(db.DateTime, onupdate=datetime.datetime.now)
+
+    def __init__(self, **kwargs):
+        super(SMSSendResult, self).__init__(**kwargs)
+        self.id = str(uuid.uuid1())
 
 
 class OperateLog(db.Model):

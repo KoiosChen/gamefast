@@ -71,7 +71,8 @@ def send_sms_via_ali():
                                     'phones': args['phones'],
                                     'sent_content': f"【{template['sign']}】" + content,
                                     'operator': session['SELFID']})
-        for phone in args['phones'].split(','):
+        phone_list = args['phones'].split(',')
+        for phone in phone_list:
             new_data_obj('SMSSendResult', **{'phone': phone, 'sms_order': new_order})
         return jsonify({"code": "success", "message": result})
     else:
