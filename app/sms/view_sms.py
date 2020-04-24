@@ -123,7 +123,7 @@ def sms_send_result():
     phone = data.get('phone_number')
     status = data['data']['SendStatus']
     send_date = data['data']['SendDate']
-    err_code = data['data']['err_code']
+    err_code = data['data']['ErrCode']
     order = SMSOrder.query.get(order_number)
     if order:
         phone_ = order.send_results.filter_by(phone=phone).first()
