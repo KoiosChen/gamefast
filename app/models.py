@@ -15,6 +15,9 @@ import re
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+def make_uuid():
+    return str(uuid.uuid4())
+
 
 lines_domains = db.Table('lines_domains',
                          db.Column('lines', db.Integer, db.ForeignKey('line_data_bank.id'), primary_key=True),
@@ -77,7 +80,7 @@ class Files(db.Model):
 
 class CutoverOrder(db.Model):
     __tablename__ = 'cutover_order'
-    id = db.Column(db.String(50), primary_key=True)
+    id = db.Column(db.String(50), primary_key=True, default=make_uuid)
     total = db.Column(db.Integer, nullable=False)
     success = db.Column(db.Integer)
     fail = db.Column(db.Integer)
@@ -100,14 +103,10 @@ class CutoverOrder(db.Model):
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
     cutover_send_date = db.Column(db.Date)
 
-    def __init__(self, **kwargs):
-        super(CutoverOrder, self).__init__(**kwargs)
-        self.id = str(uuid.uuid1())
-
 
 class SMSOrder(db.Model):
     __tablename__ = 'sms_order'
-    id = db.Column(db.String(64), primary_key=True)
+    id = db.Column(db.String(64), primary_key=True, default=make_uuid)
     total = db.Column(db.Integer, default=0)
     success = db.Column(db.Integer)
     fail = db.Column(db.Integer)
@@ -120,7 +119,7 @@ class SMSOrder(db.Model):
 
 class SMSSendResult(db.Model):
     __tablename__ = 'sms_send_result'
-    id = db.Column(db.String(64), primary_key=True)
+    id = db.Column(db.String(64), primary_key=True, default=make_uuid)
     order_id = db.Column(db.String(64), db.ForeignKey('sms_order.id'))
     phone = db.Column(db.String(15))
     status = db.Column(db.SmallInteger, default=1, comment="SendStatus 1：等待回执  2：发送失败。  3：发送成功。")
@@ -128,10 +127,6 @@ class SMSSendResult(db.Model):
     err_code = db.Column(db.String(100))
     create_at = db.Column(db.DateTime, default=datetime.datetime.now)
     update_at = db.Column(db.DateTime, onupdate=datetime.datetime.now)
-
-    def __init__(self, **kwargs):
-        super(SMSSendResult, self).__init__(**kwargs)
-        self.id = str(uuid.uuid1())
 
 
 class OperateLog(db.Model):

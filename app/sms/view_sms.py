@@ -14,9 +14,7 @@ from collections import defaultdict
 from ..proccessing_data.get_datatable import make_options, make_send_result
 
 
-SMS_TEMPLATE = {"SMS_188990047": {'name': "港华",
-                                  "content": '尊敬的客户：您好！关于贵司线路编号{order}，节点{node} 发生故障，中断时间：{time}。最新进展：{progress}。烦请知悉！服务热线：400-720-8880',
-                                  "white_list": "", "sign": "应通科技"}}
+# SMS_TEMPLATE = {"SMS_188990047": {'name': "港华", "content": '尊敬的客户：您好！关于贵司线路编号{order}，节点{node} 发生故障，中断时间：{time}。最新进展：{progress}。烦请知悉！服务热线：400-720-8880', "white_list": "18420020137,18971592928,13387542469,18627858376", "sign": "应通科技"},"SMS_190789590": {'name': "港华割接通知", "content": "尊敬的客户：您好！接机房通知，定于{time}对{place}进行紧急割接，届时影响贵司{order}，具体影响节点已发送邮件到贵司邮箱，请注意查收，由于割接带来的不便，我们深表歉意。", "white_list": "18420020137,18971592928,13387542469,18627858376", "sign": "应通科技"}}
 
 
 @sms.route('/sms', methods=['GET'])
