@@ -392,17 +392,18 @@ def get_route():
         try:
             api_url = "http://10.250.62.1:5555/route/api"
             headers = {'Content-Type': 'application/json', "encoding": "utf-8"}
-            send_content = {"a_city": line_data.a_interface.device_interface.machine_room.cities.city,
-                            "z_city": line_data.z_interface.device_interface.machine_room.cities.city,
+            domains = '_'.join(sorted([d.name for d in line_data.domains]))
+            send_content = {"a_node": line_data.a_interface.device_interface.machine_room.cities.city,
+                            "z_node": line_data.z_interface.device_interface.machine_room.cities.city,
                             "platform": line_data.line_platform.name,
                             "a_man_platform": line_data.line_man_platform_a.name if line_data.line_man_platform_a else None,
-                            "a_man_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_a])) if line_data.MAN_domains_a else None,
+                            "a_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_a])) if line_data.MAN_domains_a else None,
                             "z_man_platform": line_data.line_man_platform_z.name if line_data.line_man_platform_z else None,
-                            "z_man_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_z])) if line_data.MAN_domains_z else None,
+                            "z_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_z])) if line_data.MAN_domains_z else None,
                             "vlan": line_data.vlans.name if line_data.vlans else None,
-                            "domains": '_'.join(sorted([d.name for d in line_data.domains]))}
+                            "domains": domains}
             logger.debug(send_content)
-            domains = '_'.join(sorted([d.name for d in line_data.domains]))
+
             r = requests.post(api_url,
                               data=json.dumps(send_content, ensure_ascii=False).encode('utf-8'),
                               headers=headers,
