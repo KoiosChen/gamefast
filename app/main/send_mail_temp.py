@@ -21,6 +21,8 @@ def send_cutover_mail_from_excel():
         return jsonify({'status': 'false', 'content': '未上传文件'})
 
     new_cutorder = CutoverOrder()
+    db.session.add(new_cutorder)
+    db.session.flush()
     logger.debug(new_cutorder)
     logger.debug(MailResult_Path)
     filepath = os.path.join(MailResult_Path, new_cutorder.id)
