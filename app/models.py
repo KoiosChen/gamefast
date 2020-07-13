@@ -81,7 +81,7 @@ class Files(db.Model):
 class CutoverOrder(db.Model):
     __tablename__ = 'cutover_order'
     id = db.Column(db.String(50), primary_key=True, default=make_uuid)
-    total = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Integer)
     success = db.Column(db.Integer)
     fail = db.Column(db.Integer)
     # 标题中的关键字
