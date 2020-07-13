@@ -80,7 +80,7 @@ class Files(db.Model):
 
 class CutoverOrder(db.Model):
     __tablename__ = 'cutover_order'
-    id = db.Column(db.String(50), primary_key=True, default=make_uuid)
+    id = db.Column(db.String(50), primary_key=True)
     total = db.Column(db.Integer)
     success = db.Column(db.Integer)
     fail = db.Column(db.Integer)
@@ -102,6 +102,9 @@ class CutoverOrder(db.Model):
     templet = db.Column(db.Integer, db.ForeignKey('mail_templet.id'), default=1)
     create_time = db.Column(db.DateTime, default=datetime.datetime.now)
     cutover_send_date = db.Column(db.Date)
+
+    def __init__(self):
+        self.id = make_uuid()
 
 
 class SMSOrder(db.Model):
