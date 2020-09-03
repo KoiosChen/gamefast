@@ -396,11 +396,10 @@ def get_route():
             send_content = {"a_node": line_data.a_interface.device_interface.machine_room.cities.city,
                             "z_node": line_data.z_interface.device_interface.machine_room.cities.city,
                             "platform": line_data.line_platform.name,
-                            "a_man_platform": line_data.line_man_platform_a.name if line_data.line_man_platform_a else None,
-                            "a_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_a])) if line_data.MAN_domains_a else None,
-                            "z_man_platform": line_data.line_man_platform_z.name if line_data.line_man_platform_z else None,
-                            "z_domains": '_'.join(sorted([d.name for d in line_data.MAN_domains_z])) if line_data.MAN_domains_z else None,
-                            "vlan": line_data.vlans.name if line_data.vlans else None,
+                            "a_domains": '_'.join(
+                                sorted([d.name for d in line_data.MAN_domains_a])) if line_data.MAN_domains_a else None,
+                            "z_domains": '_'.join(
+                                sorted([d.name for d in line_data.MAN_domains_z])) if line_data.MAN_domains_z else None,
                             "domains": domains}
             logger.debug(send_content)
 
@@ -469,8 +468,11 @@ def get_route():
 @login_required
 @permission_required(Permission.MAN_ON_DUTY)
 def get_domain():
-    logger.debug('get pop')
-    man_domains = {'3': ['domain1', 'domain2'], '4': 'domain2'}
+    logger.debug('get domain')
+    man_domains = {'3': ['SH一domain2', 'SH一domain6', 'SH一ERPS1', 'SH一domain2一ERPS1', 'SH一domain6一ERPS1'],
+                   '4': ['GZ一ERPS1'],
+                   '5': ['BJ一ERPS1', 'BJ一ERPS2', 'BJ一ERPS3', 'BJ一ERPS1一3', 'BJ一ERPS2一3'],
+                   '6': ['SZ一ERPS1']}
     platform_id = request.form.get('data')
     if not platform_id:
         return jsonify([{}])
