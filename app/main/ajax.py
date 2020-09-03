@@ -415,6 +415,10 @@ def get_route():
         except Exception as e:
             logger.error(f"{e}")
 
+        a = {'a_a-z_man': [], 'a_a_chain_man': [],
+             'a_z_chain_man': [], 'z_a-z_man': [], 'z_a_chain_man': [],
+             'z_z_chain_man': []}
+
         try:
             routes = dict()
             a_z_routes = list()
@@ -459,6 +463,12 @@ def get_route():
                     session['z_chain_routes'] = result.get('z_chain')
                 if 'z_chain-e' in result.keys():
                     session['z_chain-e'] = result.get('z_chain-e')
+
+            for man_key in ('a_a-z_man', 'z_a-z_man', 'a_a_chain_man', 'a_z_chain_man', 'z_a_chain_man', 'z_z_chain_man'):
+                if man_key in result.keys() and result[man_key]:
+                    routes[man_key] = result[man_key]
+                    session[man_key] = result[man_key]
+
             return jsonify({"status": "true", "content": routes})
         except Exception as e:
             logger.error(e)

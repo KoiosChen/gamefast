@@ -56,11 +56,15 @@ var DatatableDPLC = function () {
 
             {label: "Z城网平台:", name: "z_man_platform_id", type: "select"},
             {label: "Z城网环:", name: "z_man_domains", type: "select"},
-            {label: "A侧城网: ", name: "a_chain_man", type: "radio"},
-            {label: "A侧(单链/畸形）: ", name: "a_chain", type: "radio"},
+            {label: "A侧城网-A(单链/畸形）: ", name: "a_a_man", type: "radio"},
+            {label: "A侧城网: ", name: "a_man", type: "radio"},
+            {label: "A侧城网-Z(单链/畸形）: ", name: "a_z_man", type: "radio"},
+            {label: "A侧骨干(单链/畸形）: ", name: "a_chain", type: "radio"},
             {label: "主路由:", name: "main_route", type: "radio"},
-            {label: "Z侧(单链/畸形）： ", name: 'z_chain', type: "radio"},
-            {label: "Z侧城网: ", name: "z_chain_man", type: "radio"},
+            {label: "Z侧骨干(单链/畸形）： ", name: 'z_chain', type: "radio"},
+            {label: "Z侧城网-Z(单链/畸形）: ", name: "z_z_man", type: "radio"},
+            {label: "Z侧城网: ", name: "z_man", type: "radio"},
+            {label: "Z侧城网-A(单链/畸形）: ", name: "z_a_man", type: "radio"},
             {label: "客户商务联系人姓名:", name: "biz_contact_name"},
             {label: "客户商务联系人电话:", name: "biz_contact_phoneNumber"},
             {label: "客户商务联系人邮箱:", name: "biz_contact_email"},
@@ -84,6 +88,12 @@ var DatatableDPLC = function () {
             let a_z_chain = [];
             let a_chain = [];
             let z_chain = [];
+            let a_a_man = [];
+            let a_z_man = [];
+            let a_man = [];
+            let z_a_man = [];
+            let z_z_man = [];
+            let z_man = []
             $.ajax({
                 url: '/get_route',
                 async: false,
@@ -97,7 +107,68 @@ var DatatableDPLC = function () {
                         let a_z_option = {};
                         let a_option = {};
                         let z_option = {};
+                        let a_a_man_option = {};
+                        let a_z_man_option = {};
+                        let a_man_option = {};
+                        let z_a_man_option = {};
+                        let z_z_man_option = {};
+                        let z_man_option = {};
                         let routes = jsonData.content;
+                        if (routes.a_a_chain_man) {
+                            $.each(routes.a_a_chain_man, function (i, e) {
+                                a_a_man_option.label = e;
+                                a_a_man_option.value = e;
+                                a_a_man.push(a_a_man_option);
+                                a_a_man_option = {};
+                            })
+                        }
+
+                        if (routes.a_z_chain_man) {
+                            $.each(routes.a_z_chain_man, function (i, e) {
+                                a_z_man_option.label = e;
+                                a_z_man_option.value = e;
+                                a_z_man.push(a_z_man_option);
+                                a_z_man_option = {};
+                            })
+                        }
+
+
+                        if (routes.z_a_chain_man) {
+                            $.each(routes.z_a_chain_man, function (i, e) {
+                                z_a_man_option.label = e;
+                                z_a_man_option.value = e;
+                                z_a_man.push(z_a_man_option);
+                                z_a_man_option = {};
+                            })
+                        }
+
+                        if (routes.z_z_chain_man) {
+                            $.each(routes.z_z_chain_man, function (i, e) {
+                                z_z_man_option.label = e;
+                                z_z_man_option.value = e;
+                                z_z_man.push(z_z_man_option);
+                                z_z_man_option = {};
+                            })
+                        }
+
+                        if (routes["a_a-z_man"]) {
+                            $.each(routes["a_a-z_man"], function (i, e) {
+                                a_man_option.label = e;
+                                a_man_option.value = e;
+                                a_man.push(a_man_option);
+                                a_man_option = {};
+                            })
+                        }
+
+                        if (routes["z_a-z_man"]) {
+                            $.each(routes["z_a-z_man"], function (i, e) {
+                                z_man_option.label = e;
+                                z_man_option.value = e;
+                                z_man.push(z_man_option);
+                                z_man_option = {};
+                            })
+                        }
+
                         if (routes.a_chain_routes) {
                             $.each(routes.a_chain_routes, function (i, e) {
                                 a_option.label = e;
@@ -123,9 +194,54 @@ var DatatableDPLC = function () {
                                 a_z_option = {};
                             })
                         }
+
                     }
                 }
             }).done(function () {
+                if (a_a_man >= 1) {
+                    editor.field('a_a_man').show();
+                    editor.field('a_a_man').update(a_a_man);
+                }
+                if (a_z_man >= 1) {
+                    editor.field('a_z_man').show();
+                    editor.field('a_z_man').update(a_z_man);
+                }
+                if (a_a_man < 1) {
+                    editor.field('a_a_man').hide();
+                }
+                if (a_z_man < 1) {
+                    editor.field('a_z_man').hide();
+                }
+                if (a_man >= 1) {
+                    editor.field('a_man').show();
+                    editor.field('a_man').update(a_man);
+                }
+                if (a_man < 1) {
+                    editor.field('a_man').hide();
+                }
+
+                if (z_a_man >= 1) {
+                    editor.field('z_a_man').show();
+                    editor.field('z_a_man').update(z_a_man);
+                }
+                if (z_z_man >= 1) {
+                    editor.field('z_z_man').show();
+                    editor.field('z_z_man').update(z_z_man);
+                }
+                if (z_a_man < 1) {
+                    editor.field('z_a_man').hide();
+                }
+                if (z_z_man < 1) {
+                    editor.field('z_z_man').hide();
+                }
+                if (z_man >= 1) {
+                    editor.field('z_man').show();
+                    editor.field('z_man').update(z_man);
+                }
+                if (z_man < 1) {
+                    editor.field('z_man').hide();
+                }
+
                 if (a_z_chain) {
                     editor.field('main_route').update(a_z_chain);
                 }
@@ -138,7 +254,6 @@ var DatatableDPLC = function () {
                     editor.field('z_chain').update(z_chain);
                 }
                 if (a_chain.length < 1) {
-
                     editor.field('a_chain').hide();
                 }
                 if (z_chain.length < 1) {
