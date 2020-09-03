@@ -2,7 +2,7 @@ from flask import request, jsonify, session
 from flask_login import login_required
 from ..models import Device, MachineRoom, Interfaces, City, Permission, all_domains, multi_domains, erps_instance, \
     LineDataBank, CutoverOrder, channel_type, MailTemplet, company_regex, MPLS, IPSupplier, Files, Post, Customer, \
-    Platforms
+    Platforms, man_devices
 from ..proccessing_data.datatable_action import oss_operator, edit, remove, create_supplier, edit_supplier, \
     create_supplier_ip, create_dia_ip, remove_dia_ip, edit_dia_ip, edit_mpls_route, remove_mpls_route, \
     create_mpls_route, remove_supplier_ip, create_machine_room, edit_machine_room, remove_machine_room, create_device, \
@@ -393,14 +393,17 @@ def get_route():
             api_url = "http://10.250.62.1:5555/route/api"
             headers = {'Content-Type': 'application/json', "encoding": "utf-8"}
             domains = '_'.join(sorted([d.name for d in line_data.domains]))
-            send_content = {"a_node": line_data.a_interface.device_interface.machine_room.cities.city,
-                            "z_node": line_data.z_interface.device_interface.machine_room.cities.city,
-                            "platform": line_data.line_platform.name,
-                            "a_domains": '_'.join(
-                                sorted([d.name for d in line_data.MAN_domains_a])) if line_data.MAN_domains_a else None,
-                            "z_domains": '_'.join(
-                                sorted([d.name for d in line_data.MAN_domains_z])) if line_data.MAN_domains_z else None,
-                            "domains": domains}
+            send_content = {
+                "a_node": line_data.a_interface.device_interface.machine_room.cities.city if not line_data.MAN_domains_a else man_devices.get(
+                    line_data.a_interface.device_interface.ip),
+                "z_node": line_data.z_interface.device_interface.machine_room.cities.city if not line_data.MAN_domains_z else man_devices.get(
+                    line_data.z_interface.device_interface.ip),
+                "platform": line_data.line_platform.name,
+                "a_domains": '_'.join(
+                    sorted([d.name for d in line_data.MAN_domains_a])) if line_data.MAN_domains_a else None,
+                "z_domains": '_'.join(
+                    sorted([d.name for d in line_data.MAN_domains_z])) if line_data.MAN_domains_z else None,
+                "domains": domains}
             logger.debug(send_content)
 
             r = requests.post(api_url,
