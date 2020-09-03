@@ -103,6 +103,7 @@ var DatatableDPLC = function () {
                 dataType: 'json',
                 type: 'post',
                 success: function (jsonData) {
+                    console.log(jsonData)
                     if (jsonData.status === "true") {
                         let a_z_option = {};
                         let a_option = {};
@@ -135,9 +136,11 @@ var DatatableDPLC = function () {
 
                         if (routes.z_a_chain_man) {
                             $.each(routes.z_a_chain_man, function (i, e) {
+
                                 z_a_man_option.label = e;
                                 z_a_man_option.value = e;
                                 z_a_man.push(z_a_man_option);
+                                console.log(z_a_man)
                                 z_a_man_option = {};
                             })
                         }
@@ -198,47 +201,47 @@ var DatatableDPLC = function () {
                     }
                 }
             }).done(function () {
-                if (a_a_man >= 1) {
+                if (a_a_man.length >= 1) {
                     editor.field('a_a_man').show();
                     editor.field('a_a_man').update(a_a_man);
                 }
-                if (a_z_man >= 1) {
+                if (a_z_man.length >= 1) {
                     editor.field('a_z_man').show();
                     editor.field('a_z_man').update(a_z_man);
                 }
-                if (a_a_man < 1) {
+                if (a_a_man.length < 1) {
                     editor.field('a_a_man').hide();
                 }
-                if (a_z_man < 1) {
+                if (a_z_man.length < 1) {
                     editor.field('a_z_man').hide();
                 }
-                if (a_man >= 1) {
+                if (a_man.length >= 1) {
                     editor.field('a_man_route').show();
                     editor.field('a_man_route').update(a_man);
                 }
-                if (a_man < 1) {
+                if (a_man.length < 1) {
                     editor.field('a_man_route').hide();
                 }
 
-                if (z_a_man >= 1) {
+                if (z_a_man.length >= 1) {
                     editor.field('z_a_man').show();
                     editor.field('z_a_man').update(z_a_man);
                 }
-                if (z_z_man >= 1) {
+                if (z_z_man.length >= 1) {
                     editor.field('z_z_man').show();
                     editor.field('z_z_man').update(z_z_man);
                 }
-                if (z_a_man < 1) {
+                if (z_a_man.length < 1) {
                     editor.field('z_a_man').hide();
                 }
-                if (z_z_man < 1) {
+                if (z_z_man.length < 1) {
                     editor.field('z_z_man').hide();
                 }
-                if (z_man >= 1) {
+                if (z_man.length >= 1) {
                     editor.field('z_man_route').show();
                     editor.field('z_man_route').update(z_man);
                 }
-                if (z_man < 1) {
+                if (z_man.length < 1) {
                     editor.field('z_man_route').hide();
                 }
 
@@ -446,7 +449,7 @@ var DatatableDPLC = function () {
                 data: null, render: function (data, type, row) {
                     return data.a_chain + '<br>' + data.main_route + "<br>" + data.z_chain;
                 },
-                editField: ['a_chain', 'main_route', 'z_chain']
+                editField: ['a_chain', 'main_route', 'z_chain', 'z_a_man']
             },
             {data: "operator"},
             {

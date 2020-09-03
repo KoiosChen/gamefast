@@ -415,10 +415,6 @@ def get_route():
         except Exception as e:
             logger.error(f"{e}")
 
-        a = {'a_a-z_man': [], 'a_a_chain_man': [],
-             'a_z_chain_man': [], 'z_a-z_man': [], 'z_a_chain_man': [],
-             'z_z_chain_man': []}
-
         try:
             routes = dict()
             a_z_routes = list()
