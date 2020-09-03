@@ -57,13 +57,13 @@ var DatatableDPLC = function () {
             {label: "Z城网平台:", name: "z_man_platform_id", type: "select"},
             {label: "Z城网环:", name: "z_man_domains", type: "select"},
             {label: "A侧城网-A(单链/畸形）: ", name: "a_a_man", type: "radio"},
-            {label: "A侧城网: ", name: "a_man", type: "radio"},
+            {label: "A侧城网: ", name: "a_man_route", type: "radio"},
             {label: "A侧城网-Z(单链/畸形）: ", name: "a_z_man", type: "radio"},
             {label: "A侧骨干(单链/畸形）: ", name: "a_chain", type: "radio"},
             {label: "主路由:", name: "main_route", type: "radio"},
             {label: "Z侧骨干(单链/畸形）： ", name: 'z_chain', type: "radio"},
             {label: "Z侧城网-Z(单链/畸形）: ", name: "z_z_man", type: "radio"},
-            {label: "Z侧城网: ", name: "z_man", type: "radio"},
+            {label: "Z侧城网: ", name: "z_man_route", type: "radio"},
             {label: "Z侧城网-A(单链/畸形）: ", name: "z_a_man", type: "radio"},
             {label: "客户商务联系人姓名:", name: "biz_contact_name"},
             {label: "客户商务联系人电话:", name: "biz_contact_phoneNumber"},
@@ -213,11 +213,11 @@ var DatatableDPLC = function () {
                     editor.field('a_z_man').hide();
                 }
                 if (a_man >= 1) {
-                    editor.field('a_man').show();
-                    editor.field('a_man').update(a_man);
+                    editor.field('a_man_route').show();
+                    editor.field('a_man_route').update(a_man);
                 }
                 if (a_man < 1) {
-                    editor.field('a_man').hide();
+                    editor.field('a_man_route').hide();
                 }
 
                 if (z_a_man >= 1) {
@@ -235,11 +235,11 @@ var DatatableDPLC = function () {
                     editor.field('z_z_man').hide();
                 }
                 if (z_man >= 1) {
-                    editor.field('z_man').show();
-                    editor.field('z_man').update(z_man);
+                    editor.field('z_man_route').show();
+                    editor.field('z_man_route').update(z_man);
                 }
                 if (z_man < 1) {
-                    editor.field('z_man').hide();
+                    editor.field('z_man_route').hide();
                 }
 
                 if (a_z_chain) {
