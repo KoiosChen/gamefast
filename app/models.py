@@ -350,6 +350,14 @@ class LineDataBank(db.Model):
     z_chain = db.Column(db.String(1000))
     z_e = db.Column(db.String(1000))
 
+    # 城网字段
+    a_man = db.Column(db.String(1000), comment='a侧城网路由（主）')
+    a_a_man = db.Column(db.String(1000), comment='a侧靠近客户侧单链')
+    a_z_man = db.Column(db.String(1000), comment='a侧靠近骨干侧单链')
+    z_man = db.Column(db.String(1000), comment='z侧城网路由（主）')
+    z_a_man = db.Column(db.String(1000), comment='z侧靠近客户侧单链')
+    z_z_man = db.Column(db.String(1000), comment='z侧靠近骨干侧单链')
+
     line_operator = db.Column(db.Integer, db.ForeignKey('users.id'), index=True)
     operate_time = db.Column(db.DateTime, index=True)
     memo = db.Column(db.String(500))
