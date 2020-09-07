@@ -521,6 +521,17 @@ def line_update(line_data, line_obj):
             ]
         }
 
+    # 城网路由更新
+    for man in ('a_man', 'z_man'):
+        if man in to_update.keys():
+            man_pop = re.split(r'\W.*?', to_update.get(man))
+            a_flag = 0
+            z_flag = 0
+            for chain in ('a_a_man', 'a_z_man', 'z_a_man', 'z_z_man'):
+                if chain in ('a_a_man', 'z_z_m'):
+                    last_a = re.split(r'\W.*?', to_update.get(chain))[-1]
+                    a_flag = chain_add_validate(last_a, man_pop[0])
+
     # route update
     if 'main_route' in to_update.keys():
         main_pop = re.split(r'\W.*?', to_update.get('main_route'))
