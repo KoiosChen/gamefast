@@ -522,15 +522,89 @@ def line_update(line_data, line_obj):
         }
 
     # 城网路由更新
+    man_map = {"a_a_man": "a_a_chain_man", "a_z_man": "a_z_chain_man", "a_man": "a_a-z_man",
+               "z_a_man": "z_a_chain_man", "z_z_man": "z_z_chain_man", "z_man": "z_a-z_man"}
+    man_chain_map = {"a_man": ["a_a_man", "a_z_man"], "z_man": ["z_a_man", "z_z_man"]}
+
     for man in ('a_man', 'z_man'):
         if man in to_update.keys():
-            man_pop = re.split(r'\W.*?', to_update.get(man))
+            man_pop = re.split(r'—K\d+→', to_update.get(man))
             a_flag = 0
             z_flag = 0
-            for chain in ('a_a_man', 'a_z_man', 'z_a_man', 'z_z_man'):
-                if chain in ('a_a_man', 'z_z_m'):
-                    last_a = re.split(r'\W.*?', to_update.get(chain))[-1]
+            a_chain = man_chain_map[man][0]
+            z_chain = man_chain_map[man][1]
+            if a_chain in to_update.keys():
+                last_a = re.split(r'—K\d+→', to_update.get(a_chain))[-1]
+                a_flag = chain_add_validate(last_a, man_pop[0])
+            elif getattr(l, a_chain):
+                if session[man_map[a_chain]] and getattr(l, a_chain) in session[man_map[a_chain]]:
+                    last_a = re.split(r'—K\d+→', getattr(l, a_chain))[-1]
                     a_flag = chain_add_validate(last_a, man_pop[0])
+                elif not session[man_map[a_chain]]:
+                    setattr(l, a_chain, '')
+
+            if z_chain in to_update.keys():
+                first_z = re.split(r'—K\d+→', to_update.get(z_chain))[0]
+                z_flag = chain_add_validate(first_z, man_pop[-1])
+            elif getattr(l, z_chain):
+                if session[man_map[z_chain]] and getattr(l, z_chain) in session[man_map[z_chain]]:
+                    first_z = re.split(r'—K\d+→', getattr(l, z_chain))[0]
+                    z_flag = chain_add_validate(first_z, man_pop[-1])
+                elif not session[man_map[a_chain]]:
+                    l.z_chain = ''
+                    l.z_e = ''
+
+            if a_flag != 2 and z_flag != 2:
+                if a_flag == 1:
+                    if a_chain in to_update.keys():
+                        setattr(l, a_chain, to_update[a_chain])
+                if z_flag == 1:
+                    if z_chain in to_update.keys():
+                        setattr(l, z_chain, to_update[z_chain])
+                setattr(l, man, to_update[man])
+                # verify_ring(l)
+            elif a_flag == 2 or z_flag == 2:
+                return {'error': '选路错误，无法衔接'}
+
+    chain2man = {"a_a_man": "a_man", "a_z_man": "a_man", "z_a_man": "z_man", "z_z_man": "z_man"}
+
+    for man_chain in ("a_a_man", "z_a_man"):
+        if man_chain in to_update.keys() and chain2man[man_chain] not in to_update.keys():
+            if getattr(l, chain2man[man_chain]):
+                a_flag = chain_add_validate(re.split(r'—K\d+→', to_update.get('a_chain'))[-1],
+                                            re.split(r'—K\d+→', l.main_route)[0])
+            else:
+                a_flag = 1
+            if a_flag == 1:
+                setattr(l, man_chain, to_update[man_chain])
+            elif a_flag == 2:
+                return {
+                    "fieldErrors": [
+                        {
+                            "name": "a_chain",
+                            "status": "路由选择错误，不可与主路由衔接"
+                        }
+                    ]
+                }
+
+    for man_chain in ("a_z_man", "z_z_man"):
+        if man_chain in to_update.keys() and chain2man[man_chain] not in to_update.keys():
+            if getattr(l, chain2man[man_chain]):
+                z_flag = chain_add_validate(re.split(r'—K\d+→', to_update.get(man_chain))[0],
+                                            re.split(r'—K\d+→', getattr(l, chain2man[man_chain]))[-1])
+            else:
+                z_flag = 1
+            if z_flag == 1:
+                setattr(l, man_chain, to_update[man_chain])
+            elif z_flag == 2:
+                return {
+                    "fieldErrors": [
+                        {
+                            "name": "a_chain",
+                            "status": "路由选择错误，不可与主路由衔接"
+                        }
+                    ]
+                }
 
     # route update
     if 'main_route' in to_update.keys():
@@ -666,13 +740,13 @@ def line_update(line_data, line_obj):
                 l.domains.append(new_d)
         verify_ring_flag = True
 
-    if 'a_man' in to_update.keys() and to_update.get("a_man") == '0':
+    if 'have_a_man' in to_update.keys() and to_update.get("have_a_man") == '0':
         logger.debug(f"The MAN domains now are {l.domains}, delete the MAN domains and platform")
         l.MAN_domains_a = []
         l.MAN_platform_a = None
         db.session.commit()
 
-    if 'z_man' in to_update.keys() and to_update.get("z_man") == '0':
+    if 'have_z_man' in to_update.keys() and to_update.get("have_z_man") == '0':
         logger.debug(f"The MAN domains now are {l.domains}, delete the MAN domains and platform")
         l.MAN_domains_z = []
         l.MAN_platform_z = None

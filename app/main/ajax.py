@@ -462,8 +462,15 @@ def get_route():
 
             for man_key in ('a_a-z_man', 'z_a-z_man', 'a_a_chain_man', 'a_z_chain_man', 'z_a_chain_man', 'z_z_chain_man'):
                 if man_key in result.keys() and result[man_key]:
-                    routes[man_key] = result[man_key]
-                    session[man_key] = result[man_key]
+                    rr = list()
+                    for i in result[man_key]:
+                        if isinstance(i, dict):
+                            for v in i.values():
+                                rr.append(v)
+                        else:
+                            rr = result[man_key]
+                    routes[man_key] = rr
+                    session[man_key] = rr
 
             return jsonify({"status": "true", "content": routes})
         except Exception as e:
@@ -478,9 +485,9 @@ def get_route():
 @permission_required(Permission.MAN_ON_DUTY)
 def get_domain():
     logger.debug('get domain')
-    man_domains = {'3': ['SH一domain2', 'SH一domain6', 'SH一ERPS1', 'SH一domain2一ERPS1', 'SH一domain6一ERPS1'],
+    man_domains = {'3': ['SH一domain2一ERPS1','SH一domain6一ERPS1'],
                    '4': ['GZ一ERPS1'],
-                   '5': ['BJ一ERPS1', 'BJ一ERPS2', 'BJ一ERPS3', 'BJ一ERPS1一3', 'BJ一ERPS2一3'],
+                   '5': ['BJ一ERPS1一3','BJ一ERPS2一3'],
                    '6': ['SZ一ERPS1']}
     platform_id = request.form.get('data')
     if not platform_id:

@@ -33,7 +33,7 @@ var DatatableDPLC = function () {
             {label: "骨干环:", name: "domains", type: "select"},
             {
                 label: "A端城网:",
-                name: "a_man",
+                name: "have_a_man",
                 type: "select",
                 options: [
                     {label: "无城网", value: 0},
@@ -45,7 +45,7 @@ var DatatableDPLC = function () {
             {label: "A城网环:", name: "a_man_domains", type: "select"},
             {
                 label: "Z端城网:",
-                name: "z_man",
+                name: "have_z_man",
                 type: "select",
                 options: [
                     {label: "无城网", value: 0},
@@ -57,14 +57,14 @@ var DatatableDPLC = function () {
             {label: "Z城网平台:", name: "z_man_platform_id", type: "select"},
             {label: "Z城网环:", name: "z_man_domains", type: "select"},
             {label: "A侧城网-A(单链/畸形）: ", name: "a_a_man", type: "radio"},
-            {label: "A侧城网: ", name: "a_man_route", type: "radio"},
+            {label: "A侧城网: ", name: "a_man", type: "radio"},
             {label: "A侧城网-Z(单链/畸形）: ", name: "a_z_man", type: "radio"},
             {label: "A侧骨干(单链/畸形）: ", name: "a_chain", type: "radio"},
             {label: "主路由:", name: "main_route", type: "radio"},
             {label: "Z侧骨干(单链/畸形）： ", name: 'z_chain', type: "radio"},
-            {label: "Z侧城网-Z(单链/畸形）: ", name: "z_z_man", type: "radio"},
-            {label: "Z侧城网: ", name: "z_man_route", type: "radio"},
             {label: "Z侧城网-A(单链/畸形）: ", name: "z_a_man", type: "radio"},
+            {label: "Z侧城网: ", name: "z_man", type: "radio"},
+            {label: "Z侧城网-Z(单链/畸形）: ", name: "z_z_man", type: "radio"},
             {label: "客户商务联系人姓名:", name: "biz_contact_name"},
             {label: "客户商务联系人电话:", name: "biz_contact_phoneNumber"},
             {label: "客户商务联系人邮箱:", name: "biz_contact_email"},
@@ -216,11 +216,11 @@ var DatatableDPLC = function () {
                     editor.field('a_z_man').hide();
                 }
                 if (a_man.length >= 1) {
-                    editor.field('a_man_route').show();
-                    editor.field('a_man_route').update(a_man);
+                    editor.field('a_man').show();
+                    editor.field('a_man').update(a_man);
                 }
                 if (a_man.length < 1) {
-                    editor.field('a_man_route').hide();
+                    editor.field('a_man').hide();
                 }
 
                 if (z_a_man.length >= 1) {
@@ -238,11 +238,11 @@ var DatatableDPLC = function () {
                     editor.field('z_z_man').hide();
                 }
                 if (z_man.length >= 1) {
-                    editor.field('z_man_route').show();
-                    editor.field('z_man_route').update(z_man);
+                    editor.field('z_man').show();
+                    editor.field('z_man').update(z_man);
                 }
                 if (z_man.length < 1) {
-                    editor.field('z_man_route').hide();
+                    editor.field('z_man').hide();
                 }
 
                 if (a_z_chain) {
@@ -411,18 +411,18 @@ var DatatableDPLC = function () {
                     let backbone_platform = '骨干: ' + data.platform + ': ' + data.domains_bind;
                     let platform = Array();
 
-                    if (data.a_man === '1') {
+                    if (data.have_a_man === '1') {
                         platform.push(a_man_platform)
                     }
                     if (data.platform !== '') {
                         platform.push(backbone_platform)
                     }
-                    if (data.z_man === '1') {
+                    if (data.have_z_man === '1') {
                         platform.push(z_man_platform)
                     }
                     return platform.join('<br>')
                 },
-                editField: ['platform_id', 'domains', 'a_man', 'a_man_platform_id', 'a_man_domains', 'z_man', 'z_man_platform_id', 'z_man_domains']
+                editField: ['platform_id', 'domains', 'have_a_man', 'a_man_platform_id', 'a_man_domains', 'have_z_man', 'z_man_platform_id', 'z_man_domains']
             },
             {
                 data: null, render: function (data, type, row) {
@@ -447,9 +447,9 @@ var DatatableDPLC = function () {
             },
             {
                 data: null, render: function (data, type, row) {
-                    return data.a_chain + '<br>' + data.main_route + "<br>" + data.z_chain;
+                    return data.a_a_man + '<br>' + data.a_man + '<br>' + data.a_z_man + '<br>' + data.a_chain + '<br>' + data.main_route + "<br>" + data.z_chain + '<br>' + data.z_a_man + '<br>' + data.z_man + '<br>' + data.z_z_man;
                 },
-                editField: ['a_chain', 'main_route', 'z_chain', 'z_a_man']
+                editField: ['a_chain', 'main_route', 'z_chain', 'a_a_man', 'a_z_man', 'a_man', 'z_man', 'z_z_man', 'z_a_man']
             },
             {data: "operator"},
             {
@@ -534,7 +534,7 @@ $(document).ready(function () {
         }
     });
 
-    dplc_editor.dependent('a_man', function (val, data, callback) {
+    dplc_editor.dependent('have_a_man', function (val, data, callback) {
         if (val === 0) {
             return {hide: ['a_man_platform_id', 'a_man_domains']}
         } else {
@@ -542,7 +542,7 @@ $(document).ready(function () {
         }
     });
 
-    dplc_editor.dependent('z_man', function (val, data, callback) {
+    dplc_editor.dependent('have_z_man', function (val, data, callback) {
         if (val === 0) {
             return {hide: ['z_man_platform_id', 'z_man_domains']}
         } else {

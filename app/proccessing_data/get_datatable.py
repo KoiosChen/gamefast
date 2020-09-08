@@ -96,6 +96,12 @@ def make_table(lines=None, page_start=None, length=None):
         tmp['main_route'] = l.main_route if l.main_route else ""
         tmp['a_chain'] = l.a_chain if l.a_chain else ""
         tmp['z_chain'] = l.z_chain if l.z_chain else ""
+        tmp['a_man'] = l.a_man if l.a_man else ""
+        tmp['z_man'] = l.z_man if l.z_man else ""
+        tmp['a_a_man'] = l.a_a_man if l.a_a_man else ""
+        tmp['a_z_man'] = l.a_z_man if l.a_z_man else ""
+        tmp['z_a_man'] = l.z_a_man if l.z_a_man else ""
+        tmp['z_z_man'] = l.z_z_man if l.z_z_man else ""
         tmp['operator'] = l.operator.username if l.line_operator else ""
         tmp['protect'] = "否" if l.protect == 0 else "是"
         if l.biz:
@@ -133,11 +139,11 @@ def make_table(lines=None, page_start=None, length=None):
         tmp['a_man_platform'] = l.line_man_platform_a.name if l.line_man_platform_a else ""
         tmp['a_man_platform_id'] = l.MAN_platform_a if l.MAN_platform_a else ""
         tmp['a_man_domains'] = '_'.join(sorted([d.name for d in l.MAN_domains_a])) if l.MAN_domains_a else ""
-        tmp['a_man'] = "1" if l.MAN_platform_a else "0"
+        tmp['have_a_man'] = "1" if l.MAN_platform_a else "0"
         tmp['z_man_platform'] = l.line_man_platform_z.name if l.line_man_platform_z else ""
         tmp['z_man_platform_id'] = l.MAN_platform_z if l.MAN_platform_z else ""
         tmp['z_man_domains'] = '_'.join(sorted([d.name for d in l.MAN_domains_z])) if l.MAN_domains_z else ""
-        tmp['z_man'] = "1" if l.MAN_platform_z else "0"
+        tmp['have_z_man'] = "1" if l.MAN_platform_z else "0"
         tmp['product_type'] = l.product_type
         tmp['product_model'] = l.product_model
         tmp['validate_rrpp_status'] = l.validate_rrpp_status
