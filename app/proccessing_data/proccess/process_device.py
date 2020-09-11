@@ -1,4 +1,4 @@
-from ...models import MachineRoom, Device, Customer
+from ...models import MachineRoom, Device, Customer, Platforms
 from flask import jsonify
 from ... import db, logger
 from ..proccess.public_methods import new_data_obj
@@ -87,9 +87,9 @@ def new_one(**kwargs):
         if platform:
             try:
                 platform_id = eval(platform)
-                device_platform = Customer.query.get(platform_id)
+                device_platform = Platforms.query.get(platform_id)
             except NameError:
-                device_platform = new_data_obj("Customer", **{"name": platform})
+                device_platform = new_data_obj("Platforms", **{"name": platform})
             new_device.device_platform = device_platform
         db.session.add(new_device)
         return success_return(new_device, "") if db_commit() else false_return('', 'add device fail')
