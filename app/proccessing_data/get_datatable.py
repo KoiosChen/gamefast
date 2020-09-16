@@ -273,27 +273,28 @@ def make_table_device(lines=None):
 
 def make_table_machine_room(lines=None):
     level_dict = {1: "业务站", 2: "光放站"}
-    type_dict = {1: "自建", 2: "缆信", 3: "第三方"}
+    type_dict = {1: "自建", 2: "缆信", 3: "第三方", 4: "城网"}
     status_dict = {1: "在用", 0: "停用"}
     if lines is None:
         lines = MachineRoom.query.all()
-    return [{"DT_RowId": "row_" + str(sc.id),
-             'name': sc.name,
-             'city': sc.cities.city,
-             "a_pop_city_id": sc.cities.id,
-             'address': sc.address,
-             'level': level_dict[sc.level],
-             'level_id': sc.level,
-             'type': type_dict[sc.type],
-             'type_id': sc.type,
-             'status': status_dict[sc.status],
-             'status_id': sc.status,
-             'noc_contact_name': sc.administrator.name if sc.administrator and sc.administrator.name else "",
-             'noc_contact_phone': sc.administrator.phoneNumber if sc.administrator and sc.administrator.phoneNumber else "",
-             'noc_contact_email': sc.administrator.email if sc.administrator and sc.administrator.email else "",
-             'lift': '是' if sc.lift else '否',
-             'lift_id': sc.lift
-             } for sc in lines]
+    return_table = [{"DT_RowId": "row_" + str(sc.id),
+                     'name': sc.name,
+                     'city': sc.cities.city,
+                     "a_pop_city_id": sc.cities.id,
+                     'address': sc.address,
+                     'level': level_dict[sc.level],
+                     'level_id': sc.level,
+                     'type': type_dict[sc.type],
+                     'type_id': sc.type,
+                     'status': status_dict[sc.status],
+                     'status_id': sc.status,
+                     'noc_contact_name': sc.administrator.name if sc.administrator and sc.administrator.name else "",
+                     'noc_contact_phone': sc.administrator.phoneNumber if sc.administrator and sc.administrator.phoneNumber else "",
+                     'noc_contact_email': sc.administrator.email if sc.administrator and sc.administrator.email else "",
+                     'lift': '是' if sc.lift else '否',
+                     'lift_id': sc.lift
+                     } for sc in lines]
+    return return_table
 
 
 def make_table_ip_supplier(lines=None):
