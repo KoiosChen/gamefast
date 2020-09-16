@@ -353,7 +353,7 @@ def line_update(line_data, line_obj):
             return {"error": "不可修改此字段"}
 
         elif (field in ['a_chain', 'main_route', 'z_chain'] and value) or (
-                field not in ['a_chain', 'main_route', 'z_chain', 'search_city', 'search_city_z']):
+                field not in ['a_chain', 'main_route', 'z_chain', 'search_city', 'search_city_z', 'search_city_a']):
             # 格式化去掉两头空格
             value = value.strip() if isinstance(value, str) else value
             to_update[field] = value
@@ -387,11 +387,11 @@ def line_update(line_data, line_obj):
 
             contact_field = contact.split('_')[-1]
 
-            if 'name' not in contact_attr and hasattr(l, contact_attr) and getattr(l, contact_attr):
+            if 'name' not in contact and hasattr(l, contact_attr) and getattr(l, contact_attr):
                 now_contact = getattr(l, contact_attr)
                 setattr(now_contact, contact_field, to_update.get(contact))
             elif (hasattr(l, contact_attr) and not getattr(l, contact_attr)) or (
-                    hasattr(l, contact_attr) and not getattr(l, contact_attr) and 'name' in contact_attr):
+                    hasattr(l, contact_attr) and getattr(l, contact_attr) and 'name' in contact):
                 new_contact = Contacts()
                 setattr(new_contact, contact_field, to_update.get(contact))
                 setattr(l, contact_attr, new_contact)
