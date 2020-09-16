@@ -387,16 +387,14 @@ def line_update(line_data, line_obj):
 
             contact_field = contact.split('_')[-1]
 
-            if hasattr(l, contact_attr) and getattr(l, contact_attr):
+            if 'name' not in contact_attr and hasattr(l, contact_attr) and getattr(l, contact_attr):
                 now_contact = getattr(l, contact_attr)
                 setattr(now_contact, contact_field, to_update.get(contact))
-            elif hasattr(l, contact_attr) and not getattr(l, contact_attr):
+            elif (hasattr(l, contact_attr) and not getattr(l, contact_attr)) or (
+                    hasattr(l, contact_attr) and not getattr(l, contact_attr) and 'name' in contact_attr):
                 new_contact = Contacts()
-
                 setattr(new_contact, contact_field, to_update.get(contact))
-
                 setattr(l, contact_attr, new_contact)
-
                 db.session.add(new_contact)
                 db.session.add(l)
 
