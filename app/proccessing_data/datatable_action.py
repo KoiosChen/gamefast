@@ -353,7 +353,7 @@ def line_update(line_data, line_obj):
             return {"error": "不可修改此字段"}
 
         elif (field in ['a_chain', 'main_route', 'z_chain'] and value) or (
-                field not in ['a_chain', 'main_route', 'z_chain', 'search_city', 'search_city_z']):
+                field not in ['a_chain', 'main_route', 'z_chain', 'search_city', 'search_city_z', 'search_city_a']):
             # 格式化去掉两头空格
             value = value.strip() if isinstance(value, str) else value
             to_update[field] = value
