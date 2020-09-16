@@ -268,7 +268,7 @@ def make_table_device(lines=None):
              "machine_room_id": l.machine_room.id if l.machine_room else "",
              "platform": l.device_platform.name if l.device_platform else "",
              "platform_id": l.platform_id if l.platform_id else "",
-             } for l in lines]
+             } for l in lines if l.status ==1]
 
 
 def make_table_machine_room(lines=None):
