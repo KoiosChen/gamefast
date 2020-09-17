@@ -106,26 +106,26 @@ def make_table(lines=None, page_start=None, length=None):
         tmp['protect'] = "否" if l.protect == 0 else "是"
         if l.biz:
             _contact = l.biz_contact
-            tmp['biz_contact_name'] = _contact.name
-            tmp['biz_contact_phoneNumber'] = _contact.phoneNumber
-            tmp['biz_contact_email'] = _contact.email
+            tmp['biz_contact_name'] = _contact.name if _contact.name else ""
+            tmp['biz_contact_phoneNumber'] = _contact.phoneNumber if _contact.phoneNumber else ""
+            tmp['biz_contact_email'] = _contact.email if _contact.email else ""
         else:
             tmp['biz_contact_name'] = ""
             tmp['biz_contact_phoneNumber'] = ""
             tmp['biz_contact_email'] = ""
         if l.noc:
             _contact = l.noc_contact
-            tmp['noc_contact_name'] = _contact.name
-            tmp['noc_contact_phoneNumber'] = _contact.phoneNumber
-            tmp['noc_contact_email'] = _contact.email
+            tmp['noc_contact_name'] = _contact.name if _contact.name else ""
+            tmp['noc_contact_phoneNumber'] = _contact.phoneNumber if _contact.phoneNumber else ""
+            tmp['noc_contact_email'] = _contact.email if _contact.email else ""
         else:
             tmp['noc_contact_name'] = ""
             tmp['noc_contact_phoneNumber'] = ""
             tmp['noc_contact_email'] = ""
         if l.customer_manager:
             _contact = l.customer_manager_contact
-            tmp['customer_manager_name'] = _contact.name
-            tmp['customer_manager_phoneNumber'] = _contact.phoneNumber
+            tmp['customer_manager_name'] = _contact.name if _contact.name else ""
+            tmp['customer_manager_phoneNumber'] = _contact.phoneNumber if _contact.phoneNumber else ""
         else:
             tmp['customer_manager_name'] = ""
             tmp['customer_manager_phoneNumber'] = ""
