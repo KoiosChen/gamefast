@@ -369,34 +369,39 @@ def line_update(line_data, line_obj):
     if contacts_to_update:
         # if not validate(to_update.get(''))
         for contact in contacts_to_update:
-            if 'name' in contact:
-                name_v = verify_fields('name', contact, to_update.get(contact))
-                if isinstance(name_v, dict):
-                    return name_v
-            elif 'email' in contact:
-                email_v = verify_fields('email', contact, to_update.get(contact))
-                if isinstance(email_v, dict):
-                    return email_v
-            elif 'phone' in contact:
-                phone_v = verify_fields('phone', contact, to_update.get(contact))
-                if isinstance(phone_v, dict):
-                    return phone_v
+            for k in ('name', 'email', ' phone'):
+                if k in contact and to_update.get(contact):
+                    k_v = verify_fields(k, contact, to_update.get(contact))
+                    if isinstance(k_v, dict):
+                        return k_v
 
-            contact_attr = '_'.join(contact.split('_')[:2]) if 'customer' not in contact else '_'.join(
-                contact.split('_')[:2]) + '_contact'
-
-            contact_field = contact.split('_')[-1]
-
-            if 'name' not in contact and hasattr(l, contact_attr) and getattr(l, contact_attr):
-                now_contact = getattr(l, contact_attr)
-                setattr(now_contact, contact_field, to_update.get(contact))
-            elif (hasattr(l, contact_attr) and not getattr(l, contact_attr)) or (
-                    hasattr(l, contact_attr) and getattr(l, contact_attr) and 'name' in contact):
-                new_contact = Contacts()
-                setattr(new_contact, contact_field, to_update.get(contact))
-                setattr(l, contact_attr, new_contact)
-                db.session.add(new_contact)
-                db.session.add(l)
+        # 若有修改名字，那么就直接重新创建一个联系人
+        name_set = {'biz_contact_name', 'noc_contact_name', 'customer_manager_name'} & set(to_update.keys())
+        if name_set:
+            the_contact_name = list(name_set)[0]
+            contact_attr_prefix = '_'.join(the_contact_name.split('_')[:2])
+            contact_attr_name = contact_attr_prefix if 'customer' not in the_contact_name else contact_attr_prefix + '_contact'
+            contact_field = the_contact_name.split('_')[-1]
+            new_contact = Contacts()
+            setattr(new_contact, contact_field, to_update.get(the_contact_name))
+            other_attr = {'biz_contact_phoneNumber', 'biz_contact_email', 'noc_contact_phoneNumber', 'noc_contact_email', 'customer_manager_phoneNumber'} & set(to_update.keys())
+            if other_attr:
+                for other_k in other_attr:
+                    contact_field = other_k.split('_')[-1]
+                    setattr(new_contact, contact_field, to_update.get(other_k))
+            setattr(l, contact_attr_name, new_contact)
+            db.session.add(new_contact)
+            db.session.add(l)
+        else:
+            for contact in contacts_to_update:
+                contact_attr = '_'.join(contact.split('_')[:2]) if 'customer' not in contact else '_'.join(
+                    contact.split('_')[:2]) + '_contact'
+                contact_field = contact.split('_')[-1]
+                if hasattr(l, contact_attr) and getattr(l, contact_attr):
+                    now_contact = getattr(l, contact_attr)
+                    setattr(now_contact, contact_field, to_update.get(contact))
+                elif hasattr(l, contact_attr) and not getattr(l, contact_attr):
+                    pass
 
     if 'bd' in to_update.keys():
         the_vxlan = l.vxlan_attribute.all()
